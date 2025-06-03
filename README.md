@@ -4,3 +4,8 @@
 
 # holi, a colorful web radio player with a visualizer.
 **“Where sound meets light.”, “Stream the glow within.”, “A dance of sound and color.”**
+
+
+<p align="center">
+  <img src="https://github.com/visnudeva/holi/blob/b987b29b354d4f58b1e2062be0af1c0be5bd0202/screenshot.png" width="1000">
+</p>
