@@ -1,0 +1,914 @@
+<!-- Author: https://visnudeva.carrd.co/ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web-Based Linux Radio Player</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Custom CSS to apply the dark purple theme and overrides for Tailwind */
+        :root {
+            --base-hue: 270; /* Default to purple */
+
+            --dark-bg-color: hsl(var(--base-hue), 30%, 10%);
+            --main-app-bg: hsl(var(--base-hue), 40%, 20%);
+            --panel-bg: hsl(var(--base-hue), 50%, 25%);
+            --border-color: hsl(var(--base-hue), 60%, 40%);
+            --accent-color: hsl(var(--base-hue), 70%, 50%);
+            --selection-bg: hsl(var(--base-hue), 50%, 35%); /* Slightly lighter than panel for selection */
+            --hover-color: hsl(var(--base-hue), 70%, 60%);
+            --light-gray-text: #f0f0f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Dynamic background gradient based on hue */
+            background: linear-gradient(135deg,
+                        hsl(var(--base-hue), 40%, 10%),
+                        hsl(var(--base-hue), 50%, 15%),
+                        hsl(var(--base-hue), 60%, 20%)); /* Reverted to gradient background */
+            color: var(--light-gray-text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden; /* Prevent body scrollbars */
+        }
+
+        /* Main app container */
+        .app-container {
+            background-color: var(--main-app-bg);
+            border-radius: 12px;
+            /* Updated box-shadow to be all around */
+            box-shadow: 0 0 30px 10px hsla(var(--base-hue), 70%, 50%, 0.6);
+            padding: 20px;
+            display: flex;
+            flex-direction: column; /* Stack sections vertically */
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            height: 80vh;
+            min-height: 500px;
+            opacity: 0.95;
+            transition: box-shadow 0.1s ease-out; /* Smooth transition for shadow color */
+        }
+
+        /* Top section for search and favorites side-by-side */
+        .top-section {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            flex-grow: 1; /* Allows it to take available space */
+            min-height: 200px; /* Minimum height for top sections */
+        }
+
+        /* Left panel styling (for search input, station list, and buttons) */
+        .left-panel {
+            flex: 1; /* Takes equal space in the top section */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Favorites panel styling (for favorites list) */
+        .favorites-panel {
+            flex: 1; /* Takes equal space in the top section */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Input styling */
+        input[type="text"] {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 12px;
+            color: var(--light-gray-text);
+            outline: none;
+        }
+
+        /* Hue slider specific styling for horizontal orientation */
+        #hueSlider {
+            -webkit-appearance: none; /* Remove default styling */
+            appearance: none;
+            width: 100%; /* Take full width of its container */
+            height: 20px; /* Standard height for horizontal slider */
+            margin: 0; /* Remove default margins */
+            background-color: var(--panel-bg); /* Solid color for the track */
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+            border: 1px solid var(--border-color); /* Add a subtle border to the track for definition */
+        }
+
+        /* Style the thumb (handle) of the slider */
+        #hueSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            /* Changed border color to match control button */
+            border: 2px solid var(--border-color);
+            cursor: grab;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        #hueSlider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            /* Changed border color to match control button */
+            border: 2px solid var(--border-color);
+            cursor: grab;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        #hueSlider::-webkit-slider-runnable-track {
+            background: transparent; /* Track background is handled by the slider itself */
+            border-radius: 8px;
+        }
+
+        #hueSlider::-moz-range-track {
+            background: transparent; /* Track background is handled by the slider itself */
+            border-radius: 8px;
+        }
+
+
+        /* List styling */
+        .station-list, .favorites-list { /* Apply to both lists */
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 5px;
+            color: var(--light-gray-text);
+            flex-grow: 1; /* Make lists fill available space */
+            overflow-y: auto;
+            list-style: none;
+            margin: 0;
+        }
+
+        .station-list li, .favorites-list li {
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none; /* Prevent text selection */
+            -webkit-user-select: none; /* For Safari */
+            -moz-user-select: none; /* For Firefox */
+            -ms-user-select: none; /* For IE/Edge */
+        }
+
+        .station-list li:hover, .favorites-list li:hover {
+            background-color: var(--selection-bg); /* Use selection color for hover */
+        }
+
+        .station-list li.selected, .favorites-list li.selected {
+            background-color: var(--selection-bg);
+            font-weight: bold;
+        }
+
+        /* Now playing label container */
+        .now-playing-label {
+            font-weight: bold;
+            padding: 10px;
+            text-align: center;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1.2em;
+            color: var(--light-gray-text);
+            /* Removed margin-top: auto; to allow it to be full width */
+            margin-top: 10px; /* Add some space from elements above */
+
+            /* Ensure no scrolling, truncate with ellipsis */
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis; /* Always use ellipsis for overflow */
+            position: relative; /* Needed for text-overflow to work correctly */
+            display: flex; /* Use flex to center the text */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+            cursor: pointer; /* Add pointer cursor to indicate interactivity */
+        }
+
+        /* Bottom section for visualizer */
+        .bottom-visualizer-section {
+            flex-grow: 2; /* Allows visualizer to take more remaining space */
+            display: flex;
+            flex-direction: column;
+            padding-top: 10px; /* Add some space from elements above */
+        }
+
+        .visualizer-container {
+            flex-grow: 1; /* Allows visualizer to take remaining space */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid var(--border-color);
+            background-color: var(--panel-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative; /* Keep relative for potential future overlays */
+            /* New: Add transition for smooth scaling */
+            transition: transform 0.1s ease-out; /* Smooth transition for zoom effect */
+            transform-origin: center center; /* Ensure scaling from center */
+        }
+
+        .visualizer-canvas {
+            display: block;
+            background-color: transparent;
+            width: 100%;
+            height: 100%;
+            /* New: Add transition for smooth scaling (if canvas itself scales) */
+            transition: transform 0.1s ease-out; /* Match container transition */
+            transform-origin: center center;
+        }
+
+        /* Scrollbar Styling (Webkit - Chrome/Safari) */
+        .station-list::-webkit-scrollbar, .favorites-list::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        .station-list::-webkit-scrollbar-track, .favorites-list::-webkit-scrollbar-track {
+            background: var(--main-app-bg);
+            border-radius: 6px;
+        }
+
+        .station-list::-webkit-scrollbar-thumb, .favorites-list::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 5px;
+            border: 1px solid var(--accent-color);
+        }
+
+        .station-list::-webkit-scrollbar-thumb:hover, .favorites-list::-webkit-scrollbar-thumb:hover {
+            background: var(--hover-color);
+        }
+
+        /* Firefox Scrollbar Styling */
+        .station-list, .favorites-list {
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) var(--main-app-bg);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+                height: auto;
+                min-height: unset;
+            }
+            .top-section {
+                flex-direction: column; /* Stack search/favorites vertically on small screens */
+                gap: 15px; /* Adjust gap for stacked layout */
+            }
+            .visualizer-container {
+                height: 200px; /* Fixed height for visualizer on small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="top-section">
+            <div class="left-panel">
+                <div class="flex flex-col gap-2">
+                    <input type="range" id="hueSlider" min="0" max="360" value="270" class="flex-grow">
+                    <input type="text" id="searchInput" placeholder="Search for stations (e.g., 'jazz', 'USA')" class="flex-grow">
+                </div>
+                <ul id="stationList" class="station-list">
+                    <li>One click to play, two clicks to save the station >>></li>
+                </ul>
+                <!-- Removed the control button div -->
+            </div>
+
+            <div class="favorites-panel">
+                <ul id="favoritesList" class="favorites-list">
+                    <li>No favorites saved yet.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Moved nowPlayingLabel outside of favorites-panel and above visualizer -->
+        <div id="nowPlayingLabel" class="now-playing-label">
+            Nothing playing
+        </div>
+
+        <div class="bottom-visualizer-section">
+            <div class="visualizer-container">
+                <canvas id="visualizerCanvas" class="visualizer-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const searchInput = document.getElementById('searchInput');
+        const stationList = document.getElementById('stationList');
+        const nowPlayingLabel = document.getElementById('nowPlayingLabel'); // The container div
+        // Removed controlButton and controlIcon DOM references
+        const favoritesList = document.getElementById('favoritesList');
+        const visualizerCanvas = document.getElementById('visualizerCanvas');
+        const visualizerContainer = document.querySelector('.visualizer-container'); // Get the container
+        const appContainer = document.querySelector('.app-container'); // New: Reference to the app container
+        const ctx = visualizerCanvas.getContext('2d');
+        const hueSlider = document.getElementById('hueSlider');
+
+        // --- Radio Browser API Configuration ---
+        const RADIO_BROWSER_URL = "https://de1.api.radio-browser.info";
+        let stations = [];
+        let favoriteStations = [];
+        // Global audio variables, managed by ensureAudioContext and startVisualizer
+        let currentAudio = null; // HTMLAudioElement
+        let currentPlayingStation = null; // Store the full station object being played
+
+        // --- Web Audio API for Visualizer ---
+        let audioContext = null; // Persistent AudioContext
+        let analyser = null;
+        let sourceNode = null;
+        const FFT_SIZE = 256;
+        let dataArray = null;
+        let animationFrameId = null;
+
+        // --- Helper Functions for Cookies ---
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // Removed updateControlButtonIcon function as it's no longer needed
+
+        // --- Visualizer Functions ---
+
+        function initVisualizer() {
+            function resizeCanvas() {
+                visualizerCanvas.width = visualizerCanvas.offsetWidth;
+                visualizerCanvas.height = visualizerCanvas.offsetHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            setTimeout(resizeCanvas, 100);
+        }
+
+        // Function to update now playing text (no scrolling, max 80 chars)
+        function updateNowPlayingText(text) {
+            const maxLength = 80; // Increased max length to 80
+            if (text.length > maxLength) {
+                nowPlayingLabel.textContent = text.substring(0, maxLength - 3) + '...';
+            } else {
+                nowPlayingLabel.textContent = text;
+            }
+            nowPlayingLabel.style.textOverflow = 'ellipsis';
+            nowPlayingLabel.style.overflow = 'hidden';
+            nowPlayingLabel.style.whiteSpace = 'nowrap';
+            nowPlayingLabel.style.justifyContent = 'center'; // Ensure text is centered
+        }
+
+
+        const onAudioPlaying = () => {
+            console.log("Audio is actually playing.");
+            updateNowPlayingText(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
+            if (!animationFrameId) {
+                animationFrameId = requestAnimationFrame(drawVisualizer);
+            }
+        };
+
+        const onAudioPause = () => {
+            updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
+        };
+
+        const onAudioEnded = () => {
+            console.log("Audio ended.");
+            stopVisualizer(); // Calls stopVisualizer without closing context
+            updateNowPlayingText("Nothing playing");
+            // Removed updateControlButtonIcon("stop");
+        };
+
+        const onAudioError = (e) => {
+            console.error("Audio element error:", e);
+            let errorMessage = "An unknown error occurred while trying to play the audio. The stream might be unavailable or your browser is blocking playback.";
+            if (e.message) {
+                errorMessage = e.message;
+            } else if (e.name === "NotAllowedError") {
+                errorMessage = "Autoplay was prevented by your browser. Please interact with the page to start audio.";
+            } else if (e.target && e.target.error) {
+                switch (e.target.error.code) {
+                    case MediaError.MEDIA_ERR_ABORTED:
+                        errorMessage = "Audio playback aborted. This can happen if you click too quickly.";
+                        break;
+                    case MediaError.MEDIA_ERR_NETWORK:
+                        errorMessage = "A network error caused the audio download to fail.";
+                        break;
+                    case MediaError.MEDIA_ERR_DECODE:
+                        errorMessage = "The audio playback was aborted due to a decoding error.";
+                        break;
+                    case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                        // More specific message for unsupported format
+                        errorMessage = "The audio format of this stream is not supported by your browser, or the stream is unavailable. Try another station.";
+                        break;
+                    default:
+                        errorMessage = "An unknown media error occurred.";
+                }
+            }
+            alert("Error playing station: " + errorMessage);
+            stopVisualizer(true); // Close context on error
+            updateNowPlayingText("Error playing station");
+            // Removed updateControlButtonIcon("stop");
+        };
+
+        // Function to ensure AudioContext is initialized and running
+        async function ensureAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log("AudioContext lazily created. State:", audioContext.state);
+            }
+            if (audioContext.state === 'suspended') {
+                try {
+                    await audioContext.resume();
+                    console.log("AudioContext resumed. State:", audioContext.state);
+                } catch (e) {
+                    console.error("Failed to resume AudioContext:", e);
+                    throw new Error("Autoplay prevented by browser. Please interact with the page to enable audio.");
+                }
+            }
+            if (audioContext.state !== 'running') {
+                throw new Error("AudioContext is not running. Autoplay might be blocked.");
+            }
+        }
+
+        async function startVisualizer(streamUrl) {
+            // Stop any existing audio first (but keep AudioContext alive unless error)
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.src = ''; // Clear source to abort fetching
+                currentAudio.removeAttribute('src');
+                currentAudio.removeEventListener('playing', onAudioPlaying);
+                currentAudio.removeEventListener('pause', onAudioPause);
+                currentAudio.removeEventListener('ended', onAudioEnded);
+                currentAudio.removeEventListener('error', onAudioError);
+                currentAudio = null;
+            }
+            if (sourceNode) {
+                sourceNode.disconnect();
+                sourceNode = null;
+            }
+            if (analyser) {
+                analyser.disconnect();
+                analyser = null;
+            }
+            // Do NOT close audioContext here, only suspend if needed, or let it run.
+
+            try {
+                await ensureAudioContext(); // Ensure audioContext is ready
+
+                // Setup analyser and dataArray (these can be recreated safely)
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = FFT_SIZE;
+                // Corrected typo: frequencyBinBinCount to frequencyBinCount
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                // Create new Audio element
+                currentAudio = new Audio();
+                currentAudio.crossOrigin = "anonymous";
+                currentAudio.src = streamUrl;
+                currentAudio.autoplay = true;
+                currentAudio.controls = false;
+
+                // Connect Audio element to AudioContext graph
+                sourceNode = audioContext.createMediaElementSource(currentAudio);
+                sourceNode.connect(analyser);
+                analyser.connect(audioContext.destination);
+
+                // Add event listeners for audio state changes
+                currentAudio.addEventListener('playing', onAudioPlaying);
+                currentAudio.addEventListener('pause', onAudioPause);
+                currentAudio.addEventListener('ended', onAudioEnded);
+                currentAudio.addEventListener('error', onAudioError);
+
+                await currentAudio.play();
+                console.log("Audio playback initiated for:", streamUrl);
+                if (!animationFrameId) {
+                    animationFrameId = requestAnimationFrame(drawVisualizer);
+                }
+
+            } catch (e) {
+                console.error("Audio/Visualizer setup error:", e);
+                let userMessage = "Could not start audio or visualizer. ";
+                if (e.message.includes("Autoplay prevented") || e.name === "NotAllowedError") {
+                    userMessage += "Your browser might be blocking autoplay. Please interact with the page (e.g., click play) to enable audio.";
+                } else {
+                    userMessage += `Error details: ${e.message || "Unknown error."}`;
+                }
+                alert(userMessage);
+                stopVisualizer(true); // Close context on error
+            }
+        }
+
+        // Modify stopVisualizer to optionally close AudioContext
+        function stopVisualizer(closeContext = false) {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.src = '';
+                currentAudio.removeAttribute('src');
+                currentAudio.removeEventListener('playing', onAudioPlaying);
+                currentAudio.removeEventListener('pause', onAudioPause);
+                currentAudio.removeEventListener('ended', onAudioEnded);
+                currentAudio.removeEventListener('error', onAudioError);
+                currentAudio = null;
+            }
+            if (sourceNode) {
+                sourceNode.disconnect();
+                sourceNode = null;
+            }
+            if (analyser) {
+                analyser.disconnect();
+                analyser = null;
+            }
+            if (closeContext && audioContext && audioContext.state !== 'closed') {
+                audioContext.close().catch(e => console.error("Error closing AudioContext:", e));
+                audioContext = null;
+            }
+
+            ctx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+            updateNowPlayingText("Nothing playing"); // Use the new function here
+            // Reset visualizer container scale when stopping
+            visualizerContainer.style.transform = 'scale(1)';
+            console.log("Visualizer stopped.");
+            // Reset app container shadow color to default when stopped
+            appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
+        }
+
+        function drawVisualizer() {
+            if (!analyser || !dataArray || !audioContext || audioContext.state !== 'running') {
+                ctx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+                return;
+            }
+
+            animationFrameId = requestAnimationFrame(drawVisualizer);
+
+            analyser.getByteFrequencyData(dataArray);
+
+            ctx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+
+            const bufferLength = analyser.frequencyBinCount;
+            const barWidth = (visualizerCanvas.width / bufferLength) * 2.5;
+            let x = 0;
+
+            const MAX_BAR_HEIGHT_RATIO = 0.9;
+            const noiseThreshold = 3;
+
+            const totalEnergy = dataArray.reduce((sum, value) => sum + value, 0);
+            const averageEnergy = totalEnergy / bufferLength;
+
+            const minEnergyThreshold = 10;
+            const maxEnergyThreshold = 150;
+
+            let normalizedEnergy = (averageEnergy - minEnergyThreshold) / (maxEnergyThreshold - minEnergyThreshold);
+            normalizedEnergy = Math.max(0, Math.min(1, normalizedEnergy));
+
+            const style = getComputedStyle(document.documentElement);
+            const baseHue = parseFloat(style.getPropertyValue('--base-hue'));
+
+            let visualizerHue = baseHue - (normalizedEnergy * baseHue);
+            visualizerHue = (visualizerHue + 360) % 360;
+
+            const barRadius = 3;
+
+            // Existing: Calculate dynamic scale for bar height based on audio energy
+            const minBarScale = 0.9; // Minimum scale factor for bars
+            const maxBarScale = 1.1; // Maximum scale factor for bars
+            const barVisualizerScale = minBarScale + (maxBarScale - minBarScale) * normalizedEnergy;
+
+            // New: Calculate dynamic scale for the entire visualizer window based on audio energy
+            const minWindowScale = 0.95; // Increased zoom effect
+            const maxWindowScale = 1.05; // Increased zoom effect
+            const windowVisualizerScale = minWindowScale + (maxWindowScale - minWindowScale) * normalizedEnergy;
+            visualizerContainer.style.transform = `scale(${windowVisualizerScale})`;
+
+            // Update the box-shadow color of the app container to be all around
+            appContainer.style.boxShadow = `0 0 30px 10px hsla(${visualizerHue}, 70%, 50%, 0.6)`;
+
+
+            for (let i = 0; i < bufferLength; i++) {
+                let normalizedValue = dataArray[i] / 255;
+                let scaledValue = Math.pow(normalizedValue, 0.6);
+
+                // Apply the dynamic barVisualizerScale to the bar height
+                let barHeight = scaledValue * visualizerCanvas.height * MAX_BAR_HEIGHT_RATIO * barVisualizerScale;
+
+                if (barHeight < noiseThreshold) {
+                    barHeight = 0;
+                }
+
+                if (barHeight > 0) {
+                    const gradient = ctx.createLinearGradient(x, visualizerCanvas.height, x + barWidth, 0);
+                    gradient.addColorStop(0, `hsl(${visualizerHue}, 80%, 30%)`);
+                    gradient.addColorStop(1, `hsl(${visualizerHue}, 80%, 50%)`);
+
+                    ctx.fillStyle = gradient;
+                    const effectiveRadius = Math.min(barRadius, barWidth / 2 - 1);
+
+                    ctx.beginPath();
+                    ctx.moveTo(x, visualizerCanvas.height);
+                    ctx.lineTo(x, visualizerCanvas.height - barHeight + effectiveRadius);
+                    ctx.quadraticCurveTo(x, visualizerCanvas.height - barHeight, x + effectiveRadius, visualizerCanvas.height - barHeight);
+                    ctx.lineTo(x + barWidth - effectiveRadius, visualizerCanvas.height - barHeight);
+                    ctx.quadraticCurveTo(x + barWidth, visualizerCanvas.height - barHeight, x + barWidth, visualizerCanvas.height - barHeight + effectiveRadius);
+                    ctx.lineTo(x + barWidth, visualizerCanvas.height);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                x += barWidth + 1;
+            }
+        }
+
+        // --- Favorites Management ---
+
+        function saveFavorites() {
+            setCookie('favoriteStations', JSON.stringify(favoriteStations), 365);
+            console.log("Favorites saved:", favoriteStations);
+        }
+
+        // Moved renderFavorites definition before loadFavorites
+        function renderFavorites() {
+            favoritesList.innerHTML = '';
+            if (favoriteStations.length === 0) {
+                favoritesList.innerHTML = '<li>No favorites saved yet.</li>';
+                return;
+            }
+
+            favoriteStations.forEach((station) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${station.name} (${station.countrycode || 'N/A'})`;
+                listItem.dataset.stationId = station.stationuuid;
+                listItem.addEventListener('click', () => playStationByUUID(station.stationuuid));
+                listItem.addEventListener('dblclick', () => removeFavorite(station.stationuuid));
+                favoritesList.appendChild(listItem);
+            });
+        }
+
+        function loadFavorites() {
+            const storedFavorites = getCookie('favoriteStations');
+            if (storedFavorites) {
+                try {
+                    favoriteStations = JSON.parse(storedFavorites);
+                    console.log("Favorites loaded:", favoriteStations);
+                } catch (e) {
+                    console.error("Error parsing stored favorites from cookie:", e);
+                    favoriteStations = [];
+                }
+            } else {
+                // Updated default favorites with SomaFM: Suburbs of Goa and Ambient Sleeping Pill
+                favoriteStations = [
+                    { "name": "SomaFM: Groove Salad", "url_resolved": "http://ice1.somafm.com/groovesalad-128-mp3", "stationuuid": "a7b3e0c0-6d8b-4b1a-8c2d-9e0f1a2b3c4d", "countrycode": "US", "favicon": "" },
+                    { "name": "SomaFM: Drone Zone", "url_resolved": "http://ice4.somafm.com/dronezone-128-mp3", "stationuuid": "b8c4f1d1-7e9c-4c2b-9d3e-0f1a2b3c4d5e", "countrycode": "US", "favicon": "" },
+                    { "name": "SomaFM: Suburbs of Goa", "url_resolved": "http://ice1.somafm.com/suburbsofgoa-128-mp3", "stationuuid": "e1f7g4g4-a12f-5f5e-c2g6-3b4c5d6e7f8b", "countrycode": "US", "favicon": "" },
+                    // Reverted to SomaFM: Sleeping Pill due to previous stream issues
+                    { "name": "Ambient Sleeping Pill", "url_resolved": "http://radio.stereoscenic.com/asp-s", "stationuuid": "f2g8h5h5-b23g-6g6f-d3h7-4c5d6e7f8g9c", "countrycode": "US", "favicon": "" }
+                ];
+                saveFavorites();
+            }
+            renderFavorites();
+        }
+
+        function isFavorited(stationId) {
+            return favoriteStations.some(fav => fav.stationuuid === stationId);
+        }
+
+        function toggleFavoriteFromSearch(index) {
+            if (index >= 0 && index < stations.length) {
+                const station = stations[index];
+                if (isFavorited(station.stationuuid)) {
+                    alert(`${station.name} is already in your favorites!`);
+                } else {
+                    favoriteStations.push(station);
+                    saveFavorites();
+                    renderFavorites();
+                    alert(`${station.name} added to favorites!`);
+                }
+            }
+        }
+
+        function removeFavorite(uuid) {
+            const stationToRemove = favoriteStations.find(fav => fav.stationuuid === uuid);
+            if (stationToRemove) {
+                favoriteStations = favoriteStations.filter(fav => fav.stationuuid !== uuid);
+                saveFavorites();
+                renderFavorites();
+                alert(`${stationToRemove.name} removed from favorites.`);
+
+                if (currentPlayingStation && currentPlayingStation.stationuuid === uuid) {
+                    stopVisualizer();
+                    // Removed updateControlButtonIcon("stop");
+                    currentPlayingStation = null;
+                }
+            }
+        }
+
+        // --- Event Handlers ---
+
+        async function searchStations() {
+            const searchTerm = searchInput.value.trim();
+            stationList.innerHTML = '';
+
+            if (!searchTerm) {
+                stationList.innerHTML = '<li>One click to play, two clicks to save the station >>></li>';
+                stations = [];
+                return;
+            }
+
+            const url = `${RADIO_BROWSER_URL}/json/stations/byname/${searchTerm}`;
+            try {
+                const response = await fetch(url, {
+                    headers: { 'User-Agent': 'WebRadioPlayerApp/1.0 (HTML/JS)' }
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                stations = await response.json();
+
+                if (stations.length === 0) {
+                    stationList.innerHTML = `<li>No stations found for '${searchTerm}'. Try a different term.</li>`;
+                } else {
+                    stations.forEach((station, index) => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `${station.name} (${station.countrycode || 'N/A'})`;
+                        listItem.dataset.index = index;
+                        listItem.addEventListener('click', () => playStation(index));
+                        listItem.addEventListener('dblclick', () => toggleFavoriteFromSearch(index));
+                        stationList.appendChild(listItem);
+                    });
+                }
+            }
+            catch (e) {
+                console.error("Error searching stations:", e);
+                stationList.innerHTML = `<li>An error occurred: ${e.message}. Please try again.</li>`;
+                stations = [];
+            }
+        }
+
+        async function playStation(index) {
+            if (index >= 0 && index < stations.length) {
+                const station = stations[index];
+                currentPlayingStation = station;
+                const streamUrl = station.url_resolved || station.url;
+                const stationName = station.name || 'Unknown Station';
+
+                if (!streamUrl) {
+                    alert(`No valid stream URL found for '${stationName}'.`);
+                    return;
+                }
+
+                console.log(`Attempting to play: ${stationName} from ${streamUrl}`);
+                updateNowPlayingText(`Loading: ${stationName}...`); // Use the new function here
+
+                Array.from(stationList.children).forEach((li, i) => {
+                    if (i === index) {
+                        li.classList.add('selected');
+                    } else {
+                        li.classList.remove('selected');
+                    }
+                });
+                Array.from(favoritesList.children).forEach(li => li.classList.remove('selected'));
+
+                await startVisualizer(streamUrl);
+                // Removed updateControlButtonIcon("pause");
+            }
+        }
+
+        async function playStationByUUID(uuid) {
+            let stationToPlay = stations.find(s => s.stationuuid === uuid);
+            if (!stationToPlay) {
+                stationToPlay = favoriteStations.find(s => s.stationuuid === uuid);
+            }
+
+            if (stationToPlay) {
+                currentPlayingStation = stationToPlay;
+                const streamUrl = stationToPlay.url_resolved || stationToPlay.url;
+                const stationName = stationToPlay.name || 'Unknown Station';
+
+                if (!streamUrl) {
+                    alert(`No valid stream URL found for '${stationName}'.`);
+                    return;
+                }
+
+                console.log(`Attempting to play favorite: ${stationName} from ${streamUrl}`);
+                updateNowPlayingText(`Loading: ${stationName}...`); // Use the new function here
+
+                Array.from(favoritesList.children).forEach(li => {
+                    if (li.dataset.stationId === uuid) {
+                        li.classList.add('selected');
+                    } else {
+                        li.classList.remove('selected');
+                    }
+                });
+                Array.from(stationList.children).forEach(li => li.classList.remove('selected'));
+
+                await startVisualizer(streamUrl);
+                // Removed updateControlButtonIcon("pause");
+            } else {
+                alert("Could not find station with that ID.");
+            }
+        }
+
+
+        async function handleControlButtonClick() {
+            try {
+                await ensureAudioContext();
+
+                if (currentAudio && !currentAudio.paused) {
+                    currentAudio.pause();
+                    // Removed updateControlButtonIcon("play");
+                    updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Nothing playing'}`); // Use the new function here
+                } else if (currentAudio && currentAudio.paused) {
+                    await currentAudio.play();
+                    // Removed updateControlButtonIcon("pause");
+                    updateNowPlayingText(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Nothing playing'}`); // Use the new function here
+                } else {
+                    const selectedItem = stationList.querySelector('.selected');
+                    const selectedFavorite = favoritesList.querySelector('.selected');
+
+                    if (selectedItem) {
+                        const index = parseInt(selectedItem.dataset.index);
+                        playStation(index);
+                    } else if (selectedFavorite) {
+                        const uuid = selectedFavorite.dataset.stationId;
+                        playStationByUUID(uuid);
+                    }
+                    else {
+                        alert("Please search for and select a station to play.");
+                    }
+                }
+            } catch (e) {
+                console.error("Control button click error:", e);
+                alert("Error during playback control: " + (e.message || "Unknown error."));
+                stopVisualizer(true);
+            }
+        }
+
+        // --- Event Listeners ---
+        searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                searchStations();
+            }
+        });
+        // Removed controlButton.addEventListener('click', handleControlButtonClick);
+
+        hueSlider.addEventListener('input', (event) => {
+            document.documentElement.style.setProperty('--base-hue', event.target.value);
+            // Update app container shadow color when hue slider changes
+            appContainer.style.boxShadow = `0 0 30px 10px hsla(${event.target.value}, 70%, 50%, 0.6)`;
+        });
+
+        // Add click listener to the nowPlayingLabel
+        nowPlayingLabel.addEventListener('click', handleControlButtonClick);
+
+
+        // --- Initial Setup ---
+        initVisualizer();
+        // Removed updateControlButtonIcon("stop");
+        loadFavorites();
+        document.documentElement.style.setProperty('--base-hue', hueSlider.value);
+        updateNowPlayingText("Nothing playing"); // Initial text for now playing
+        // Set initial box-shadow color based on default hue
+        appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
+    </script>
+</body>
+</html>
