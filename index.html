@@ -481,19 +481,16 @@
             if (!animationFrameId) {
                 animationFrameId = requestAnimationFrame(drawVisualizer);
             }
-            showMessageBox(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`, 'success');
         };
 
         const onAudioPause = () => {
             updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
-            showMessageBox(`Playback paused for: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`, 'info');
         };
 
         const onAudioEnded = () => {
             console.log("Audio ended.");
             stopVisualizer();
             updateNowPlayingText("Nothing playing");
-            showMessageBox("Playback ended.", 'info');
         };
 
         const onAudioError = (e) => {
@@ -895,7 +892,7 @@
                 return;
             }
 
-            showMessageBox('Searching for stations...', 'info');
+            // Removed: showMessageBox('Searching for stations...', 'info');
 
             try {
                 // Use the multi-mirror search method
