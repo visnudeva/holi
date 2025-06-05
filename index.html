@@ -38,7 +38,7 @@
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
-            overflow: hidden; /* Prevent body scrollbars */
+            /* Removed overflow: hidden; to allow body to scroll if app-container overflows */
         }
 
         /* Main app container */
@@ -53,11 +53,42 @@
             gap: 20px;
             width: 100%;
             max-width: 1200px;
-            height: 80vh;
+            /* Adjusted height to be auto, with a max-height and overflow-y for scrolling */
+            height: auto;
+            max-height: 95vh; /* Allows content to take up to 95% of viewport height */
+            overflow-y: auto; /* Adds vertical scrollbar if content overflows */
             min-height: 500px;
             opacity: 0.95;
             transition: box-shadow 0.1s ease-out; /* Smooth transition for shadow color */
         }
+
+        /* Custom scrollbar for app-container */
+        .app-container::-webkit-scrollbar {
+            width: 12px;
+            height: 12px; /* For horizontal scrollbar if needed, though unlikely */
+        }
+
+        .app-container::-webkit-scrollbar-track {
+            background: var(--main-app-bg);
+            border-radius: 6px;
+        }
+
+        .app-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 5px;
+            border: 1px solid var(--accent-color);
+        }
+
+        .app-container::-webkit-scrollbar-thumb:hover {
+            background: var(--hover-color);
+        }
+
+        /* Firefox Scrollbar Styling for app-container */
+        .app-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) var(--main-app-bg);
+        }
+
 
         /* Top section for search and favorites side-by-side */
         .top-section {
@@ -189,19 +220,38 @@
             border-radius: 10px;
             font-size: 1.2em;
             color: var(--light-gray-text);
-            /* Removed margin-top: auto; to allow it to be full width */
-            margin-top: 10px; /* Add some space from elements above */
-
-            /* Ensure no scrolling, truncate with ellipsis */
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis; /* Always use ellipsis for overflow */
-            position: relative; /* Needed for text-overflow to work correctly */
-            display: flex; /* Use flex to center the text */
-            align-items: center; /* Center vertically */
-            justify-content: center; /* Center horizontally */
-            cursor: pointer; /* Add pointer cursor to indicate interactivity */
+            margin-top: 10px;
+            overflow: hidden; /* Hide overflow for marquee */
+            white-space: nowrap; /* Prevent text from wrapping */
+            position: relative; /* For inner span positioning */
+            box-sizing: border-box; /* Include padding in width calculation */
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Default center if no scrolling */
         }
+
+        /* Inner span for the now playing text */
+        .now-playing-label span {
+            display: inline-block; /* Essential for transform to work */
+            animation: none; /* Default state: no animation */
+            padding-left: 0; /* Default padding */
+            will-change: transform; /* Hint to browser for performance */
+        }
+
+        /* Marquee animation definition */
+        @keyframes marquee {
+            0% { transform: translateX(100%); } /* Start off-screen right */
+            100% { transform: translateX(calc(-100% - var(--marquee-offset, 0px))); } /* End off-screen left + offset */
+        }
+
+        /* Class to apply when marquee is active */
+        .now-playing-label.scrolling {
+            justify-content: flex-start; /* Align text to the start when scrolling */
+        }
+        .now-playing-label.scrolling span {
+            animation: marquee linear infinite;
+        }
+
 
         /* Bottom section for visualizer */
         .bottom-visualizer-section {
@@ -236,7 +286,7 @@
             transform-origin: center center;
         }
 
-        /* Scrollbar Styling (Webkit - Chrome/Safari) */
+        /* Scrollbar Styling (Webkit - Chrome/Safari) for lists */
         .station-list::-webkit-scrollbar, .favorites-list::-webkit-scrollbar {
             width: 12px;
             height: 12px;
@@ -257,7 +307,7 @@
             background: var(--hover-color);
         }
 
-        /* Firefox Scrollbar Styling */
+        /* Firefox Scrollbar Styling for lists */
         .station-list, .favorites-list {
             scrollbar-width: thin;
             scrollbar-color: var(--border-color) var(--main-app-bg);
@@ -267,8 +317,9 @@
         @media (max-width: 768px) {
             .app-container {
                 flex-direction: column;
-                height: auto;
-                min-height: unset;
+                height: auto; /* Allow height to adjust based on content */
+                min-height: unset; /* Remove minimum height constraint on small screens */
+                padding: 15px; /* Adjust padding for smaller screens */
             }
             .top-section {
                 flex-direction: column; /* Stack search/favorites vertically on small screens */
@@ -291,7 +342,6 @@
                 <ul id="stationList" class="station-list">
                     <li>One click to play, two clicks to save the station >>></li>
                 </ul>
-                <!-- Removed the control button div -->
             </div>
 
             <div class="favorites-panel">
@@ -301,9 +351,8 @@
             </div>
         </div>
 
-        <!-- Moved nowPlayingLabel outside of favorites-panel and above visualizer -->
         <div id="nowPlayingLabel" class="now-playing-label">
-            Nothing playing
+            <span id="nowPlayingTextSpan">Nothing playing</span>
         </div>
 
         <div class="bottom-visualizer-section">
@@ -311,36 +360,53 @@
                 <canvas id="visualizerCanvas" class="visualizer-canvas"></canvas>
             </div>
         </div>
+
+        <!-- Message Box for Alerts -->
+        <div id="messageBox" class="hidden p-3 mt-4 rounded-lg text-sm font-medium" role="alert"></div>
     </div>
 
     <script>
         // --- DOM Elements ---
         const searchInput = document.getElementById('searchInput');
         const stationList = document.getElementById('stationList');
-        const nowPlayingLabel = document.getElementById('nowPlayingLabel'); // The container div
-        // Removed controlButton and controlIcon DOM references
+        const nowPlayingLabel = document.getElementById('nowPlayingLabel');
+        const nowPlayingTextSpan = document.getElementById('nowPlayingTextSpan'); // New: reference to the inner span
         const favoritesList = document.getElementById('favoritesList');
         const visualizerCanvas = document.getElementById('visualizerCanvas');
-        const visualizerContainer = document.querySelector('.visualizer-container'); // Get the container
-        const appContainer = document.querySelector('.app-container'); // New: Reference to the app container
+        const visualizerContainer = document.querySelector('.visualizer-container');
+        const appContainer = document.querySelector('.app-container');
         const ctx = visualizerCanvas.getContext('2d');
         const hueSlider = document.getElementById('hueSlider');
+        const messageBox = document.getElementById('messageBox'); // Reference to the message box
 
         // --- Radio Browser API Configuration ---
-        const RADIO_BROWSER_URL = "https://de1.api.radio-browser.info";
         let stations = [];
         let favoriteStations = [];
-        // Global audio variables, managed by ensureAudioContext and startVisualizer
-        let currentAudio = null; // HTMLAudioElement
-        let currentPlayingStation = null; // Store the full station object being played
+        let currentAudio = null;
+        let currentPlayingStation = null;
 
         // --- Web Audio API for Visualizer ---
-        let audioContext = null; // Persistent AudioContext
+        let audioContext = null;
         let analyser = null;
         let sourceNode = null;
         const FFT_SIZE = 256;
         let dataArray = null;
         let animationFrameId = null;
+
+        // --- Message Box Utility (Re-added) ---
+        function showMessageBox(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-blue-100', 'text-blue-700', 'bg-yellow-100', 'text-yellow-700');
+            if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-700');
+            } else if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'text-green-700');
+            } else if (type === 'warning') {
+                messageBox.classList.add('bg-yellow-100', 'text-yellow-700');
+            } else { // info
+                messageBox.classList.add('bg-blue-100', 'text-blue-700');
+            }
+        }
 
         // --- Helper Functions for Cookies ---
         function setCookie(name, value, days) {
@@ -364,8 +430,6 @@
             return null;
         }
 
-        // Removed updateControlButtonIcon function as it's no longer needed
-
         // --- Visualizer Functions ---
 
         function initVisualizer() {
@@ -377,20 +441,39 @@
             setTimeout(resizeCanvas, 100);
         }
 
-        // Function to update now playing text (no scrolling, max 80 chars)
-        function updateNowPlayingText(text) {
-            const maxLength = 80; // Increased max length to 80
-            if (text.length > maxLength) {
-                nowPlayingLabel.textContent = text.substring(0, maxLength - 3) + '...';
-            } else {
-                nowPlayingLabel.textContent = text;
-            }
-            nowPlayingLabel.style.textOverflow = 'ellipsis';
-            nowPlayingLabel.style.overflow = 'hidden';
-            nowPlayingLabel.style.whiteSpace = 'nowrap';
-            nowPlayingLabel.style.justifyContent = 'center'; // Ensure text is centered
-        }
+        function updateNowPlayingText(fullText) {
+            const charLimitForScroll = 40; // Trigger scroll if text length exceeds this
+            nowPlayingTextSpan.textContent = fullText; // Always set the full text to the span
 
+            // Reset animation state
+            nowPlayingLabel.classList.remove('scrolling');
+            nowPlayingTextSpan.style.animation = 'none';
+            nowPlayingTextSpan.style.paddingLeft = '0'; // Reset padding
+            nowPlayingLabel.style.justifyContent = 'center'; // Default to centered
+
+            // Check if text is too long or visually overflows
+            // Need a slight delay or next frame to get accurate scrollWidth after textContent update
+            requestAnimationFrame(() => {
+                const textWidth = nowPlayingTextSpan.scrollWidth;
+                const containerWidth = nowPlayingLabel.clientWidth;
+
+                if (fullText.length > charLimitForScroll || textWidth > containerWidth) {
+                    nowPlayingLabel.classList.add('scrolling');
+                    nowPlayingTextSpan.style.paddingLeft = `${containerWidth}px`; // Start text from off-screen right
+                    nowPlayingLabel.style.justifyContent = 'flex-start'; // Align content to start when scrolling
+
+                    // Calculate the total distance the text needs to travel for one loop
+                    // This is the text's width plus the container's width (for it to go fully off-screen and reappear)
+                    const totalScrollDistance = textWidth + containerWidth;
+                    const speedFactor = 50; // pixels per second, adjust for desired speed
+                    const animationDuration = totalScrollDistance / speedFactor; // in seconds
+
+                    nowPlayingTextSpan.style.animationDuration = `${animationDuration}s`;
+                    // Set CSS variable for marquee offset in the keyframes
+                    nowPlayingTextSpan.style.setProperty('--marquee-offset', `${containerWidth}px`);
+                }
+            });
+        }
 
         const onAudioPlaying = () => {
             console.log("Audio is actually playing.");
@@ -398,17 +481,19 @@
             if (!animationFrameId) {
                 animationFrameId = requestAnimationFrame(drawVisualizer);
             }
+            showMessageBox(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`, 'success');
         };
 
         const onAudioPause = () => {
             updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
+            showMessageBox(`Playback paused for: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`, 'info');
         };
 
         const onAudioEnded = () => {
             console.log("Audio ended.");
-            stopVisualizer(); // Calls stopVisualizer without closing context
+            stopVisualizer();
             updateNowPlayingText("Nothing playing");
-            // Removed updateControlButtonIcon("stop");
+            showMessageBox("Playback ended.", 'info');
         };
 
         const onAudioError = (e) => {
@@ -430,20 +515,17 @@
                         errorMessage = "The audio playback was aborted due to a decoding error.";
                         break;
                     case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-                        // More specific message for unsupported format
                         errorMessage = "The audio format of this stream is not supported by your browser, or the stream is unavailable. Try another station.";
                         break;
                     default:
                         errorMessage = "An unknown media error occurred.";
                 }
             }
-            alert("Error playing station: " + errorMessage);
-            stopVisualizer(true); // Close context on error
+            showMessageBox("Error playing station: " + errorMessage, 'error');
+            stopVisualizer(true);
             updateNowPlayingText("Error playing station");
-            // Removed updateControlButtonIcon("stop");
         };
 
-        // Function to ensure AudioContext is initialized and running
         async function ensureAudioContext() {
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -464,10 +546,9 @@
         }
 
         async function startVisualizer(streamUrl) {
-            // Stop any existing audio first (but keep AudioContext alive unless error)
             if (currentAudio) {
                 currentAudio.pause();
-                currentAudio.src = ''; // Clear source to abort fetching
+                currentAudio.src = '';
                 currentAudio.removeAttribute('src');
                 currentAudio.removeEventListener('playing', onAudioPlaying);
                 currentAudio.removeEventListener('pause', onAudioPause);
@@ -483,30 +564,24 @@
                 analyser.disconnect();
                 analyser = null;
             }
-            // Do NOT close audioContext here, only suspend if needed, or let it run.
 
             try {
-                await ensureAudioContext(); // Ensure audioContext is ready
+                await ensureAudioContext();
 
-                // Setup analyser and dataArray (these can be recreated safely)
                 analyser = audioContext.createAnalyser();
                 analyser.fftSize = FFT_SIZE;
-                // Corrected typo: frequencyBinBinCount to frequencyBinCount
                 dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-                // Create new Audio element
                 currentAudio = new Audio();
                 currentAudio.crossOrigin = "anonymous";
                 currentAudio.src = streamUrl;
                 currentAudio.autoplay = true;
                 currentAudio.controls = false;
 
-                // Connect Audio element to AudioContext graph
                 sourceNode = audioContext.createMediaElementSource(currentAudio);
                 sourceNode.connect(analyser);
                 analyser.connect(audioContext.destination);
 
-                // Add event listeners for audio state changes
                 currentAudio.addEventListener('playing', onAudioPlaying);
                 currentAudio.addEventListener('pause', onAudioPause);
                 currentAudio.addEventListener('ended', onAudioEnded);
@@ -526,12 +601,11 @@
                 } else {
                     userMessage += `Error details: ${e.message || "Unknown error."}`;
                 }
-                alert(userMessage);
-                stopVisualizer(true); // Close context on error
+                showMessageBox(userMessage, 'error');
+                stopVisualizer(true);
             }
         }
 
-        // Modify stopVisualizer to optionally close AudioContext
         function stopVisualizer(closeContext = false) {
             if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
@@ -562,11 +636,9 @@
             }
 
             ctx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-            updateNowPlayingText("Nothing playing"); // Use the new function here
-            // Reset visualizer container scale when stopping
+            updateNowPlayingText("Nothing playing");
             visualizerContainer.style.transform = 'scale(1)';
             console.log("Visualizer stopped.");
-            // Reset app container shadow color to default when stopped
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
         }
 
@@ -610,18 +682,15 @@
 
             const barRadius = 3;
 
-            // Existing: Calculate dynamic scale for bar height based on audio energy
-            const minBarScale = 0.9; // Minimum scale factor for bars
-            const maxBarScale = 1.1; // Maximum scale factor for bars
+            const minBarScale = 0.9;
+            const maxBarScale = 1.1;
             const barVisualizerScale = minBarScale + (maxBarScale - minBarScale) * normalizedEnergy;
 
-            // New: Calculate dynamic scale for the entire visualizer window based on audio energy
-            const minWindowScale = 0.95; // Increased zoom effect
-            const maxWindowScale = 1.05; // Increased zoom effect
+            const minWindowScale = 0.95;
+            const maxWindowScale = 1.05;
             const windowVisualizerScale = minWindowScale + (maxWindowScale - minWindowScale) * normalizedEnergy;
             visualizerContainer.style.transform = `scale(${windowVisualizerScale})`;
 
-            // Update the box-shadow color of the app container to be all around
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${visualizerHue}, 70%, 50%, 0.6)`;
 
 
@@ -629,7 +698,6 @@
                 let normalizedValue = dataArray[i] / 255;
                 let scaledValue = Math.pow(normalizedValue, 0.6);
 
-                // Apply the dynamic barVisualizerScale to the bar height
                 let barHeight = scaledValue * visualizerCanvas.height * MAX_BAR_HEIGHT_RATIO * barVisualizerScale;
 
                 if (barHeight < noiseThreshold) {
@@ -666,7 +734,6 @@
             console.log("Favorites saved:", favoriteStations);
         }
 
-        // Moved renderFavorites definition before loadFavorites
         function renderFavorites() {
             favoritesList.innerHTML = '';
             if (favoriteStations.length === 0) {
@@ -695,12 +762,10 @@
                     favoriteStations = [];
                 }
             } else {
-                // Updated default favorites with SomaFM: Suburbs of Goa and Ambient Sleeping Pill
                 favoriteStations = [
                     { "name": "SomaFM: Groove Salad", "url_resolved": "http://ice1.somafm.com/groovesalad-128-mp3", "stationuuid": "a7b3e0c0-6d8b-4b1a-8c2d-9e0f1a2b3c4d", "countrycode": "US", "favicon": "" },
                     { "name": "SomaFM: Drone Zone", "url_resolved": "http://ice4.somafm.com/dronezone-128-mp3", "stationuuid": "b8c4f1d1-7e9c-4c2b-9d3e-0f1a2b3c4d5e", "countrycode": "US", "favicon": "" },
                     { "name": "SomaFM: Suburbs of Goa", "url_resolved": "http://ice1.somafm.com/suburbsofgoa-128-mp3", "stationuuid": "e1f7g4g4-a12f-5f5e-c2g6-3b4c5d6e7f8b", "countrycode": "US", "favicon": "" },
-                    // Reverted to SomaFM: Sleeping Pill due to previous stream issues
                     { "name": "Ambient Sleeping Pill", "url_resolved": "http://radio.stereoscenic.com/asp-s", "stationuuid": "f2g8h5h5-b23g-6g6f-d3h7-4c5d6e7f8g9c", "countrycode": "US", "favicon": "" }
                 ];
                 saveFavorites();
@@ -716,12 +781,12 @@
             if (index >= 0 && index < stations.length) {
                 const station = stations[index];
                 if (isFavorited(station.stationuuid)) {
-                    alert(`${station.name} is already in your favorites!`);
+                    showMessageBox(`${station.name} is already in your favorites!`, 'warning');
                 } else {
                     favoriteStations.push(station);
                     saveFavorites();
                     renderFavorites();
-                    alert(`${station.name} added to favorites!`);
+                    showMessageBox(`${station.name} added to favorites!`, 'success');
                 }
             }
         }
@@ -732,19 +797,95 @@
                 favoriteStations = favoriteStations.filter(fav => fav.stationuuid !== uuid);
                 saveFavorites();
                 renderFavorites();
-                alert(`${stationToRemove.name} removed from favorites.`);
+                showMessageBox(`${stationToRemove.name} removed from favorites.`, 'info');
 
                 if (currentPlayingStation && currentPlayingStation.stationuuid === uuid) {
                     stopVisualizer();
-                    // Removed updateControlButtonIcon("stop");
                     currentPlayingStation = null;
                 }
             }
         }
 
+        // --- RadioBrowser API Wrapper (Re-integrated for multi-mirror support) ---
+        class RadioBrowserApi {
+            constructor() {
+                this.mirrors = [
+                    "https://api.radio-browser.info",
+                    "https://fr1.api.radio-browser.info",
+                    "https://de1.api.radio-browser.info",
+                    "https://nl1.api.radio-browser.info",
+                    "https://at1.api.radio-browser.info",
+                    "https://uk1.api.radio-browser.info",
+                    "https://us1.api.radio-browser.info",
+                    "https://gr1.api.radio-browser.info",
+                    "https://dk1.api.radio-browser.info",
+                    "https://ca1.api.radio-browser.info",
+                    "https://ie1.api.radio-browser.info",
+                    "https://ru1.api.radio-browser.info",
+                    "https://br1.api.radio-browser.info",
+                    "https://ch1.api.radio-browser.info",
+                    "https://es1.api.radio-browser.info",
+                    "https://cl1.api.radio-browser.info",
+                    "https://jp1.api.radio-browser.info",
+                    "https://sg1.api.radio-browser.info",
+                    "https://au1.api.radio-browser.info",
+                    "https://kr1.api.radio-browser.info",
+                    "https://in1.api.radio-browser.info",
+                ];
+            }
+
+            async searchStations(query) {
+                const relativeApiPath = `/json/stations/byname/${encodeURIComponent(query)}`;
+                const allStations = [];
+                let anySuccess = false;
+
+                const requests = this.mirrors.map(async (mirror) => {
+                    const fullUrl = `${mirror}${relativeApiPath}`;
+                    try {
+                        console.log(`Attempting to fetch from: ${fullUrl}`);
+                        const response = await fetch(fullUrl, {
+                             headers: { 'User-Agent': 'WebRadioPlayerApp/1.0 (HTML/JS)' }
+                        });
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status} from ${fullUrl}`);
+                        }
+                        const data = await response.json();
+                        if (Array.isArray(data)) {
+                            console.log(`Successfully fetched ${data.length} stations from ${mirror}`);
+                            anySuccess = true;
+                            return data;
+                        } else {
+                            throw new Error(`Unexpected response format from ${fullUrl}: Not an array.`);
+                        }
+                    } catch (error) {
+                        console.error(`Error fetching from ${fullUrl}:`, error);
+                        return null;
+                    }
+                });
+
+                const results = await Promise.allSettled(requests);
+
+                results.forEach(result => {
+                    if (result.status === 'fulfilled' && result.value !== null) {
+                        allStations.push(...result.value);
+                    }
+                });
+
+                if (!anySuccess && allStations.length === 0) {
+                    throw new Error("All Radio-Browser API mirrors failed to respond or returned no valid data. Please check your network connection.");
+                }
+
+                // Deduplicate stations based on stationuuid if multiple mirrors return the same station
+                const uniqueStations = Array.from(new Map(allStations.map(station => [station.stationuuid, station])).values());
+                return uniqueStations;
+            }
+        }
+
+        const radioApi = new RadioBrowserApi(); // Instantiate the API wrapper
+
         // --- Event Handlers ---
 
-        async function searchStations() {
+        async function performSearch() {
             const searchTerm = searchInput.value.trim();
             stationList.innerHTML = '';
 
@@ -754,18 +895,15 @@
                 return;
             }
 
-            const url = `${RADIO_BROWSER_URL}/json/stations/byname/${searchTerm}`;
+            showMessageBox('Searching for stations...', 'info');
+
             try {
-                const response = await fetch(url, {
-                    headers: { 'User-Agent': 'WebRadioPlayerApp/1.0 (HTML/JS)' }
-                });
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                stations = await response.json();
+                // Use the multi-mirror search method
+                stations = await radioApi.searchStations(searchTerm);
 
                 if (stations.length === 0) {
                     stationList.innerHTML = `<li>No stations found for '${searchTerm}'. Try a different term.</li>`;
+                    showMessageBox(`No stations found for '${searchTerm}'. Try a different term.`, 'info');
                 } else {
                     stations.forEach((station, index) => {
                         const listItem = document.createElement('li');
@@ -775,11 +913,13 @@
                         listItem.addEventListener('dblclick', () => toggleFavoriteFromSearch(index));
                         stationList.appendChild(listItem);
                     });
+                    showMessageBox(`Found ${stations.length} stations for '${searchTerm}'.`, 'success');
                 }
             }
             catch (e) {
                 console.error("Error searching stations:", e);
                 stationList.innerHTML = `<li>An error occurred: ${e.message}. Please try again.</li>`;
+                showMessageBox(`Error searching stations: ${e.message}`, 'error');
                 stations = [];
             }
         }
@@ -792,12 +932,12 @@
                 const stationName = station.name || 'Unknown Station';
 
                 if (!streamUrl) {
-                    alert(`No valid stream URL found for '${stationName}'.`);
+                    showMessageBox(`No valid stream URL found for '${stationName}'.`, 'error');
                     return;
                 }
 
                 console.log(`Attempting to play: ${stationName} from ${streamUrl}`);
-                updateNowPlayingText(`Loading: ${stationName}...`); // Use the new function here
+                updateNowPlayingText(`Loading: ${stationName}...`);
 
                 Array.from(stationList.children).forEach((li, i) => {
                     if (i === index) {
@@ -809,7 +949,6 @@
                 Array.from(favoritesList.children).forEach(li => li.classList.remove('selected'));
 
                 await startVisualizer(streamUrl);
-                // Removed updateControlButtonIcon("pause");
             }
         }
 
@@ -825,12 +964,12 @@
                 const stationName = stationToPlay.name || 'Unknown Station';
 
                 if (!streamUrl) {
-                    alert(`No valid stream URL found for '${stationName}'.`);
+                    showMessageBox(`No valid stream URL found for '${stationName}'.`, 'error');
                     return;
                 }
 
                 console.log(`Attempting to play favorite: ${stationName} from ${streamUrl}`);
-                updateNowPlayingText(`Loading: ${stationName}...`); // Use the new function here
+                updateNowPlayingText(`Loading: ${stationName}...`);
 
                 Array.from(favoritesList.children).forEach(li => {
                     if (li.dataset.stationId === uuid) {
@@ -842,12 +981,10 @@
                 Array.from(stationList.children).forEach(li => li.classList.remove('selected'));
 
                 await startVisualizer(streamUrl);
-                // Removed updateControlButtonIcon("pause");
             } else {
-                alert("Could not find station with that ID.");
+                showMessageBox("Could not find station with that ID.", 'error');
             }
         }
-
 
         async function handleControlButtonClick() {
             try {
@@ -855,12 +992,10 @@
 
                 if (currentAudio && !currentAudio.paused) {
                     currentAudio.pause();
-                    // Removed updateControlButtonIcon("play");
-                    updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Nothing playing'}`); // Use the new function here
+                    updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Nothing playing'}`);
                 } else if (currentAudio && currentAudio.paused) {
                     await currentAudio.play();
-                    // Removed updateControlButtonIcon("pause");
-                    updateNowPlayingText(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Nothing playing'}`); // Use the new function here
+                    updateNowPlayingText(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Nothing playing'}`);
                 } else {
                     const selectedItem = stationList.querySelector('.selected');
                     const selectedFavorite = favoritesList.querySelector('.selected');
@@ -873,12 +1008,12 @@
                         playStationByUUID(uuid);
                     }
                     else {
-                        alert("Please search for and select a station to play.");
+                        showMessageBox("Please search for and select a station to play.", 'info');
                     }
                 }
             } catch (e) {
                 console.error("Control button click error:", e);
-                alert("Error during playback control: " + (e.message || "Unknown error."));
+                showMessageBox("Error during playback control: " + (e.message || "Unknown error."), 'error');
                 stopVisualizer(true);
             }
         }
@@ -886,28 +1021,23 @@
         // --- Event Listeners ---
         searchInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
-                searchStations();
+                performSearch(); // Call the new search function
             }
         });
-        // Removed controlButton.addEventListener('click', handleControlButtonClick);
 
         hueSlider.addEventListener('input', (event) => {
             document.documentElement.style.setProperty('--base-hue', event.target.value);
-            // Update app container shadow color when hue slider changes
-            appContainer.style.boxShadow = `0 0 30px 10px hsla(${event.target.value}, 70%, 50%, 0.6)`;
+            appContainer.style.boxShadow = `0 0 30px 10px hsla(${event.target.value}, 70%, 50%, 0.4)`;
         });
 
-        // Add click listener to the nowPlayingLabel
         nowPlayingLabel.addEventListener('click', handleControlButtonClick);
 
 
         // --- Initial Setup ---
         initVisualizer();
-        // Removed updateControlButtonIcon("stop");
         loadFavorites();
         document.documentElement.style.setProperty('--base-hue', hueSlider.value);
-        updateNowPlayingText("Nothing playing"); // Initial text for now playing
-        // Set initial box-shadow color based on default hue
+        updateNowPlayingText("Nothing playing");
         appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
     </script>
 </body>
