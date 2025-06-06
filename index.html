@@ -803,6 +803,7 @@
             }
         }
 
+        ...
         // --- RadioBrowser API Wrapper (Re-integrated for multi-mirror support) ---
         class RadioBrowserApi {
             constructor() {
@@ -832,7 +833,8 @@
             }
 
             async searchStations(query) {
-                const relativeApiPath = `/json/stations/byname/${encodeURIComponent(query)}`;
+                // FIX: Use the recommended search endpoint
+                const relativeApiPath = `/json/stations/search?name=${encodeURIComponent(query)}`;
                 const allStations = [];
                 let anySuccess = false;
 
@@ -877,6 +879,7 @@
                 return uniqueStations;
             }
         }
+...
 
         const radioApi = new RadioBrowserApi(); // Instantiate the API wrapper
 
