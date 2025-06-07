@@ -132,11 +132,11 @@
             width: 100%; /* Take full width of its container */
             height: 20px; /* Standard height for horizontal slider */
             margin: 0; /* Remove default margins */
-            background-color: var(--panel-bg); /* Solid color for the track */
+            background-color: var(--panel-bg);
             border-radius: 8px;
             outline: none;
             cursor: pointer;
-            border: 1px solid var(--border-color); /* Add a subtle border to the track for definition */
+            border: 1px solid var(--border-color);
         }
 
         /* Style the thumb (handle) of the slider */
@@ -146,7 +146,6 @@
             height: 20px;
             border-radius: 50%;
             background: var(--accent-color);
-            /* Changed border color to match control button */
             border: 2px solid var(--border-color);
             cursor: grab;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
@@ -157,31 +156,30 @@
             height: 20px;
             border-radius: 50%;
             background: var(--accent-color);
-            /* Changed border color to match control button */
             border: 2px solid var(--border-color);
             cursor: grab;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
         }
 
         #hueSlider::-webkit-slider-runnable-track {
-            background: transparent; /* Track background is handled by the slider itself */
+            background: transparent;
             border-radius: 8px;
         }
 
         #hueSlider::-moz-range-track {
-            background: transparent; /* Track background is handled by the slider itself */
+            background: transparent;
             border-radius: 8px;
         }
 
 
         /* List styling */
-        .station-list, .favorites-list { /* Apply to both lists */
+        .station-list, .favorites-list {
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 5px;
             color: var(--light-gray-text);
-            flex-grow: 1; /* Make lists fill available space */
+            flex-grow: 1;
             overflow-y: auto;
             list-style: none;
             margin: 0;
@@ -195,14 +193,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            user-select: none; /* Prevent text selection */
-            -webkit-user-select: none; /* For Safari */
-            -moz-user-select: none; /* For Firefox */
-            -ms-user-select: none; /* For IE/Edge */
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
         .station-list li:hover, .favorites-list li:hover {
-            background-color: var(--selection-bg); /* Use selection color for hover */
+            background-color: var(--selection-bg);
         }
 
         .station-list li.selected, .favorites-list li.selected {
@@ -221,32 +219,39 @@
             font-size: 1.2em;
             color: var(--light-gray-text);
             margin-top: 10px;
-            overflow: hidden; /* Hide overflow for marquee */
-            white-space: nowrap; /* Prevent text from wrapping */
-            position: relative; /* For inner span positioning */
-            box-sizing: border-box; /* Include padding in width calculation */
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            box-sizing: border-box;
             display: flex;
             align-items: center;
-            justify-content: center; /* Default center if no scrolling */
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s ease-out;
         }
+
+        .now-playing-label:active {
+            transform: scale(0.98);
+        }
+
 
         /* Inner span for the now playing text */
         .now-playing-label span {
-            display: inline-block; /* Essential for transform to work */
-            animation: none; /* Default state: no animation */
-            padding-left: 0; /* Default padding */
-            will-change: transform; /* Hint to browser for performance */
+            display: inline-block;
+            animation: none;
+            padding-left: 0;
+            will-change: transform;
         }
 
         /* Marquee animation definition */
         @keyframes marquee {
-            0% { transform: translateX(100%); } /* Start off-screen right */
-            100% { transform: translateX(calc(-100% - var(--marquee-offset, 0px))); } /* End off-screen left + offset */
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(calc(-100% - var(--marquee-offset, 0px))); }
         }
 
         /* Class to apply when marquee is active */
         .now-playing-label.scrolling {
-            justify-content: flex-start; /* Align text to the start when scrolling */
+            justify-content: flex-start;
         }
         .now-playing-label.scrolling span {
             animation: marquee linear infinite;
@@ -255,14 +260,14 @@
 
         /* Bottom section for visualizer */
         .bottom-visualizer-section {
-            flex-grow: 2; /* Allows visualizer to take more remaining space */
+            flex-grow: 2;
             display: flex;
             flex-direction: column;
-            padding-top: 10px; /* Add some space from elements above */
+            padding-top: 10px;
         }
 
         .visualizer-container {
-            flex-grow: 1; /* Allows visualizer to take remaining space */
+            flex-grow: 1;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -270,10 +275,9 @@
             background-color: var(--panel-bg);
             border-radius: 15px;
             overflow: hidden;
-            position: relative; /* Keep relative for potential future overlays */
-            /* New: Add transition for smooth scaling */
-            transition: transform 0.1s ease-out; /* Smooth transition for zoom effect */
-            transform-origin: center center; /* Ensure scaling from center */
+            position: relative;
+            transition: transform 0.1s ease-out;
+            transform-origin: center center;
         }
 
         .visualizer-canvas {
@@ -281,8 +285,7 @@
             background-color: transparent;
             width: 100%;
             height: 100%;
-            /* New: Add transition for smooth scaling (if canvas itself scales) */
-            transition: transform 0.1s ease-out; /* Match container transition */
+            transition: transform 0.1s ease-out;
             transform-origin: center center;
         }
 
@@ -317,16 +320,16 @@
         @media (max-width: 768px) {
             .app-container {
                 flex-direction: column;
-                height: auto; /* Allow height to adjust based on content */
-                min-height: unset; /* Remove minimum height constraint on small screens */
-                padding: 15px; /* Adjust padding for smaller screens */
+                height: auto;
+                min-height: unset;
+                padding: 15px;
             }
             .top-section {
-                flex-direction: column; /* Stack search/favorites vertically on small screens */
-                gap: 15px; /* Adjust gap for stacked layout */
+                flex-direction: column;
+                gap: 15px;
             }
             .visualizer-container {
-                height: 200px; /* Fixed height for visualizer on small screens */
+                height: 200px;
             }
         }
     </style>
@@ -340,13 +343,13 @@
                     <input type="text" id="searchInput" placeholder="Search for stations (e.g., 'jazz', 'USA')" class="flex-grow">
                 </div>
                 <ul id="stationList" class="station-list">
-                    <li>One click to play, two clicks to save the station >>></li>
+                    <li>Start typing to search for stations.</li>
                 </ul>
             </div>
 
             <div class="favorites-panel">
                 <ul id="favoritesList" class="favorites-list">
-                    <li>No favorites saved yet.</li>
+                    <li>No recent stations</li>
                 </ul>
             </div>
         </div>
@@ -360,9 +363,6 @@
                 <canvas id="visualizerCanvas" class="visualizer-canvas"></canvas>
             </div>
         </div>
-
-        <!-- Message Box for Alerts -->
-        <div id="messageBox" class="hidden p-3 mt-4 rounded-lg text-sm font-medium" role="alert"></div>
     </div>
 
     <script>
@@ -370,18 +370,18 @@
         const searchInput = document.getElementById('searchInput');
         const stationList = document.getElementById('stationList');
         const nowPlayingLabel = document.getElementById('nowPlayingLabel');
-        const nowPlayingTextSpan = document.getElementById('nowPlayingTextSpan'); // New: reference to the inner span
+        const nowPlayingTextSpan = document.getElementById('nowPlayingTextSpan');
         const favoritesList = document.getElementById('favoritesList');
         const visualizerCanvas = document.getElementById('visualizerCanvas');
         const visualizerContainer = document.querySelector('.visualizer-container');
         const appContainer = document.querySelector('.app-container');
         const ctx = visualizerCanvas.getContext('2d');
         const hueSlider = document.getElementById('hueSlider');
-        const messageBox = document.getElementById('messageBox'); // Reference to the message box
 
         // --- Radio Browser API Configuration ---
         let stations = [];
-        let favoriteStations = [];
+        let recentStations = [];
+        const MAX_RECENT_STATIONS = 5;
         let currentAudio = null;
         let currentPlayingStation = null;
 
@@ -392,21 +392,6 @@
         const FFT_SIZE = 256;
         let dataArray = null;
         let animationFrameId = null;
-
-        // --- Message Box Utility (Re-added) ---
-        function showMessageBox(message, type = 'info') {
-            messageBox.textContent = message;
-            messageBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-blue-100', 'text-blue-700', 'bg-yellow-100', 'text-yellow-700');
-            if (type === 'error') {
-                messageBox.classList.add('bg-red-100', 'text-red-700');
-            } else if (type === 'success') {
-                messageBox.classList.add('bg-green-100', 'text-green-700');
-            } else if (type === 'warning') {
-                messageBox.classList.add('bg-yellow-100', 'text-yellow-700');
-            } else { // info
-                messageBox.classList.add('bg-blue-100', 'text-blue-700');
-            }
-        }
 
         // --- Helper Functions for Cookies ---
         function setCookie(name, value, days) {
@@ -442,34 +427,28 @@
         }
 
         function updateNowPlayingText(fullText) {
-            const charLimitForScroll = 40; // Trigger scroll if text length exceeds this
-            nowPlayingTextSpan.textContent = fullText; // Always set the full text to the span
+            const charLimitForScroll = 40;
+            nowPlayingTextSpan.textContent = fullText;
 
-            // Reset animation state
             nowPlayingLabel.classList.remove('scrolling');
             nowPlayingTextSpan.style.animation = 'none';
-            nowPlayingTextSpan.style.paddingLeft = '0'; // Reset padding
-            nowPlayingLabel.style.justifyContent = 'center'; // Default to centered
+            nowPlayingTextSpan.style.paddingLeft = '0';
+            nowPlayingLabel.style.justifyContent = 'center';
 
-            // Check if text is too long or visually overflows
-            // Need a slight delay or next frame to get accurate scrollWidth after textContent update
             requestAnimationFrame(() => {
                 const textWidth = nowPlayingTextSpan.scrollWidth;
                 const containerWidth = nowPlayingLabel.clientWidth;
 
                 if (fullText.length > charLimitForScroll || textWidth > containerWidth) {
                     nowPlayingLabel.classList.add('scrolling');
-                    nowPlayingTextSpan.style.paddingLeft = `${containerWidth}px`; // Start text from off-screen right
-                    nowPlayingLabel.style.justifyContent = 'flex-start'; // Align content to start when scrolling
+                    nowPlayingTextSpan.style.paddingLeft = `${containerWidth}px`;
+                    nowPlayingLabel.style.justifyContent = 'flex-start';
 
-                    // Calculate the total distance the text needs to travel for one loop
-                    // This is the text's width plus the container's width (for it to go fully off-screen and reappear)
                     const totalScrollDistance = textWidth + containerWidth;
-                    const speedFactor = 50; // pixels per second, adjust for desired speed
-                    const animationDuration = totalScrollDistance / speedFactor; // in seconds
+                    const speedFactor = 50;
+                    const animationDuration = totalScrollDistance / speedFactor;
 
                     nowPlayingTextSpan.style.animationDuration = `${animationDuration}s`;
-                    // Set CSS variable for marquee offset in the keyframes
                     nowPlayingTextSpan.style.setProperty('--marquee-offset', `${containerWidth}px`);
                 }
             });
@@ -480,6 +459,9 @@
             updateNowPlayingText(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
             if (!animationFrameId) {
                 animationFrameId = requestAnimationFrame(drawVisualizer);
+            }
+            if (currentPlayingStation) {
+                addStationToRecents(currentPlayingStation);
             }
         };
 
@@ -518,7 +500,6 @@
                         errorMessage = "An unknown media error occurred.";
                 }
             }
-            showMessageBox("Error playing station: " + errorMessage, 'error');
             stopVisualizer(true);
             updateNowPlayingText("Error playing station");
         };
@@ -598,7 +579,6 @@
                 } else {
                     userMessage += `Error details: ${e.message || "Unknown error."}`;
                 }
-                showMessageBox(userMessage, 'error');
                 stopVisualizer(true);
             }
         }
@@ -724,78 +704,69 @@
             }
         }
 
-        // --- Favorites Management ---
+        // --- Recent Stations Management (formerly Favorites) ---
 
-        function saveFavorites() {
-            setCookie('favoriteStations', JSON.stringify(favoriteStations), 365);
-            console.log("Favorites saved:", favoriteStations);
+        function saveRecentStations() {
+            setCookie('recentStations', JSON.stringify(recentStations), 365);
+            console.log("Recent stations saved:", recentStations);
         }
 
         function renderFavorites() {
             favoritesList.innerHTML = '';
-            if (favoriteStations.length === 0) {
-                favoritesList.innerHTML = '<li>No favorites saved yet.</li>';
+            if (recentStations.length === 0) {
+                favoritesList.innerHTML = '<li>No recent stations</li>';
                 return;
             }
 
-            favoriteStations.forEach((station) => {
+            recentStations.forEach((station) => {
                 const listItem = document.createElement('li');
                 listItem.textContent = `${station.name} (${station.countrycode || 'N/A'})`;
                 listItem.dataset.stationId = station.stationuuid;
                 listItem.addEventListener('click', () => playStationByUUID(station.stationuuid));
-                listItem.addEventListener('dblclick', () => removeFavorite(station.stationuuid));
+                listItem.addEventListener('dblclick', () => removeRecentStation(station.stationuuid));
                 favoritesList.appendChild(listItem);
             });
         }
 
-        function loadFavorites() {
-            const storedFavorites = getCookie('favoriteStations');
-            if (storedFavorites) {
+        function loadRecentStations() {
+            const storedRecents = getCookie('recentStations');
+            if (storedRecents) {
                 try {
-                    favoriteStations = JSON.parse(storedFavorites);
-                    console.log("Favorites loaded:", favoriteStations);
+                    recentStations = JSON.parse(storedRecents);
+                    console.log("Recent stations loaded:", recentStations);
                 } catch (e) {
-                    console.error("Error parsing stored favorites from cookie:", e);
-                    favoriteStations = [];
+                    console.error("Error parsing stored recent stations from cookie:", e);
+                    recentStations = [];
                 }
             } else {
-                favoriteStations = [
-                    { "name": "SomaFM: Groove Salad", "url_resolved": "http://ice1.somafm.com/groovesalad-128-mp3", "stationuuid": "a7b3e0c0-6d8b-4b1a-8c2d-9e0f1a2b3c4d", "countrycode": "US", "favicon": "" },
-                    { "name": "SomaFM: Drone Zone", "url_resolved": "http://ice4.somafm.com/dronezone-128-mp3", "stationuuid": "b8c4f1d1-7e9c-4c2b-9d3e-0f1a2b3c4d5e", "countrycode": "US", "favicon": "" },
-                    { "name": "SomaFM: Suburbs of Goa", "url_resolved": "http://ice1.somafm.com/suburbsofgoa-128-mp3", "stationuuid": "e1f7g4g4-a12f-5f5e-c2g6-3b4c5d6e7f8b", "countrycode": "US", "favicon": "" },
-                    { "name": "Ambient Sleeping Pill", "url_resolved": "http://radio.stereoscenic.com/asp-s", "stationuuid": "f2g8h5h5-b23g-6g6f-d3h7-4c5d6e7f8g9c", "countrycode": "US", "favicon": "" }
+                recentStations = [
+                    { "name": "SomaFM: Deep Space One", "url_resolved": "http://ice4.somafm.com/deepspaceone-128-mp3", "stationuuid": "c0d4e5f6-8a9b-4c5d-0e1f-2a3b4c5d6e7f", "countrycode": "US", "favicon": "" },
+                    { "name": "SomaFM: Space Station Soma", "url_resolved": "http://ice4.somafm.com/spacestation-128-mp3", "stationuuid": "d1e5f6g7-9b0c-5d6e-1f2a-3b4c5d6e7f8g", "countrycode": "US", "favicon": "" },
+                    { "name": "SomaFM: Mission Control", "url_resolved": "http://ice1.somafm.com/missioncontrol-128-mp3", "stationuuid": "e2f6g7h8-0c1d-6e7f-2a3b-4c5d6e7f8g9h", "countrycode": "US", "favicon": "" },
+                    { "name": "SomaFM: Secret Agent", "url_resolved": "http://ice1.somafm.com/secretagent-128-mp3", "stationuuid": "f3g7h8i9-1d2e-7f8g-3b4c-5d6e7f8g9h0i", "countrycode": "US", "favicon": "" },
+                    { "name": "SomaFM: Lush", "url_resolved": "http://ice4.somafm.com/lush-128-mp3", "stationuuid": "g4h8i9j0-2e3f-8g9h-4c5d-6e7f8g9h0i1j", "countrycode": "US", "favicon": "" }
                 ];
-                saveFavorites();
+                saveRecentStations();
             }
             renderFavorites();
         }
 
-        function isFavorited(stationId) {
-            return favoriteStations.some(fav => fav.stationuuid === stationId);
-        }
-
-        function toggleFavoriteFromSearch(index) {
-            if (index >= 0 && index < stations.length) {
-                const station = stations[index];
-                if (isFavorited(station.stationuuid)) {
-                    showMessageBox(`${station.name} is already in your favorites!`, 'warning');
-                } else {
-                    favoriteStations.push(station);
-                    saveFavorites();
-                    renderFavorites();
-                    showMessageBox(`${station.name} added to favorites!`, 'success');
-                }
+        function addStationToRecents(station) {
+            recentStations = recentStations.filter(s => s.stationuuid !== station.stationuuid);
+            recentStations.unshift(station);
+            if (recentStations.length > MAX_RECENT_STATIONS) {
+                recentStations = recentStations.slice(0, MAX_RECENT_STATIONS);
             }
+            saveRecentStations();
+            renderFavorites();
         }
 
-        function removeFavorite(uuid) {
-            const stationToRemove = favoriteStations.find(fav => fav.stationuuid === uuid);
+        function removeRecentStation(uuid) {
+            const stationToRemove = recentStations.find(s => s.stationuuid === uuid);
             if (stationToRemove) {
-                favoriteStations = favoriteStations.filter(fav => fav.stationuuid !== uuid);
-                saveFavorites();
+                recentStations = recentStations.filter(s => s.stationuuid !== uuid);
+                saveRecentStations();
                 renderFavorites();
-                showMessageBox(`${stationToRemove.name} removed from favorites.`, 'info');
-
                 if (currentPlayingStation && currentPlayingStation.stationuuid === uuid) {
                     stopVisualizer();
                     currentPlayingStation = null;
@@ -803,8 +774,7 @@
             }
         }
 
-        ...
-        // --- RadioBrowser API Wrapper (Re-integrated for multi-mirror support) ---
+        // --- RadioBrowser API Wrapper ---
         class RadioBrowserApi {
             constructor() {
                 this.mirrors = [
@@ -833,18 +803,19 @@
             }
 
             async searchStations(query) {
-                // FIX: Use the recommended search endpoint
                 const relativeApiPath = `/json/stations/search?name=${encodeURIComponent(query)}`;
                 const allStations = [];
                 let anySuccess = false;
+                const TIMEOUT_MS = 10000; // 10 seconds timeout for each request
 
                 const requests = this.mirrors.map(async (mirror) => {
                     const fullUrl = `${mirror}${relativeApiPath}`;
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS); // Set timeout
+
                     try {
                         console.log(`Attempting to fetch from: ${fullUrl}`);
-                        const response = await fetch(fullUrl, {
-                             headers: { 'User-Agent': 'WebRadioPlayerApp/1.0 (HTML/JS)' }
-                        });
+                        const response = await fetch(fullUrl, { signal: controller.signal }); // Pass the signal
                         if (!response.ok) {
                             throw new Error(`HTTP error! Status: ${response.status} from ${fullUrl}`);
                         }
@@ -857,8 +828,14 @@
                             throw new Error(`Unexpected response format from ${fullUrl}: Not an array.`);
                         }
                     } catch (error) {
-                        console.error(`Error fetching from ${fullUrl}:`, error);
+                        if (error.name === 'AbortError') {
+                            console.error(`Error fetching from ${fullUrl}: Request timed out after ${TIMEOUT_MS / 1000} seconds.`);
+                        } else {
+                            console.error(`Error fetching from ${fullUrl}:`, error);
+                        }
                         return null;
+                    } finally {
+                        clearTimeout(timeoutId); // Clear the timeout regardless of success or failure
                     }
                 });
 
@@ -874,14 +851,12 @@
                     throw new Error("All Radio-Browser API mirrors failed to respond or returned no valid data. Please check your network connection.");
                 }
 
-                // Deduplicate stations based on stationuuid if multiple mirrors return the same station
                 const uniqueStations = Array.from(new Map(allStations.map(station => [station.stationuuid, station])).values());
                 return uniqueStations;
             }
         }
-...
 
-        const radioApi = new RadioBrowserApi(); // Instantiate the API wrapper
+        const radioApi = new RadioBrowserApi();
 
         // --- Event Handlers ---
 
@@ -890,36 +865,29 @@
             stationList.innerHTML = '';
 
             if (!searchTerm) {
-                stationList.innerHTML = '<li>One click to play, two clicks to save the station >>></li>';
+                stationList.innerHTML = '<li>Start typing to search for stations.</li>';
                 stations = [];
                 return;
             }
 
-            // Removed: showMessageBox('Searching for stations...', 'info');
-
             try {
-                // Use the multi-mirror search method
                 stations = await radioApi.searchStations(searchTerm);
 
                 if (stations.length === 0) {
                     stationList.innerHTML = `<li>No stations found for '${searchTerm}'. Try a different term.</li>`;
-                    showMessageBox(`No stations found for '${searchTerm}'. Try a different term.`, 'info');
                 } else {
                     stations.forEach((station, index) => {
                         const listItem = document.createElement('li');
                         listItem.textContent = `${station.name} (${station.countrycode || 'N/A'})`;
                         listItem.dataset.index = index;
                         listItem.addEventListener('click', () => playStation(index));
-                        listItem.addEventListener('dblclick', () => toggleFavoriteFromSearch(index));
                         stationList.appendChild(listItem);
                     });
-                    showMessageBox(`Found ${stations.length} stations for '${searchTerm}'.`, 'success');
                 }
             }
             catch (e) {
                 console.error("Error searching stations:", e);
-                stationList.innerHTML = `<li>An error occurred: ${e.message}. Please try again.</li>`;
-                showMessageBox(`Error searching stations: ${e.message}`, 'error');
+                stationList.innerHTML = `<li>An error occurred during search. Please try again or check your network.</li>`;
                 stations = [];
             }
         }
@@ -932,7 +900,6 @@
                 const stationName = station.name || 'Unknown Station';
 
                 if (!streamUrl) {
-                    showMessageBox(`No valid stream URL found for '${stationName}'.`, 'error');
                     return;
                 }
 
@@ -955,7 +922,7 @@
         async function playStationByUUID(uuid) {
             let stationToPlay = stations.find(s => s.stationuuid === uuid);
             if (!stationToPlay) {
-                stationToPlay = favoriteStations.find(s => s.stationuuid === uuid);
+                stationToPlay = recentStations.find(s => s.stationuuid === uuid);
             }
 
             if (stationToPlay) {
@@ -964,7 +931,6 @@
                 const stationName = stationToPlay.name || 'Unknown Station';
 
                 if (!streamUrl) {
-                    showMessageBox(`No valid stream URL found for '${stationName}'.`, 'error');
                     return;
                 }
 
@@ -982,7 +948,6 @@
 
                 await startVisualizer(streamUrl);
             } else {
-                showMessageBox("Could not find station with that ID.", 'error');
             }
         }
 
@@ -1008,12 +973,10 @@
                         playStationByUUID(uuid);
                     }
                     else {
-                        showMessageBox("Please search for and select a station to play.", 'info');
                     }
                 }
             } catch (e) {
                 console.error("Control button click error:", e);
-                showMessageBox("Error during playback control: " + (e.message || "Unknown error."), 'error');
                 stopVisualizer(true);
             }
         }
@@ -1021,7 +984,7 @@
         // --- Event Listeners ---
         searchInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
-                performSearch(); // Call the new search function
+                performSearch();
             }
         });
 
@@ -1035,7 +998,7 @@
 
         // --- Initial Setup ---
         initVisualizer();
-        loadFavorites();
+        loadRecentStations();
         document.documentElement.style.setProperty('--base-hue', hueSlider.value);
         updateNowPlayingText("Nothing playing");
         appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
