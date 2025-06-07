@@ -93,10 +93,11 @@
         /* Top section for search and favorites side-by-side */
         .top-section {
             display: flex;
-            flex-direction: row;
+            flex-direction: row; /* Changed back to row for horizontal layout */
             gap: 20px;
             flex-grow: 1; /* Allows it to take available space */
             min-height: 200px; /* Minimum height for top sections */
+            /* Removed width: 100%; as flex items will take care of width distribution */
         }
 
         /* Left panel styling (for search input, station list, and buttons) */
@@ -179,8 +180,8 @@
             border-radius: 10px;
             padding: 5px;
             color: var(--light-gray-text);
-            flex-grow: 1;
-            overflow-y: auto;
+            height: 25vh; /* Set a fixed height */
+            overflow-y: auto; /* Ensure scrolling within the fixed height */
             list-style: none;
             margin: 0;
         }
@@ -336,12 +337,13 @@
 </head>
 <body>
     <div class="app-container">
+        <div class="flex flex-col gap-2 w-full"> <!-- Container for slider and search input -->
+            <input type="range" id="hueSlider" min="0" max="360" value="270" class="flex-grow">
+            <input type="text" id="searchInput" placeholder="Search for stations (e.g., 'jazz', 'USA')" class="flex-grow">
+        </div>
+
         <div class="top-section">
             <div class="left-panel">
-                <div class="flex flex-col gap-2">
-                    <input type="range" id="hueSlider" min="0" max="360" value="270" class="flex-grow">
-                    <input type="text" id="searchInput" placeholder="Search for stations (e.g., 'jazz', 'USA')" class="flex-grow">
-                </div>
                 <ul id="stationList" class="station-list">
                     <li>Start typing to search for stations.</li>
                 </ul>
