@@ -21,6 +21,7 @@
             --selection-bg: hsl(var(--base-hue), 50%, 35%); /* Slightly lighter than panel for selection */
             --hover-color: hsl(var(--base-hue), 70%, 60%);
             --light-gray-text: #f0f0f0;
+            --placeholder-text-color: #a0a0a0; /* A darker gray for placeholders */
         }
 
         body {
@@ -50,7 +51,7 @@
             padding: 20px;
             display: flex;
             flex-direction: column; /* Stack sections vertically */
-            gap: 20px;
+            gap: 10px; /* Reduced gap to bring sections closer */
             width: 100%;
             max-width: 1200px;
             /* Adjusted height to be auto, with a max-height and overflow-y for scrolling */
@@ -96,7 +97,7 @@
             flex-direction: row; /* Changed back to row for horizontal layout */
             gap: 20px;
             flex-grow: 1; /* Allows it to take available space */
-            min-height: 200px; /* Minimum height for top sections */
+            /* Removed min-height: 200px; to allow content to dictate height */
             /* Removed width: 100%; as flex items will take care of width distribution */
         }
 
@@ -124,6 +125,12 @@
             border-radius: 12px;
             color: var(--light-gray-text);
             outline: none;
+        }
+
+        /* Placeholder styling for search input */
+        input[type="text"]::placeholder {
+            color: var(--placeholder-text-color);
+            opacity: 1; /* Ensure consistency across browsers */
         }
 
         /* Hue slider specific styling for horizontal orientation */
@@ -179,11 +186,16 @@
             border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 5px;
-            color: var(--light-gray-text);
+            color: var(--light-gray-text); /* Default color for actual results */
             height: 15vh; /* Set a fixed height */
             overflow-y: auto; /* Ensure scrolling within the fixed height */
             list-style: none;
             margin: 0;
+        }
+
+        /* Style for placeholder-like text within lists */
+        .list-placeholder-text {
+            color: var(--placeholder-text-color);
         }
 
         .station-list li, .favorites-list li {
@@ -219,7 +231,7 @@
             border-radius: 10px;
             font-size: 1.2em;
             color: var(--light-gray-text);
-            margin-top: 10px;
+            margin-top: 0; /* Removed margin-top */
             overflow: hidden;
             white-space: nowrap;
             position: relative;
@@ -264,7 +276,7 @@
             flex-grow: 2;
             display: flex;
             flex-direction: column;
-            padding-top: 10px;
+            padding-top: 0; /* Removed padding-top */
         }
 
         .visualizer-container {
@@ -339,13 +351,13 @@
     <div class="app-container">
         <div class="flex flex-col gap-2 w-full"> <!-- Container for slider and search input -->
             <input type="range" id="hueSlider" min="0" max="360" value="270" class="flex-grow">
-            <input type="text" id="searchInput" placeholder="Search for stations (e.g., 'jazz', 'USA')" class="flex-grow">
+            <input type="text" id="searchInput" placeholder="Search for stations" class="flex-grow">
         </div>
 
         <div class="top-section">
             <div class="left-panel">
                 <ul id="stationList" class="station-list">
-                    <li>Start typing to search for stations.</li>
+                    <li class="list-placeholder-text">Search results</li>
                 </ul>
             </div>
 
@@ -365,6 +377,15 @@
                 <canvas id="visualizerCanvas" class="visualizer-canvas"></canvas>
             </div>
         </div>
+
+        <!-- New Branding Section -->
+        <div class="flex items-center justify-end p-2 mt-auto"> <!-- mt-auto pushes it to the bottom within the flex column -->
+            <img src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-8 w-8 mr-2 rounded-full">
+            <div class="text-sm">
+                <span class="font-bold">Holi</span><br>
+                <span id="subtitleText" class="text-xs text-gray-400"></span>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -379,6 +400,7 @@
         const appContainer = document.querySelector('.app-container');
         const ctx = visualizerCanvas.getContext('2d');
         const hueSlider = document.getElementById('hueSlider');
+        const subtitleText = document.getElementById('subtitleText'); // Get the subtitle span
 
         // --- Radio Browser API Configuration ---
         let stations = [];
@@ -853,7 +875,7 @@
                     throw new Error("All Radio-Browser API mirrors failed to respond or returned no valid data. Please check your network connection.");
                 }
 
-                const uniqueStations = Array.from(new Map(allStations.map(station => [station.stationuuid, station])).values());
+                const uniqueStations = Array.from(Map(allStations.map(station => [station.stationuuid, station])).values());
                 return uniqueStations;
             }
         }
@@ -865,10 +887,12 @@
         async function performSearch() {
             const searchTerm = searchInput.value.trim();
             stationList.innerHTML = '';
+            updateNowPlayingText("Searching..."); // Display "Searching..."
 
             if (!searchTerm) {
-                stationList.innerHTML = '<li>Start typing to search for stations.</li>';
+                stationList.innerHTML = '<li class="list-placeholder-text">Search results</li>';
                 stations = [];
+                updateNowPlayingText("Nothing playing"); // Reset if search term is empty
                 return;
             }
 
@@ -876,21 +900,25 @@
                 stations = await radioApi.searchStations(searchTerm);
 
                 if (stations.length === 0) {
-                    stationList.innerHTML = `<li>No stations found for '${searchTerm}'. Try a different term.</li>`;
+                    stationList.innerHTML = `<li class="list-placeholder-text">No stations found for '${searchTerm}'. Try a different term.</li>`;
+                    updateNowPlayingText(`No stations found for '${searchTerm}'.`);
                 } else {
                     stations.forEach((station, index) => {
                         const listItem = document.createElement('li');
+                        // No list-placeholder-text class for actual search results
                         listItem.textContent = `${station.name} (${station.countrycode || 'N/A'})`;
                         listItem.dataset.index = index;
                         listItem.addEventListener('click', () => playStation(index));
                         stationList.appendChild(listItem);
                     });
+                    updateNowPlayingText(`Found ${stations.length} stations for '${searchTerm}'.`);
                 }
             }
             catch (e) {
                 console.error("Error searching stations:", e);
-                stationList.innerHTML = `<li>An error occurred during search. Please try again or check your network.</li>`;
+                stationList.innerHTML = `<li class="list-placeholder-text">An error occurred during search. Please try again or check your network.</li>`;
                 stations = [];
+                updateNowPlayingText("Error during search."); // Report search error
             }
         }
 
@@ -959,10 +987,10 @@
 
                 if (currentAudio && !currentAudio.paused) {
                     currentAudio.pause();
-                    updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Nothing playing'}`);
+                    updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
                 } else if (currentAudio && currentAudio.paused) {
                     await currentAudio.play();
-                    updateNowPlayingText(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Nothing playing'}`);
+                    updateNowPlayingText(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
                 } else {
                     const selectedItem = stationList.querySelector('.selected');
                     const selectedFavorite = favoritesList.querySelector('.selected');
@@ -983,6 +1011,19 @@
             }
         }
 
+        // --- Branding Subtitle Function ---
+        const subtitles = [
+            "Where sound meets light.",
+            "Stream the glow within.",
+            "A dance of sound and color."
+        ];
+
+        function setRandomSubtitle() {
+            const randomIndex = Math.floor(Math.random() * subtitles.length);
+            subtitleText.textContent = subtitles[randomIndex];
+        }
+
+
         // --- Event Listeners ---
         searchInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
@@ -1001,6 +1042,7 @@
         // --- Initial Setup ---
         initVisualizer();
         loadRecentStations();
+        setRandomSubtitle(); // Set the initial random subtitle
         document.documentElement.style.setProperty('--base-hue', hueSlider.value);
         updateNowPlayingText("Nothing playing");
         appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
