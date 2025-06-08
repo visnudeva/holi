@@ -3,7 +3,6 @@
 </p>
 
 # holi, a colorful web radio player with a visualizer.
-**“Where sound meets light.”, “Stream the glow within.”, “A dance of sound and color.”**
 
 
 <p align="center">
