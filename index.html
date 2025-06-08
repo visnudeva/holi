@@ -380,10 +380,11 @@
 
         <!-- New Branding Section -->
         <div class="flex items-center justify-end p-2 mt-auto"> <!-- mt-auto pushes it to the bottom within the flex column -->
-            <img src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 mr-2 rounded-full">
+            <img id="holiLogo" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 mr-2 rounded-full transition-transform duration-75 ease-out">
             <div class="text-sm">
                 <span class="font-bold">Holi</span><br>
-                <span id="subtitleText" class="text-xs" style="color: var(--border-color);"></span>
+                <!-- Changed text-xs to text-sm for larger subtitle -->
+                <span id="subtitleText" class="text-sm" style="color: var(--border-color);"></span>
             </div>
         </div>
     </div>
@@ -401,6 +402,7 @@
         const ctx = visualizerCanvas.getContext('2d');
         const hueSlider = document.getElementById('hueSlider');
         const subtitleText = document.getElementById('subtitleText'); // Get the subtitle span
+        const holiLogo = document.getElementById('holiLogo'); // Get the Holi logo image
 
         // --- Radio Browser API Configuration ---
         let stations = [];
@@ -639,6 +641,7 @@
             ctx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
             updateNowPlayingText("Nothing playing");
             visualizerContainer.style.transform = 'scale(1)';
+            holiLogo.style.transform = 'scale(1)'; // Reset logo scale
             console.log("Visualizer stopped.");
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
         }
@@ -691,6 +694,12 @@
             const maxWindowScale = 1.05;
             const windowVisualizerScale = minWindowScale + (maxWindowScale - minWindowScale) * normalizedEnergy;
             visualizerContainer.style.transform = `scale(${windowVisualizerScale})`;
+
+            // Apply scaling to the logo
+            const minLogoScale = 1.0;
+            const maxLogoScale = 1.2;
+            const logoScale = minLogoScale + (maxLogoScale - minLogoScale) * normalizedEnergy;
+            holiLogo.style.transform = `scale(${logoScale})`;
 
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${visualizerHue}, 70%, 50%, 0.6)`;
 
@@ -875,7 +884,7 @@
                     throw new Error("All Radio-Browser API mirrors failed to respond or returned no valid data. Please check your network connection.");
                 }
 
-                const uniqueStations = Array.from(Map(allStations.map(station => [station.stationuuid, station])).values());
+                const uniqueStations = Array.from(new Map(allStations.map(station => [station.stationuuid, station])).values());
                 return uniqueStations;
             }
         }
@@ -1046,6 +1055,7 @@
         document.documentElement.style.setProperty('--base-hue', hueSlider.value);
         updateNowPlayingText("Nothing playing");
         appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
+        holiLogo.style.transform = 'scale(1)'; // Ensure initial logo scale
     </script>
 </body>
 </html>
