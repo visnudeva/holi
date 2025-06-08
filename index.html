@@ -444,11 +444,7 @@
         <div class="flex flex-col gap-2 w-full"> <!-- Container for slider and search input -->
             <input type="range" id="hueSlider" min="0" max="360" value="270" class="flex-grow">
             <div class="flex gap-2">
-                <select id="search-type" class="p-2 rounded-md">
-                    <option value="byname">Name</option>
-                    <option value="bytag">Tag</option>
-                    <option value="bycountry">Country</option>
-                </select>
+                <!-- Removed the select dropdown for search type -->
                 <input type="text" id="searchInput" placeholder="Search for stations" class="flex-grow">
             </div>
         </div>
@@ -985,7 +981,8 @@
                 return;
             }
 
-            const searchType = document.getElementById('search-type').value;
+            // The searchType is now hardcoded to 'byname' since the dropdown is removed
+            const searchType = 'byname';
             const searchTerm = searchInput.value.trim();
 
             if (!searchTerm) {
