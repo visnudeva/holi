@@ -479,7 +479,7 @@
             <div class="text-sm">
                 <span class="font-bold">Holi</span><br>
                 <!-- Changed text-xs to text-sm for larger subtitle -->
-                <span id="subtitleText" class="text-sm" style="color: var(--border-color);"></span>
+                <span id="subtitleText" class="text-sm"></span> <!-- Removed inline style to control color via JS -->
             </div>
         </div>
     </div>
@@ -583,9 +583,10 @@
             requestAnimationFrame(() => {
                 const textWidth = nowPlayingTextSpan.scrollWidth;
                 const containerWidth = nowPlayingLabel.clientWidth;
+                const charLimitForScroll = 30; // Define the character limit here
 
-                // Only scroll if text overflows the container
-                if (textWidth > containerWidth) {
+                // Only scroll if text overflows the container OR exceeds the character limit
+                if (fullText.length > charLimitForScroll || textWidth > containerWidth) {
                     nowPlayingLabel.classList.add('scrolling');
                     nowPlayingLabel.style.justifyContent = 'flex-start'; // Align text to left for scrolling to appear from right
 
@@ -775,6 +776,7 @@
             holiLogo.style.transform = 'scale(1)'; // Reset logo scale
             console.log("Visualizer stopped.");
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
+            subtitleText.style.color = `hsl(${hueSlider.value}, 60%, 40%)`; // Reset subtitle color to default
         }
 
         function drawVisualizer() {
@@ -833,6 +835,8 @@
             holiLogo.style.transform = `scale(${logoScale})`;
 
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${visualizerHue}, 70%, 50%, 0.6)`;
+            // Set subtitle color to sync with the visualizer hue
+            subtitleText.style.color = `hsl(${visualizerHue}, 70%, 70%)`;
 
 
             for (let i = 0; i < bufferLength; i++) {
@@ -1178,6 +1182,8 @@
         hueSlider.addEventListener('input', (event) => {
             document.documentElement.style.setProperty('--base-hue', event.target.value);
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${event.target.value}, 70%, 50%, 0.4)`;
+            // Also update the subtitle color when the slider moves, even if no audio is playing
+            subtitleText.style.color = `hsl(${event.target.value}, 70%, 70%)`;
         });
 
         nowPlayingLabel.addEventListener('click', handleControlButtonClick);
@@ -1191,6 +1197,7 @@
         updateNowPlayingText("Nothing playing");
         appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
         holiLogo.style.transform = 'scale(1)'; // Ensure initial logo scale
+        subtitleText.style.color = `hsl(${hueSlider.value}, 70%, 70%)`; // Set initial subtitle color
 
         // Initialize API server on page load
         initializeApiServer();
