@@ -6,5 +6,5 @@
 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/visnudeva/holi/a24c86b004759a26503aae0c4777ed38c5c3d8a0/screenshot.png" width="1000">
+  <img src="https://raw.githubusercontent.com/visnudeva/holi/aa23b715c77ee0846908fe796def8f465c213b16/Screenshot.png" width="1000">
 </p>
