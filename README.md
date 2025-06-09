@@ -2,8 +2,8 @@
   <img src="https://github.com/visnudeva/holi/blob/06751fab1f481356461acee70c99a3bfb15f46fb/holi.png" width="300">
 </p>
 
-# holi, a colorful web radio player with a visualizer.
-
+# holi, a colorful web radio player with a visualizer
+**Stream radio with style**
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/visnudeva/holi/aa23b715c77ee0846908fe796def8f465c213b16/Screenshot.png" width="1000">
