@@ -575,38 +575,33 @@
         function updateNowPlayingText(fullText) {
             nowPlayingTextSpan.textContent = fullText;
 
-            // Reset animation state
-            nowPlayingLabel.classList.remove('scrolling');
+            // Always apply scrolling and reset animation state
+            nowPlayingLabel.classList.add('scrolling'); // Ensure scrolling class is always present
             nowPlayingTextSpan.style.animation = 'none';
             nowPlayingTextSpan.style.transform = 'translateX(0)'; // Reset transform
 
             requestAnimationFrame(() => {
                 const textWidth = nowPlayingTextSpan.scrollWidth;
                 const containerWidth = nowPlayingLabel.clientWidth;
-                const charLimitForScroll = 30; // Define the character limit here
 
-                // Only scroll if text overflows the container OR exceeds the character limit
-                if (fullText.length > charLimitForScroll || textWidth > containerWidth) {
-                    nowPlayingLabel.classList.add('scrolling');
-                    nowPlayingLabel.style.justifyContent = 'flex-start'; // Align text to left for scrolling to appear from right
+                // Adjust animation duration based on content and container width
+                // Ensure a minimum travel distance to make it always scroll
+                const minimumScrollDistance = containerWidth; // At least scroll the container width
+                const totalScrollDistance = Math.max(textWidth, minimumScrollDistance) + containerWidth; // Ensure text scrolls completely off-screen and beyond container
+                const pixelsPerSecond = 50; // Adjust for desired speed
+                const animationDuration = totalScrollDistance / pixelsPerSecond; // in seconds
 
-                    // The actual distance the text needs to travel from right-off-screen to left-off-screen
-                    // is its own width plus the width of the container.
-                    const totalScrollDistance = textWidth + containerWidth;
-                    const pixelsPerSecond = 50; // Adjust for desired speed
-                    const animationDuration = totalScrollDistance / pixelsPerSecond; // in seconds
+                // Set CSS variables for keyframe animation
+                nowPlayingTextSpan.style.setProperty('--text-width', `${textWidth}px`);
+                nowPlayingTextSpan.style.setProperty('--container-width', `${containerWidth}px`);
+                nowPlayingTextSpan.style.animationDuration = `${animationDuration}s`;
+                nowPlayingTextSpan.style.willChange = 'transform'; // Optimize for animation
 
-                    // Set CSS variables for keyframe animation
-                    nowPlayingTextSpan.style.setProperty('--text-width', `${textWidth}px`);
-                    nowPlayingTextSpan.style.setProperty('--container-width', `${containerWidth}px`);
-                    nowPlayingTextSpan.style.animationDuration = `${animationDuration}s`;
-                    nowPlayingTextSpan.style.willChange = 'transform'; // Optimize for animation
+                // Re-apply animation to restart it with new duration
+                nowPlayingTextSpan.style.animation = ''; // Clear and re-apply to trigger restart
+                nowPlayingTextSpan.style.animation = `marquee ${animationDuration}s linear infinite`;
 
-                } else {
-                    // If no scrolling needed, center the text
-                    nowPlayingLabel.style.justifyContent = 'center';
-                    nowPlayingTextSpan.style.transform = 'translateX(0)'; // Ensure centered
-                }
+                nowPlayingLabel.style.justifyContent = 'flex-start'; // Align text to left for scrolling to appear from right
             });
         }
 
@@ -961,7 +956,7 @@
             try {
                 const response = await fetch('https://all.api.radio-browser.info/json/servers');
                 if (!response.ok) throw new Error('Failed to get server list');
-                
+
                 const servers = await response.json();
                 const activeServer = servers[Math.floor(Math.random() * servers.length)];
                 apiServer = `https://${activeServer.name}`;
@@ -1013,7 +1008,7 @@
                     });
 
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    
+
                     const fetchedStations = await response.json();
                     displayResults(fetchedStations);
                     success = true; // Mark as successful
@@ -1080,7 +1075,7 @@
                 if (selectedSearchItem) {
                     selectedSearchItem.classList.add('selected');
                 }
-                
+
                 // Remove 'selected' from all favorites
                 Array.from(favoritesList.children).forEach(li => li.classList.remove('selected'));
 
