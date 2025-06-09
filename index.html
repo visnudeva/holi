@@ -441,8 +441,16 @@
 </head>
 <body>
     <div class="app-container">
-        <div class="flex flex-col gap-2 w-full"> <!-- Container for slider and search input -->
-            <input type="range" id="hueSlider" min="0" max="360" value="270" class="flex-grow">
+        <!-- New Branding Section - Moved to the top left -->
+        <div class="flex items-center justify-start p-2 w-full"> <!-- Changed justify-end to justify-start -->
+            <img id="holiLogo" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 mr-2 rounded-full transition-transform duration-75 ease-out">
+            <div class="text-sm">
+                <span class="font-bold">Holi</span><br>
+                <span id="subtitleText" class="text-sm"></span>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-2 w-full"> <!-- Container for search input -->
             <div class="flex gap-2">
                 <!-- Removed the select dropdown for search type -->
                 <input type="text" id="searchInput" placeholder="Search for stations" class="flex-grow">
@@ -473,15 +481,8 @@
             </div>
         </div>
 
-        <!-- New Branding Section -->
-        <div class="flex items-center justify-end p-2 mt-auto"> <!-- mt-auto pushes it to the bottom within the flex column -->
-            <img id="holiLogo" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 mr-2 rounded-full transition-transform duration-75 ease-out">
-            <div class="text-sm">
-                <span class="font-bold">Holi</span><br>
-                <!-- Changed text-xs to text-sm for larger subtitle -->
-                <span id="subtitleText" class="text-sm"></span> <!-- Removed inline style to control color via JS -->
-            </div>
-        </div>
+        <!-- Hue Slider - Moved to the bottom -->
+        <input type="range" id="hueSlider" min="0" max="360" value="270" class="flex-grow mt-2">
     </div>
 
     <!-- Message Box Container -->
@@ -588,7 +589,7 @@
                 // Ensure a minimum travel distance to make it always scroll
                 const minimumScrollDistance = containerWidth; // At least scroll the container width
                 const totalScrollDistance = Math.max(textWidth, minimumScrollDistance) + containerWidth; // Ensure text scrolls completely off-screen and beyond container
-                const pixelsPerSecond = 50; // Adjust for desired speed
+                const pixelsPerSecond = 100; // Adjust for desired speed
                 const animationDuration = totalScrollDistance / pixelsPerSecond; // in seconds
 
                 // Set CSS variables for keyframe animation
@@ -1158,7 +1159,9 @@
         const subtitles = [
             "Where sound meets light.",
             "Stream the glow within.",
-            "A dance of sound and color."
+            "A dance of sound and color.",
+            "Stream radio with style.", /* New subtitle */
+            "Free yourself from subscriptions." /* New subtitle */
         ];
 
         function setRandomSubtitle() {
