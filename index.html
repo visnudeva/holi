@@ -442,10 +442,8 @@
 <body>
     <div class="app-container">
         <!-- New Branding Section - Moved to the top left -->
-        <div class="flex items-center justify-start p-2 w-full">
-            <a href="https://github.com/visnudeva/holi/tree/main" target="_blank" rel="noopener noreferrer" class="flex items-center">
-                <img id="holiLogo" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 mr-2 rounded-full transition-transform duration-75 ease-out">
-            </a>
+        <div class="flex items-center justify-start p-2 w-full"> <!-- Changed justify-end to justify-start -->
+            <img id="holiLogo" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 mr-2 rounded-full transition-transform duration-75 ease-out">
             <div class="text-sm">
                 <span class="font-bold">Holi</span><br>
                 <span id="subtitleText" class="text-sm"></span>
@@ -526,7 +524,7 @@
         let audioContext = null;
         let analyser = null;
         let sourceNode = null;
-        const FFT_SIZE = 64; // Reverted to FFT_SIZE = 64, which gives 32 bars
+        const FFT_SIZE = 128;
         let dataArray = null;
         let animationFrameId = null;
 
@@ -702,7 +700,7 @@
                 await ensureAudioContext();
 
                 analyser = audioContext.createAnalyser();
-                analyser.fftSize = FFT_SIZE; // Set to 64, resulting in 32 bars
+                analyser.fftSize = FFT_SIZE;
                 dataArray = new Uint8Array(analyser.frequencyBinCount);
 
                 currentAudio = new Audio();
@@ -793,9 +791,10 @@
 
             ctx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
 
-            const bufferLength = analyser.frequencyBinCount; // This will be 32 (FFT_SIZE / 2)
-            const barWidth = (visualizerCanvas.width / bufferLength); // Adjust bar width to fit 32 bars
-            const gap = barWidth * 0.1; // Small gap between bars
+            const bufferLength = analyser.frequencyBinCount;
+            const barWidth = (visualizerCanvas.width / bufferLength) * 2.5;
+            let x = 0;
+
             const MAX_BAR_HEIGHT_RATIO = 0.9;
             const noiseThreshold = 3;
 
@@ -814,7 +813,7 @@
             let visualizerHue = baseHue - (normalizedEnergy * baseHue);
             visualizerHue = (visualizerHue + 360) % 360;
 
-            const barRadius = 5; // Retained increased barRadius for more rounded bars
+            const barRadius = 3;
 
             const minBarScale = 0.9;
             const maxBarScale = 1.1;
@@ -835,9 +834,7 @@
             // Set subtitle color to sync with the visualizer hue
             subtitleText.style.color = `hsl(${visualizerHue}, 70%, 70%)`;
 
-            let x = 0; // Starting X position for drawing
 
-            // Draw all bars from left to right
             for (let i = 0; i < bufferLength; i++) {
                 let normalizedValue = dataArray[i] / 255;
                 let scaledValue = Math.pow(normalizedValue, 0.6);
@@ -849,29 +846,25 @@
                 }
 
                 if (barHeight > 0) {
-                    const gradient = ctx.createLinearGradient(x, visualizerCanvas.height, x, visualizerCanvas.height - barHeight);
+                    const gradient = ctx.createLinearGradient(x, visualizerCanvas.height, x + barWidth, 0);
                     gradient.addColorStop(0, `hsl(${visualizerHue}, 80%, 30%)`);
                     gradient.addColorStop(1, `hsl(${visualizerHue}, 80%, 50%)`);
 
                     ctx.fillStyle = gradient;
-
-                    // Draw rounded rectangle for the bar
-                    const currentBarWidth = barWidth - gap; // Account for the gap
-                    const effectiveRadius = Math.min(barRadius, currentBarWidth / 2 - 1);
+                    const effectiveRadius = Math.min(barRadius, barWidth / 2 - 1);
 
                     ctx.beginPath();
-                    ctx.moveTo(x + effectiveRadius, visualizerCanvas.height - barHeight);
-                    ctx.lineTo(x + currentBarWidth - effectiveRadius, visualizerCanvas.height - barHeight);
-                    ctx.arcTo(x + currentBarWidth, visualizerCanvas.height - barHeight, x + currentBarWidth, visualizerCanvas.height - barHeight + effectiveRadius, effectiveRadius);
-                    ctx.lineTo(x + currentBarWidth, visualizerCanvas.height);
-                    ctx.lineTo(x, visualizerCanvas.height);
+                    ctx.moveTo(x, visualizerCanvas.height);
                     ctx.lineTo(x, visualizerCanvas.height - barHeight + effectiveRadius);
-                    ctx.arcTo(x, visualizerCanvas.height - barHeight, x + effectiveRadius, visualizerCanvas.height - barHeight, effectiveRadius);
+                    ctx.quadraticCurveTo(x, visualizerCanvas.height - barHeight, x + effectiveRadius, visualizerCanvas.height - barHeight);
+                    ctx.lineTo(x + barWidth - effectiveRadius, visualizerCanvas.height - barHeight);
+                    ctx.quadraticCurveTo(x + barWidth, visualizerCanvas.height - barHeight, x + barWidth, visualizerCanvas.height - barHeight + effectiveRadius);
+                    ctx.lineTo(x + barWidth, visualizerCanvas.height);
                     ctx.closePath();
                     ctx.fill();
                 }
 
-                x += barWidth; // Move to the next bar's starting position
+                x += barWidth + 1;
             }
         }
 
