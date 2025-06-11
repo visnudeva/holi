@@ -121,11 +121,12 @@
         /* Input and Select styling */
         input[type="text"], select {
             background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-color); /* Default border color */
             padding: 10px;
             border-radius: 12px;
             color: var(--light-gray-text);
             outline: none;
+            transition: border-color 0.2s ease-in-out; /* Add transition for smooth color change */
         }
 
         /* Placeholder styling for search input */
@@ -145,7 +146,8 @@
             border-radius: 8px;
             outline: none;
             cursor: pointer;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-color); /* Default border color */
+            transition: border-color 0.2s ease-in-out; /* Add transition for smooth color change */
         }
 
         /* Style the thumb (handle) of the slider */
@@ -184,7 +186,7 @@
         /* List styling */
         .results-container, .favorites-list { /* Changed station-list to results-container */
             background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-color); /* Default border color */
             border-radius: 10px;
             padding: 5px;
             color: var(--light-gray-text); /* Default color for actual results */
@@ -193,6 +195,7 @@
             list-style: none;
             margin: 0;
             position: relative; /* Needed for absolute positioning of spinner/message */
+            transition: border-color 0.2s ease-in-out; /* Add transition for smooth color change */
         }
 
         /* Style for placeholder-like text within lists */
@@ -229,7 +232,7 @@
             padding: 10px;
             text-align: center;
             background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-color); /* Default border color */
             border-radius: 10px;
             font-size: 1.2em;
             color: var(--light-gray-text);
@@ -242,7 +245,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.1s ease-out;
+            transition: transform 0.1s ease-out, border-color 0.2s ease-in-out; /* Add transition for smooth color change */
         }
 
         .now-playing-label:active {
@@ -288,7 +291,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            border: 2px solid var(--border-color);
+            /* Initial border color will be set dynamically by JavaScript */
+            border: 2px solid;
             background-color: var(--panel-bg);
             border-radius: 15px;
             overflow: hidden;
@@ -445,7 +449,7 @@
         <div class="flex items-center justify-center p-2 w-full">
             <div class="flex items-center"> <!-- Inner flex container to group and align elements -->
                 <span class="font-bold text-sm mr-2">Holi</span> <!-- "Holi" text on the left -->
-                <a href="https://github.com/visnudeva/holi/tree/e2e3d8b4209db6223e07ac6b057a62de6c331f2f" target="_blank" rel="noopener noreferrer">
+                <a href="https://github.com/visnudeva/holi/tree/main" target="_blank" rel="noopener noreferrer">
                     <img id="holiLogo" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 rounded-full transition-transform duration-75 ease-out">
                 </a>
                 <span id="subtitleText" class="text-sm ml-2"></span> <!-- Subtitle on the right -->
@@ -517,7 +521,7 @@
         // --- Radio Browser API Configuration ---
         let stations = [];
         let recentStations = [];
-        const MAX_RECENT_STATIONS = 5;
+        const MAX_RECENT_STATIONS = 10; // Increased max recent stations to 10
         let currentAudio = null;
         let currentPlayingStation = null;
         let apiServer = null; // New global variable for the selected API server
@@ -529,6 +533,9 @@
         const FFT_SIZE = 128;
         let dataArray = null;
         let animationFrameId = null;
+
+        // Global variable to store the current dynamic hue for border effects
+        let currentDynamicHue = 0;
 
         // --- Helper Functions for Cookies ---
         function setCookie(name, value, days) {
@@ -775,6 +782,9 @@
             console.log("Visualizer stopped.");
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
             subtitleText.style.color = `hsl(${hueSlider.value}, 60%, 40%)`; // Reset subtitle color to default
+            // Reset visualizer container border color to default hue when stopped
+            visualizerContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`;
+            currentDynamicHue = parseFloat(hueSlider.value); // Reset dynamic hue to slider value
         }
 
         function drawVisualizer() {
@@ -815,7 +825,11 @@
             let visualizerHue = baseHue - (normalizedEnergy * baseHue);
             visualizerHue = (visualizerHue + 360) % 360;
 
-            const barRadius = 3;
+            // Update the global dynamic hue for other elements
+            currentDynamicHue = visualizerHue;
+
+            // Increased barRadius for more rounded bars
+            const barRadius = 10;
 
             const minBarScale = 0.9;
             const maxBarScale = 1.1;
@@ -832,7 +846,10 @@
             const logoScale = minLogoScale + (maxLogoScale - minLogoScale) * normalizedEnergy;
             holiLogo.style.transform = `scale(${logoScale})`;
 
+            // Update appContainer shadow and visualizerContainer border to sync with visualizerHue
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${visualizerHue}, 70%, 50%, 0.6)`;
+            visualizerContainer.style.borderColor = `hsl(${visualizerHue}, 60%, 40%)`; // Sync border color
+
             // Set subtitle color to sync with the visualizer hue
             subtitleText.style.color = `hsl(${visualizerHue}, 70%, 70%)`;
 
@@ -853,14 +870,21 @@
                     gradient.addColorStop(1, `hsl(${visualizerHue}, 80%, 50%)`);
 
                     ctx.fillStyle = gradient;
+                    // Ensure effectiveRadius doesn't exceed half of barWidth for proper rounding
                     const effectiveRadius = Math.min(barRadius, barWidth / 2 - 1);
 
                     ctx.beginPath();
+                    // Bottom-left corner (no rounding)
                     ctx.moveTo(x, visualizerCanvas.height);
+                    // Left vertical line
                     ctx.lineTo(x, visualizerCanvas.height - barHeight + effectiveRadius);
+                    // Top-left rounded corner
                     ctx.quadraticCurveTo(x, visualizerCanvas.height - barHeight, x + effectiveRadius, visualizerCanvas.height - barHeight);
+                    // Top horizontal line
                     ctx.lineTo(x + barWidth - effectiveRadius, visualizerCanvas.height - barHeight);
+                    // Top-right rounded corner
                     ctx.quadraticCurveTo(x + barWidth, visualizerCanvas.height - barHeight, x + barWidth, visualizerCanvas.height - barHeight + effectiveRadius);
+                    // Right vertical line
                     ctx.lineTo(x + barWidth, visualizerCanvas.height);
                     ctx.closePath();
                     ctx.fill();
@@ -1172,6 +1196,20 @@
             subtitleText.textContent = subtitles[randomIndex];
         }
 
+        /**
+         * Adds mouseover and mouseout event listeners to an element
+         * to change its border color dynamically.
+         * @param {HTMLElement} element - The DOM element to add the effect to.
+         */
+        function addHoverBorderEffect(element) {
+            element.addEventListener('mouseover', () => {
+                element.style.borderColor = `hsl(${currentDynamicHue}, 80%, 70%)`; // Use a vibrant color based on current hue
+            });
+            element.addEventListener('mouseout', () => {
+                element.style.borderColor = 'var(--border-color)'; // Revert to default
+            });
+        }
+
 
         // --- Event Listeners ---
         searchInput.addEventListener('keydown', (event) => {
@@ -1185,6 +1223,12 @@
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${event.target.value}, 70%, 50%, 0.4)`;
             // Also update the subtitle color when the slider moves, even if no audio is playing
             subtitleText.style.color = `hsl(${event.target.value}, 70%, 70%)`;
+            // Also update the visualizer container border color when the slider moves
+            visualizerContainer.style.borderColor = `hsl(${event.target.value}, 60%, 40%)`;
+            // Update currentDynamicHue when slider moves, if audio isn't playing (will be overwritten by visualizer if playing)
+            if (!currentAudio || currentAudio.paused) {
+                currentDynamicHue = parseFloat(event.target.value);
+            }
         });
 
         nowPlayingLabel.addEventListener('click', handleControlButtonClick);
@@ -1199,6 +1243,16 @@
         appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
         holiLogo.style.transform = 'scale(1)'; // Ensure initial logo scale
         subtitleText.style.color = `hsl(${hueSlider.value}, 70%, 70%)`; // Set initial subtitle color
+        visualizerContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`; // Set initial visualizer border color
+
+        currentDynamicHue = parseFloat(hueSlider.value); // Initialize dynamic hue
+
+        // Apply hover border effect to relevant elements
+        addHoverBorderEffect(searchInput);
+        addHoverBorderEffect(resultsContainer);
+        addHoverBorderEffect(favoritesList);
+        addHoverBorderEffect(hueSlider);
+        addHoverBorderEffect(nowPlayingLabel);
 
         // Initialize API server on page load
         initializeApiServer();
