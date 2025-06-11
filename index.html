@@ -441,15 +441,14 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- New Branding Section - Moved to the top left -->
-        <div class="flex items-center justify-start p-2 w-full"> <!-- Changed justify-end to justify-start -->
-            <!-- Wrapped the logo image in an anchor tag -->
-            <a href="https://github.com/visnudeva/holi/tree/e2e3d8b4209db6223e07ac6b057a62de6c331f2f" target="_blank" rel="noopener noreferrer">
-                <img id="holiLogo" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 mr-2 rounded-full transition-transform duration-75 ease-out">
-            </a>
-            <div class="text-sm">
-                <span class="font-bold">Holi</span><br>
-                <span id="subtitleText" class="text-sm"></span>
+        <!-- New Branding Section - Now centered and uses flex for horizontal arrangement -->
+        <div class="flex items-center justify-center p-2 w-full">
+            <div class="flex items-center"> <!-- Inner flex container to group and align elements -->
+                <span class="font-bold text-sm mr-2">Holi</span> <!-- "Holi" text on the left -->
+                <a href="https://github.com/visnudeva/holi/tree/e2e3d8b4209db6223e07ac6b057a62de6c331f2f" target="_blank" rel="noopener noreferrer">
+                    <img id="holiLogo" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 rounded-full transition-transform duration-75 ease-out">
+                </a>
+                <span id="subtitleText" class="text-sm ml-2"></span> <!-- Subtitle on the right -->
             </div>
         </div>
 
