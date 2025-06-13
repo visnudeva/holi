@@ -62,6 +62,7 @@
             min-height: 500px;
             opacity: 0.95;
             transition: box-shadow 0.1s ease-out; /* Smooth transition for shadow color */
+            border: 2px solid var(--border-color); /* Added initial border for app-container */
         }
 
         /* Custom scrollbar for app-container */
@@ -626,7 +627,12 @@
 
         const onAudioPlaying = () => {
             console.log("Audio is actually playing.");
-            updateNowPlayingText(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
+            // Construct the now playing text with station name and song title
+            const stationName = currentPlayingStation ? currentPlayingStation.name : 'Unknown Station';
+            const songTitle = currentPlayingStation && currentPlayingStation.current_track ? currentPlayingStation.current_track : '';
+            const fullText = songTitle ? `${stationName} - ${songTitle}` : stationName;
+
+            updateNowPlayingText(`Now playing: ${fullText}`);
             if (!animationFrameId) {
                 animationFrameId = requestAnimationFrame(drawVisualizer);
             }
@@ -790,6 +796,8 @@
             holiLogo.style.transform = 'scale(1)'; // Reset logo scale
             console.log("Visualizer stopped.");
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
+            // Reset appContainer border color to default hue when stopped
+            appContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`; // Added this line
             subtitleText.style.color = `hsl(${hueSlider.value}, 60%, 40%)`; // Reset subtitle color to default
             // Reset visualizer container border color to default hue when stopped
             visualizerContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`;
@@ -855,9 +863,10 @@
             const logoScale = minLogoScale + (maxLogoScale - minLogoScale) * normalizedEnergy;
             holiLogo.style.transform = `scale(${logoScale})`;
 
-            // Update appContainer shadow and visualizerContainer border to sync with visualizerHue
+            // Update appContainer shadow, visualizerContainer border, and appContainer border to sync with visualizerHue
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${visualizerHue}, 70%, 50%, 0.6)`;
             visualizerContainer.style.borderColor = `hsl(${visualizerHue}, 60%, 40%)`; // Sync border color
+            appContainer.style.borderColor = `hsl(${visualizerHue}, 60%, 40%)`; // Added this line for app-container border
 
             // Set subtitle color to sync with the visualizer hue
             subtitleText.style.color = `hsl(${visualizerHue}, 70%, 70%)`;
@@ -1163,7 +1172,11 @@
                     updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
                 } else if (currentAudio && currentAudio.paused) {
                     await currentAudio.play();
-                    updateNowPlayingText(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
+                    // When resuming, re-evaluate the full text including potential song title
+                    const stationName = currentPlayingStation ? currentPlayingStation.name : 'Unknown Station';
+                    const songTitle = currentPlayingStation && currentPlayingStation.current_track ? currentPlayingStation.current_track : '';
+                    const fullText = songTitle ? `${stationName} - ${songTitle}` : stationName;
+                    updateNowPlayingText(`Now playing: ${fullText}`);
                 } else {
                     const selectedItem = resultsContainer.querySelector('.selected'); // Changed from stationList
                     const selectedFavorite = favoritesList.querySelector('.selected');
@@ -1229,6 +1242,7 @@
             subtitleText.style.color = `hsl(${event.target.value}, 70%, 70%)`;
             // Also update the visualizer container border color when the slider moves
             visualizerContainer.style.borderColor = `hsl(${event.target.value}, 60%, 40%)`;
+            appContainer.style.borderColor = `hsl(${event.target.value}, 60%, 40%)`; // Added this line for app-container border
             // Update currentDynamicHue when slider moves, if audio isn't playing (will be overwritten by visualizer if playing)
             if (!currentAudio || currentAudio.paused) {
                 currentDynamicHue = parseFloat(event.target.value);
@@ -1248,6 +1262,7 @@
         holiLogo.style.transform = 'scale(1)'; // Ensure initial logo scale
         subtitleText.style.color = `hsl(${hueSlider.value}, 70%, 70%)`; // Set initial subtitle color
         visualizerContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`; // Set initial visualizer border color
+        appContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`; // Set initial app-container border color
 
         currentDynamicHue = parseFloat(hueSlider.value); // Initialize dynamic hue
 
@@ -1257,6 +1272,7 @@
         addHoverBorderEffect(favoritesList);
         addHoverBorderEffect(hueSlider);
         addHoverBorderEffect(nowPlayingLabel);
+        addHoverBorderEffect(appContainer); // Added for app-container border hover effect
 
         // Initialize API server on page load
         initializeApiServer();
