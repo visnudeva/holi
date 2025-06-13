@@ -537,27 +537,36 @@
         // Global variable to store the current dynamic hue for border effects
         let currentDynamicHue = 0;
 
-        // --- Helper Functions for Cookies ---
-        function setCookie(name, value, days) {
-            let expires = "";
-            if (days) {
-                const date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                expires = "; expires=" + date.toUTCString();
+        // --- Helper Functions for LocalStorage ---
+
+        /**
+         * Saves data to localStorage.
+         * @param {string} key - The key under which to store the data.
+         * @param {any} value - The data to store. It will be stringified.
+         */
+        function saveToLocalStorage(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+            } catch (e) {
+                console.error("Error saving to localStorage:", e);
             }
-            document.cookie = name + "=" + (value || "") + expires + "; path=/";
         }
 
-        function getCookie(name) {
-            const nameEQ = name + "=";
-            const ca = document.cookie.split(';');
-            for (let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        /**
+         * Retrieves and parses data from localStorage.
+         * @param {string} key - The key of the data to retrieve.
+         * @returns {any | null} The parsed data, or null if not found or an error occurs.
+         */
+        function getFromLocalStorage(key) {
+            try {
+                const storedValue = localStorage.getItem(key);
+                return storedValue ? JSON.parse(storedValue) : null;
+            } catch (e) {
+                console.error("Error loading from localStorage:", e);
+                return null;
             }
-            return null;
         }
+
 
         /**
          * Displays a custom message box.
@@ -638,7 +647,7 @@
 
         const onAudioError = (e) => {
             console.error("Audio element error:", e);
-            let errorMessage = "An unknown error occurred while trying to play the audio. The stream might be unavailable or your browser is blocking playback.";
+            let errorMessage = "Radio station unavailable, please try another one."; // Default to a more generic message
             if (e.message) {
                 errorMessage = e.message;
             } else if (e.name === "NotAllowedError") {
@@ -655,10 +664,10 @@
                         errorMessage = "The audio playback was aborted due to a decoding error.";
                         break;
                     case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-                        errorMessage = "The audio format of this stream is not supported by your browser, or the stream is unavailable. Try another station.";
+                        errorMessage = "Radio station unavailable, please try another one."; // Updated message
                         break;
                     default:
-                        errorMessage = "An unknown media error occurred.";
+                        errorMessage = "Radio station unavailable, please try another one."; // Updated default message
                 }
             }
             stopVisualizer(true);
@@ -737,9 +746,9 @@
                 console.error("Audio/Visualizer setup error:", e);
                 let userMessage = "Could not start audio or visualizer. ";
                 if (e.message.includes("Autoplay prevented") || e.name === "NotAllowedError") {
-                    userMessage += "Your browser might be blocking autoplay. Please interact with the page (e.g., click play) to enable audio.";
+                    userMessage = "Autoplay prevented by your browser. Please interact with the page (e.g., click play) to enable audio.";
                 } else {
-                    userMessage += `Error details: ${e.message || "Unknown error."}`;
+                    userMessage = "Radio station unavailable, please try another one."; // Generic message for other errors during setup
                 }
                 stopVisualizer(true);
                 showMessageBox(userMessage, 'error'); // Display error to user
@@ -897,8 +906,8 @@
         // --- Recent Stations Management (formerly Favorites) ---
 
         function saveRecentStations() {
-            setCookie('recentStations', JSON.stringify(recentStations), 365);
-            console.log("Recent stations saved:", recentStations);
+            saveToLocalStorage('recentStations', recentStations);
+            console.log("Recent stations saved to localStorage:", recentStations);
         }
 
         function renderFavorites() {
@@ -919,15 +928,10 @@
         }
 
         function loadRecentStations() {
-            const storedRecents = getCookie('recentStations');
+            const storedRecents = getFromLocalStorage('recentStations');
             if (storedRecents) {
-                try {
-                    recentStations = JSON.parse(storedRecents);
-                    console.log("Recent stations loaded:", recentStations);
-                } catch (e) {
-                    console.error("Error parsing stored recent stations from cookie:", e);
-                    recentStations = [];
-                }
+                recentStations = storedRecents;
+                console.log("Recent stations loaded from localStorage:", recentStations);
             } else {
                 recentStations = [
                     { "name": "SomaFM: Deep Space One", "url_resolved": "http://ice4.somafm.com/deepspaceone-128-mp3", "stationuuid": "c0d4e5f6-8a9b-4c5d-0e1f-2a3b4c5d6e7f", "countrycode": "US", "favicon": "" },
@@ -936,7 +940,7 @@
                     { "name": "SomaFM: Secret Agent", "url_resolved": "http://ice1.somafm.com/secretagent-128-mp3", "stationuuid": "f3g7h8i9-1d2e-7f8g-3b4c-5d6e7f8g9h0i", "countrycode": "US", "favicon": "" },
                     { "name": "SomaFM: Lush", "url_resolved": "http://ice4.somafm.com/lush-128-mp3", "stationuuid": "g4h8i9j0-2e3f-8g9h-4c5d-6e7f8g9h0i1j", "countrycode": "US", "favicon": "" }
                 ];
-                saveRecentStations();
+                saveRecentStations(); // Save default stations to localStorage
             }
             renderFavorites();
         }
