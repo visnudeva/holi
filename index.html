@@ -62,7 +62,6 @@
             min-height: 500px;
             opacity: 0.95;
             transition: box-shadow 0.1s ease-out; /* Smooth transition for shadow color */
-            border: 2px solid var(--border-color); /* Added initial border for app-container */
         }
 
         /* Custom scrollbar for app-container */
@@ -232,7 +231,7 @@
             font-weight: bold;
             padding: 10px;
             text-align: center;
-            background-color: var(--panel-bg);
+            background-color: var(--panel-bg); /* Default background color */
             border: 1px solid var(--border-color); /* Default border color */
             border-radius: 10px;
             font-size: 1.2em;
@@ -246,7 +245,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.1s ease-out, border-color 0.2s ease-in-out; /* Add transition for smooth color change */
+            transition: transform 0.1s ease-out, border-color 0.2s ease-in-out, background-color 0.2s ease-in-out; /* Added background-color transition */
         }
 
         .now-playing-label:active {
@@ -450,7 +449,7 @@
         <div class="flex items-center justify-center p-2 w-full">
             <div class="flex items-center"> <!-- Inner flex container to group and align elements -->
                 <span class="font-bold text-sm mr-2">Holi</span> <!-- "Holi" text on the left -->
-                <a href="https://github.com/visnudeva/holi/tree/main" target="_blank" rel="noopener noreferrer">
+                <a href="https://github.com/visnudeva/holi/tree/e2e3d8b4209db6223e07ac6b057a62de6c331f2f" target="_blank" rel="noopener noreferrer">
                     <img id="holiLogo" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 rounded-full transition-transform duration-75 ease-out">
                 </a>
                 <span id="subtitleText" class="text-sm ml-2"></span> <!-- Subtitle on the right -->
@@ -522,10 +521,10 @@
         // --- Radio Browser API Configuration ---
         let stations = [];
         let recentStations = [];
-        const MAX_RECENT_STATIONS = 10; // Increased max recent stations to 10
+        const MAX_RECENT_STATIONS = 10;
         let currentAudio = null;
         let currentPlayingStation = null;
-        let apiServer = null; // New global variable for the selected API server
+        let apiServer = null;
 
         // --- Web Audio API for Visualizer ---
         let audioContext = null;
@@ -538,36 +537,77 @@
         // Global variable to store the current dynamic hue for border effects
         let currentDynamicHue = 0;
 
-        // --- Helper Functions for LocalStorage ---
+        // --- Wake Lock API ---
+        let wakeLock = null; // Variable to store the wake lock sentinel
 
         /**
-         * Saves data to localStorage.
-         * @param {string} key - The key under which to store the data.
-         * @param {any} value - The data to store. It will be stringified.
+         * Requests a screen wake lock.
          */
-        function saveToLocalStorage(key, value) {
-            try {
-                localStorage.setItem(key, JSON.stringify(value));
-            } catch (e) {
-                console.error("Error saving to localStorage:", e);
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Screen Wake Lock acquired:', wakeLock);
+                    wakeLock.onrelease = () => {
+                        console.log('Screen Wake Lock released by system.');
+                        wakeLock = null; // Clear the sentinel
+                    };
+                } catch (err) {
+                    // The user has denied the request, or the system has denied it.
+                    console.error(`Wake Lock Error: ${err.name}, ${err.message}`);
+                    // Optionally, show a message to the user that wake lock couldn't be acquired
+                }
+            } else {
+                console.log('Wake Lock API not supported by this browser.');
+                // Optionally, show a message to the user about lack of support
             }
         }
 
         /**
-         * Retrieves and parses data from localStorage.
-         * @param {string} key - The key of the data to retrieve.
-         * @returns {any | null} The parsed data, or null if not found or an error occurs.
+         * Releases the acquired screen wake lock.
          */
-        function getFromLocalStorage(key) {
-            try {
-                const storedValue = localStorage.getItem(key);
-                return storedValue ? JSON.parse(storedValue) : null;
-            } catch (e) {
-                console.error("Error loading from localStorage:", e);
-                return null;
+        async function releaseWakeLock() {
+            if (wakeLock) {
+                try {
+                    await wakeLock.release();
+                    console.log('Screen Wake Lock released manually.');
+                    wakeLock = null;
+                } catch (err) {
+                    console.error(`Failed to release Wake Lock: ${err.name}, ${err.message}`);
+                }
             }
         }
 
+        // --- Event listener for visibility change to re-request wake lock ---
+        // If the page becomes visible again and audio is playing, re-request the wake lock
+        document.addEventListener('visibilitychange', () => {
+            if (wakeLock !== null && document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) {
+                requestWakeLock();
+            }
+        });
+
+
+        // --- Helper Functions for Cookies ---
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
 
         /**
          * Displays a custom message box.
@@ -627,33 +667,31 @@
 
         const onAudioPlaying = () => {
             console.log("Audio is actually playing.");
-            // Construct the now playing text with station name and song title
-            const stationName = currentPlayingStation ? currentPlayingStation.name : 'Unknown Station';
-            const songTitle = currentPlayingStation && currentPlayingStation.current_track ? currentPlayingStation.current_track : '';
-            const fullText = songTitle ? `${stationName} - ${songTitle}` : stationName;
-
-            updateNowPlayingText(`Now playing: ${fullText}`);
+            updateNowPlayingText(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
             if (!animationFrameId) {
                 animationFrameId = requestAnimationFrame(drawVisualizer);
             }
             if (currentPlayingStation) {
                 addStationToRecents(currentPlayingStation);
             }
+            requestWakeLock(); // Request wake lock when audio starts playing
         };
 
         const onAudioPause = () => {
             updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
+            releaseWakeLock(); // Release wake lock when audio pauses
         };
 
         const onAudioEnded = () => {
             console.log("Audio ended.");
             stopVisualizer();
             updateNowPlayingText("Nothing playing");
+            releaseWakeLock(); // Release wake lock when audio ends
         };
 
         const onAudioError = (e) => {
             console.error("Audio element error:", e);
-            let errorMessage = "Radio station unavailable, please try another one."; // Default to a more generic message
+            let errorMessage = "An unknown error occurred while trying to play the audio. The stream might be unavailable or your browser is blocking playback.";
             if (e.message) {
                 errorMessage = e.message;
             } else if (e.name === "NotAllowedError") {
@@ -670,15 +708,16 @@
                         errorMessage = "The audio playback was aborted due to a decoding error.";
                         break;
                     case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-                        errorMessage = "Radio station unavailable, please try another one."; // Updated message
+                        errorMessage = "The audio format of this stream is not supported by your browser, or the stream is unavailable. Try another station.";
                         break;
                     default:
-                        errorMessage = "Radio station unavailable, please try another one."; // Updated default message
+                        errorMessage = "An unknown media error occurred.";
                 }
             }
             stopVisualizer(true);
             updateNowPlayingText("Error playing station");
             showMessageBox(errorMessage, 'error'); // Display error to user
+            releaseWakeLock(); // Release wake lock on error
         };
 
         async function ensureAudioContext() {
@@ -752,9 +791,9 @@
                 console.error("Audio/Visualizer setup error:", e);
                 let userMessage = "Could not start audio or visualizer. ";
                 if (e.message.includes("Autoplay prevented") || e.name === "NotAllowedError") {
-                    userMessage = "Autoplay prevented by your browser. Please interact with the page (e.g., click play) to enable audio.";
+                    userMessage += "Your browser might be blocking autoplay. Please interact with the page (e.g., click play) to enable audio.";
                 } else {
-                    userMessage = "Radio station unavailable, please try another one."; // Generic message for other errors during setup
+                    userMessage += `Error details: ${e.message || "Unknown error."}`;
                 }
                 stopVisualizer(true);
                 showMessageBox(userMessage, 'error'); // Display error to user
@@ -796,12 +835,11 @@
             holiLogo.style.transform = 'scale(1)'; // Reset logo scale
             console.log("Visualizer stopped.");
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`;
-            // Reset appContainer border color to default hue when stopped
-            appContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`; // Added this line
             subtitleText.style.color = `hsl(${hueSlider.value}, 60%, 40%)`; // Reset subtitle color to default
             // Reset visualizer container border color to default hue when stopped
             visualizerContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`;
             currentDynamicHue = parseFloat(hueSlider.value); // Reset dynamic hue to slider value
+            releaseWakeLock(); // Ensure wake lock is released when stopping
         }
 
         function drawVisualizer() {
@@ -863,10 +901,9 @@
             const logoScale = minLogoScale + (maxLogoScale - minLogoScale) * normalizedEnergy;
             holiLogo.style.transform = `scale(${logoScale})`;
 
-            // Update appContainer shadow, visualizerContainer border, and appContainer border to sync with visualizerHue
+            // Update appContainer shadow and visualizerContainer border to sync with visualizerHue
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${visualizerHue}, 70%, 50%, 0.6)`;
             visualizerContainer.style.borderColor = `hsl(${visualizerHue}, 60%, 40%)`; // Sync border color
-            appContainer.style.borderColor = `hsl(${visualizerHue}, 60%, 40%)`; // Added this line for app-container border
 
             // Set subtitle color to sync with the visualizer hue
             subtitleText.style.color = `hsl(${visualizerHue}, 70%, 70%)`;
@@ -915,8 +952,8 @@
         // --- Recent Stations Management (formerly Favorites) ---
 
         function saveRecentStations() {
-            saveToLocalStorage('recentStations', recentStations);
-            console.log("Recent stations saved to localStorage:", recentStations);
+            setCookie('recentStations', JSON.stringify(recentStations), 365);
+            console.log("Recent stations saved:", recentStations);
         }
 
         function renderFavorites() {
@@ -937,10 +974,15 @@
         }
 
         function loadRecentStations() {
-            const storedRecents = getFromLocalStorage('recentStations');
+            const storedRecents = getCookie('recentStations');
             if (storedRecents) {
-                recentStations = storedRecents;
-                console.log("Recent stations loaded from localStorage:", recentStations);
+                try {
+                    recentStations = JSON.parse(storedRecents);
+                    console.log("Recent stations loaded:", recentStations);
+                } catch (e) {
+                    console.error("Error parsing stored recent stations from cookie:", e);
+                    recentStations = [];
+                }
             } else {
                 recentStations = [
                     { "name": "SomaFM: Deep Space One", "url_resolved": "http://ice4.somafm.com/deepspaceone-128-mp3", "stationuuid": "c0d4e5f6-8a9b-4c5d-0e1f-2a3b4c5d6e7f", "countrycode": "US", "favicon": "" },
@@ -949,7 +991,7 @@
                     { "name": "SomaFM: Secret Agent", "url_resolved": "http://ice1.somafm.com/secretagent-128-mp3", "stationuuid": "f3g7h8i9-1d2e-7f8g-3b4c-5d6e7f8g9h0i", "countrycode": "US", "favicon": "" },
                     { "name": "SomaFM: Lush", "url_resolved": "http://ice4.somafm.com/lush-128-mp3", "stationuuid": "g4h8i9j0-2e3f-8g9h-4c5d-6e7f8g9h0i1j", "countrycode": "US", "favicon": "" }
                 ];
-                saveRecentStations(); // Save default stations to localStorage
+                saveRecentStations();
             }
             renderFavorites();
         }
@@ -1170,13 +1212,11 @@
                 if (currentAudio && !currentAudio.paused) {
                     currentAudio.pause();
                     updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
+                    releaseWakeLock(); // Release wake lock on pause from control button
                 } else if (currentAudio && currentAudio.paused) {
                     await currentAudio.play();
-                    // When resuming, re-evaluate the full text including potential song title
-                    const stationName = currentPlayingStation ? currentPlayingStation.name : 'Unknown Station';
-                    const songTitle = currentPlayingStation && currentPlayingStation.current_track ? currentPlayingStation.current_track : '';
-                    const fullText = songTitle ? `${stationName} - ${songTitle}` : stationName;
-                    updateNowPlayingText(`Now playing: ${fullText}`);
+                    updateNowPlayingText(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
+                    requestWakeLock(); // Request wake lock on play from control button
                 } else {
                     const selectedItem = resultsContainer.querySelector('.selected'); // Changed from stationList
                     const selectedFavorite = favoritesList.querySelector('.selected');
@@ -1204,8 +1244,8 @@
             "Where sound meets light.",
             "Stream the glow within.",
             "A dance of sound and color.",
-            "Stream radio with style.", /* New subtitle */
-            "Free yourself from subscriptions." /* New subtitle */
+            "Stream radio with style.",
+            "Free yourself from subscriptions."
         ];
 
         function setRandomSubtitle() {
@@ -1215,15 +1255,19 @@
 
         /**
          * Adds mouseover and mouseout event listeners to an element
-         * to change its border color dynamically.
+         * to change its border and background color dynamically.
          * @param {HTMLElement} element - The DOM element to add the effect to.
          */
-        function addHoverBorderEffect(element) {
+        function addHoverEffect(element) {
             element.addEventListener('mouseover', () => {
-                element.style.borderColor = `hsl(${currentDynamicHue}, 80%, 70%)`; // Use a vibrant color based on current hue
+                // Apply hover styles directly
+                element.style.borderColor = `hsl(${currentDynamicHue}, 80%, 70%)`; // Vibrant border
+                element.style.backgroundColor = `hsla(${currentDynamicHue}, 70%, 35%, 0.7)`; // Lighter, semi-transparent background
             });
             element.addEventListener('mouseout', () => {
-                element.style.borderColor = 'var(--border-color)'; // Revert to default
+                // Clear inline styles to let CSS variables take over again
+                element.style.borderColor = '';
+                element.style.backgroundColor = '';
             });
         }
 
@@ -1236,16 +1280,21 @@
         });
 
         hueSlider.addEventListener('input', (event) => {
-            document.documentElement.style.setProperty('--base-hue', event.target.value);
-            appContainer.style.boxShadow = `0 0 30px 10px hsla(${event.target.value}, 70%, 50%, 0.4)`;
-            // Also update the subtitle color when the slider moves, even if no audio is playing
-            subtitleText.style.color = `hsl(${event.target.value}, 70%, 70%)`;
-            // Also update the visualizer container border color when the slider moves
-            visualizerContainer.style.borderColor = `hsl(${event.target.value}, 60%, 40%)`;
-            appContainer.style.borderColor = `hsl(${event.target.value}, 60%, 40%)`; // Added this line for app-container border
-            // Update currentDynamicHue when slider moves, if audio isn't playing (will be overwritten by visualizer if playing)
+            const currentHue = event.target.value;
+            document.documentElement.style.setProperty('--base-hue', currentHue);
+
+            // Explicitly update app container background and body background
+            appContainer.style.backgroundColor = `hsl(${currentHue}, 40%, 20%)`;
+            document.body.style.background = `linear-gradient(135deg,
+                                                hsl(${currentHue}, 40%, 10%),
+                                                hsl(${currentHue}, 50%, 15%),
+                                                hsl(${currentHue}, 60%, 20%))`;
+
+            appContainer.style.boxShadow = `0 0 30px 10px hsla(${currentHue}, 70%, 50%, 0.4)`;
+            subtitleText.style.color = `hsl(${currentHue}, 70%, 70%)`;
+            visualizerContainer.style.borderColor = `hsl(${currentHue}, 60%, 40%)`;
             if (!currentAudio || currentAudio.paused) {
-                currentDynamicHue = parseFloat(event.target.value);
+                currentDynamicHue = parseFloat(currentHue);
             }
         });
 
@@ -1262,17 +1311,23 @@
         holiLogo.style.transform = 'scale(1)'; // Ensure initial logo scale
         subtitleText.style.color = `hsl(${hueSlider.value}, 70%, 70%)`; // Set initial subtitle color
         visualizerContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`; // Set initial visualizer border color
-        appContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`; // Set initial app-container border color
+
+        // Apply initial explicit background/border colors to match hueSlider.value
+        const initialHue = hueSlider.value;
+        appContainer.style.backgroundColor = `hsl(${initialHue}, 40%, 20%)`;
+        document.body.style.background = `linear-gradient(135deg,
+                                            hsl(${initialHue}, 40%, 10%),
+                                            hsl(${initialHue}, 50%, 15%),
+                                            hsl(${initialHue}, 60%, 20%))`;
 
         currentDynamicHue = parseFloat(hueSlider.value); // Initialize dynamic hue
 
-        // Apply hover border effect to relevant elements
-        addHoverBorderEffect(searchInput);
-        addHoverBorderEffect(resultsContainer);
-        addHoverBorderEffect(favoritesList);
-        addHoverBorderEffect(hueSlider);
-        addHoverBorderEffect(nowPlayingLabel);
-        addHoverBorderEffect(appContainer); // Added for app-container border hover effect
+        // Apply hover effect to relevant elements
+        addHoverEffect(searchInput);
+        addHoverEffect(resultsContainer);
+        addHoverEffect(favoritesList);
+        addHoverEffect(hueSlider);
+        addHoverEffect(nowPlayingLabel);
 
         // Initialize API server on page load
         initializeApiServer();
