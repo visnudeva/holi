@@ -1,3 +1,4 @@
+<!-- Author: https://visnudeva.carrd.co/ -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +11,7 @@
     <style>
         /* Custom CSS to apply the dark purple theme and overrides for Tailwind */
         :root {
-            --base-hue: 270; /* Default to purple, will be dynamically updated */
+            --base-hue: 270; /* Default to purple */
 
             --dark-bg-color: hsl(var(--base-hue), 30%, 10%);
             --main-app-bg: hsl(var(--base-hue), 40%, 20%);
@@ -30,7 +31,7 @@
             background: linear-gradient(135deg,
                         hsl(var(--base-hue), 40%, 10%),
                         hsl(var(--base-hue), 50%, 15%),
-                        hsl(var(--base-hue), 60%, 20%));
+                        hsl(var(--base-hue), 60%, 20%)); /* Reverted to gradient background */
             color: var(--light-gray-text);
             display: flex;
             justify-content: center;
@@ -39,7 +40,7 @@
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
-            transition: background 0.1s linear; /* Smooth transition for background */
+            /* Removed overflow: hidden; to allow body to scroll if app-container overflows */
         }
 
         /* Main app container */
@@ -54,12 +55,14 @@
             gap: 10px; /* Reduced gap to bring sections closer */
             width: 100%;
             max-width: 1200px;
+            /* Adjusted height to be auto, with a max-height and overflow-y for scrolling */
             height: auto;
             max-height: 95vh; /* Allows content to take up to 95% of viewport height */
             overflow-y: auto; /* Adds vertical scrollbar if content overflows */
             min-height: 500px;
             opacity: 0.95;
-            transition: box-shadow 0.1s ease-out, background-color 0.1s linear; /* Smooth transition for shadow color and background */
+            transition: box-shadow 0.1s ease-out; /* Smooth transition for shadow color */
+            border: 2px solid var(--border-color); /* Added initial border for app-container */
         }
 
         /* Custom scrollbar for app-container */
@@ -96,6 +99,8 @@
             flex-direction: row; /* Changed back to row for horizontal layout */
             gap: 20px;
             flex-grow: 1; /* Allows it to take available space */
+            /* Removed min-height: 200px; to allow content to dictate height */
+            /* Removed width: 100%; as flex items will take care of width distribution */
         }
 
         /* Left panel styling (for search input, station list, and buttons) */
@@ -115,7 +120,7 @@
         }
 
         /* Input and Select styling */
-        input[type="text"] {
+        input[type="text"], select {
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color); /* Default border color */
             padding: 10px;
@@ -131,7 +136,6 @@
             opacity: 1; /* Ensure consistency across browsers */
         }
 
-
         /* List styling */
         .results-container, .favorites-list { /* Changed station-list to results-container */
             background-color: var(--panel-bg);
@@ -144,7 +148,7 @@
             list-style: none;
             margin: 0;
             position: relative; /* Needed for absolute positioning of spinner/message */
-            transition: border-color 0.2s ease-in-out, background-color 0.1s linear; /* Add transition for smooth color change */
+            transition: border-color 0.2s ease-in-out; /* Add transition for smooth color change */
         }
 
         /* Style for placeholder-like text within lists */
@@ -180,7 +184,7 @@
             font-weight: bold;
             padding: 10px;
             text-align: center;
-            background-color: var(--panel-bg); /* Default background color */
+            background-color: var(--panel-bg);
             border: 1px solid var(--border-color); /* Default border color */
             border-radius: 10px;
             font-size: 1.2em;
@@ -194,7 +198,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.1s ease-out, border-color 0.2s ease-in-out, background-color 0.1s linear; /* Added background-color transition */
+            transition: transform 0.1s ease-out, border-color 0.2s ease-in-out; /* Add transition for smooth color change */
         }
 
         .now-playing-label:active {
@@ -246,7 +250,7 @@
             border-radius: 15px;
             overflow: hidden;
             position: relative;
-            transition: transform 0.1s ease-out, border-color 0.1s linear;
+            transition: transform 0.1s ease-out;
             transform-origin: center center;
         }
 
@@ -394,14 +398,20 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- New Branding Section - Now centered and uses flex for horizontal arrangement -->
         <div class="flex items-center justify-center p-2 w-full">
-            <div class="flex items-center"> <span class="font-bold text-sm mr-2">Holi</span> <a href="https://github.com/visnudeva/holi/tree/e2e3d8b4209db6223e07ac6b057a62de6c331f2f" target="_blank" rel="noopener noreferrer">
+            <div class="flex items-center"> <!-- Inner flex container to group and align elements -->
+                <span class="font-bold text-sm mr-2">Holi</span> <!-- "Holi" text on the left -->
+                <a href="https://github.com/visnudeva/holi/tree/main" target="_blank" rel="noopener noreferrer">
                     <img id="holiLogo" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 rounded-full transition-transform duration-75 ease-out">
                 </a>
-                <span id="subtitleText" class="text-sm ml-2"></span> </div>
+                <span id="subtitleText" class="text-sm ml-2"></span> <!-- Subtitle on the right -->
+            </div>
         </div>
 
-        <div class="flex flex-col gap-2 w-full"> <div class="flex gap-2">
+        <div class="flex flex-col gap-2 w-full"> <!-- Container for search input -->
+            <div class="flex gap-2">
+                <!-- Removed the select dropdown for search type -->
                 <input type="text" id="searchInput" placeholder="Search for stations" class="flex-grow">
             </div>
         </div>
@@ -429,8 +439,11 @@
                 <canvas id="visualizerCanvas" class="visualizer-canvas"></canvas>
             </div>
         </div>
+
+        <!-- Removed the Hue Slider from here -->
     </div>
 
+    <!-- Message Box Container -->
     <div id="messageBoxContainer" class="message-box-container">
         <div id="messageBox" class="message-box">
             <p id="messageBoxText"></p>
@@ -441,7 +454,7 @@
     <script>
         // --- DOM Elements ---
         const searchInput = document.getElementById('searchInput');
-        const resultsContainer = document.getElementById('results-container');
+        const resultsContainer = document.getElementById('results-container'); // Changed from stationList
         const nowPlayingLabel = document.getElementById('nowPlayingLabel');
         const nowPlayingTextSpan = document.getElementById('nowPlayingTextSpan');
         const favoritesList = document.getElementById('favoritesList');
@@ -449,20 +462,21 @@
         const visualizerContainer = document.querySelector('.visualizer-container');
         const appContainer = document.querySelector('.app-container');
         const ctx = visualizerCanvas.getContext('2d');
-        const subtitleText = document.getElementById('subtitleText');
-        const holiLogo = document.getElementById('holiLogo');
+        // const hueSlider = document.getElementById('hueSlider'); // Removed hueSlider
+        const subtitleText = document.getElementById('subtitleText'); // Get the subtitle span
+        const holiLogo = document.getElementById('holiLogo'); // Get the Holi logo image
         const messageBoxContainer = document.getElementById('messageBoxContainer');
         const messageBox = document.getElementById('messageBox');
         const messageBoxText = document.getElementById('messageBoxText');
-        let statusMessageDiv = document.getElementById('status-message');
+        let statusMessageDiv = document.getElementById('status-message'); // Initial status message container
 
         // --- Radio Browser API Configuration ---
         let stations = [];
         let recentStations = [];
-        const MAX_RECENT_STATIONS = 10;
+        const MAX_RECENT_STATIONS = 10; // Increased max recent stations to 10
         let currentAudio = null;
         let currentPlayingStation = null;
-        let apiServer = null;
+        let apiServer = null; // New global variable for the selected API server
 
         // --- Web Audio API for Visualizer ---
         let audioContext = null;
@@ -472,77 +486,78 @@
         let dataArray = null;
         let animationFrameId = null;
 
-        // Global variable to store the current dynamic hue for border effects and continuous animation
+        // Global variable to store the current dynamic hue for border effects
         let currentDynamicHue = 0;
-        let animatedHue = 0; // New variable to track hue for continuous animation
+        let hueChangeDirection = 1; // 1 for increasing, -1 for decreasing
+        const HUE_CHANGE_SPEED = 0.05; // Speed of hue change (e.g., 0.05 degrees per frame)
 
         // --- Wake Lock API ---
-        let wakeLock = null;
+        let wakeLockSentinel = null;
 
         /**
-         * Requests a screen wake lock.
+         * Attempts to request a screen wake lock.
          */
         async function requestWakeLock() {
-            if ('wakeLock' in navigator) {
+            if ('wakeLock' in navigator && !wakeLockSentinel) {
                 try {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Screen Wake Lock acquired:', wakeLock);
-                    wakeLock.onrelease = () => {
+                    wakeLockSentinel = await navigator.wakeLock.request('screen');
+                    console.log('Screen Wake Lock acquired!');
+                    wakeLockSentinel.addEventListener('release', () => {
                         console.log('Screen Wake Lock released by system.');
-                        wakeLock = null;
-                    };
+                        wakeLockSentinel = null;
+                    });
                 } catch (err) {
-                    console.error(`Wake Lock Error: ${err.name}, ${err.message}`);
+                    console.error(`${err.name}, ${err.message}`);
                 }
-            } else {
-                console.log('Wake Lock API not supported by this browser.');
             }
         }
 
         /**
-         * Releases the acquired screen wake lock.
+         * Releases the screen wake lock if it's active.
          */
-        async function releaseWakeLock() {
-            if (wakeLock) {
-                try {
-                    await wakeLock.release();
-                    console.log('Screen Wake Lock released manually.');
-                    wakeLock = null;
-                } catch (err) {
-                    console.error(`Failed to release Wake Lock: ${err.name}, ${err.message}`);
-                }
+        function releaseWakeLock() {
+            if (wakeLockSentinel) {
+                wakeLockSentinel.release()
+                    .then(() => {
+                        console.log('Screen Wake Lock released manually.');
+                        wakeLockSentinel = null;
+                    })
+                    .catch((err) => {
+                        console.error('Failed to release Wake Lock:', err);
+                    });
             }
         }
 
-        // --- Event listener for visibility change to re-request wake lock ---
-        document.addEventListener('visibilitychange', () => {
-            if (wakeLock !== null && document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) {
-                requestWakeLock();
-            }
-        });
+        // --- Helper Functions for LocalStorage ---
 
-
-        // --- Helper Functions for Cookies ---
-        function setCookie(name, value, days) {
-            let expires = "";
-            if (days) {
-                const date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                expires = "; expires=" + date.toUTCString();
+        /**
+         * Saves data to localStorage.
+         * @param {string} key - The key under which to store the data.
+         * @param {any} value - The data to store. It will be stringified.
+         */
+        function saveToLocalStorage(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+            } catch (e) {
+                console.error("Error saving to localStorage:", e);
             }
-            document.cookie = name + "=" + (value || "") + expires + "; path=/";
         }
 
-        function getCookie(name) {
-            const nameEQ = name + "=";
-            const ca = document.cookie.split(';');
-            for (let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        /**
+         * Retrieves and parses data from localStorage.
+         * @param {string} key - The key of the data to retrieve.
+         * @returns {any | null} The parsed data, or null if not found or an error occurs.
+         */
+        function getFromLocalStorage(key) {
+            try {
+                const storedValue = localStorage.getItem(key);
+                return storedValue ? JSON.parse(storedValue) : null;
+            } catch (e) {
+                console.error("Error loading from localStorage:", e);
+                return null;
             }
-            return null;
         }
+
 
         /**
          * Displays a custom message box.
@@ -602,7 +617,12 @@
 
         const onAudioPlaying = () => {
             console.log("Audio is actually playing.");
-            updateNowPlayingText(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
+            // Construct the now playing text with station name and song title
+            const stationName = currentPlayingStation ? currentPlayingStation.name : 'Unknown Station';
+            const songTitle = currentPlayingStation && currentPlayingStation.current_track ? currentPlayingStation.current_track : '';
+            const fullText = songTitle ? `${stationName} - ${songTitle}` : stationName;
+
+            updateNowPlayingText(`Now playing: ${fullText}`);
             if (!animationFrameId) {
                 animationFrameId = requestAnimationFrame(drawVisualizer);
             }
@@ -626,7 +646,7 @@
 
         const onAudioError = (e) => {
             console.error("Audio element error:", e);
-            let errorMessage = "An unknown error occurred while trying to play the audio. The stream might be unavailable or your browser is blocking playback.";
+            let errorMessage = "Radio station unavailable, please try another one."; // Default to a more generic message
             if (e.message) {
                 errorMessage = e.message;
             } else if (e.name === "NotAllowedError") {
@@ -643,10 +663,10 @@
                         errorMessage = "The audio playback was aborted due to a decoding error.";
                         break;
                     case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-                        errorMessage = "The audio format of this stream is not supported by your browser, or the stream is unavailable. Try another station.";
+                        errorMessage = "Radio station unavailable, please try another one."; // Updated message
                         break;
                     default:
-                        errorMessage = "An unknown media error occurred.";
+                        errorMessage = "Radio station unavailable, please try another one."; // Updated default message
                 }
             }
             stopVisualizer(true);
@@ -721,17 +741,19 @@
                 if (!animationFrameId) {
                     animationFrameId = requestAnimationFrame(drawVisualizer);
                 }
+                requestWakeLock(); // Request wake lock when audio playback is initiated
 
             } catch (e) {
                 console.error("Audio/Visualizer setup error:", e);
                 let userMessage = "Could not start audio or visualizer. ";
                 if (e.message.includes("Autoplay prevented") || e.name === "NotAllowedError") {
-                    userMessage += "Your browser might be blocking autoplay. Please interact with the page (e.g., click play) to enable audio.";
+                    userMessage = "Autoplay prevented by your browser. Please interact with the page (e.g., click play) to enable audio.";
                 } else {
-                    userMessage += `Error details: ${e.message || "Unknown error."}`;
+                    userMessage = "Radio station unavailable, please try another one."; // Generic message for other errors during setup
                 }
                 stopVisualizer(true);
                 showMessageBox(userMessage, 'error'); // Display error to user
+                releaseWakeLock(); // Release wake lock on setup error
             }
         }
 
@@ -768,15 +790,46 @@
             updateNowPlayingText("Nothing playing");
             visualizerContainer.style.transform = 'scale(1)';
             holiLogo.style.transform = 'scale(1)'; // Reset logo scale
-
-            // When visualizer stops, revert to the animated hue
-            currentDynamicHue = animatedHue;
-            appContainer.style.boxShadow = `0 0 30px 10px hsla(${currentDynamicHue}, 70%, 50%, 0.4)`;
-            subtitleText.style.color = `hsl(${currentDynamicHue}, 70%, 70%)`;
-            visualizerContainer.style.borderColor = `hsl(${currentDynamicHue}, 60%, 40%)`;
-
             console.log("Visualizer stopped.");
-            releaseWakeLock(); // Ensure wake lock is released when stopping
+            // When stopped, the hue should continue to cycle normally if audio is not playing.
+            // These values will be continuously updated by the `updateGlobalHue` function.
+            // appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`; // REMOVED
+            // appContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`; // REMOVED
+            // subtitleText.style.color = `hsl(${hueSlider.value}, 60%, 40%)`; // REMOVED
+            // visualizerContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`; // REMOVED
+            // currentDynamicHue = parseFloat(hueSlider.value); // REMOVED
+            releaseWakeLock(); // Release wake lock when visualizer stops
+        }
+
+        /**
+         * Updates the global hue and related CSS properties continuously.
+         */
+        function updateGlobalHue() {
+            // Increment/decrement currentDynamicHue
+            currentDynamicHue += hueChangeDirection * HUE_CHANGE_SPEED;
+
+            // Reverse direction if bounds are reached
+            if (currentDynamicHue >= 360) {
+                currentDynamicHue = 360; // Cap at 360 to prevent jumping past 0
+                hueChangeDirection = -1;
+            } else if (currentDynamicHue <= 0) {
+                currentDynamicHue = 0; // Cap at 0 to prevent jumping below 360
+                hueChangeDirection = 1;
+            }
+
+            // Apply the new hue to CSS custom property
+            document.documentElement.style.setProperty('--base-hue', currentDynamicHue);
+
+            // Update elements that depend on currentDynamicHue directly
+            // Only apply this when audio is not playing, otherwise visualizer takes over
+            if (!currentAudio || currentAudio.paused) {
+                appContainer.style.boxShadow = `0 0 30px 10px hsla(${currentDynamicHue}, 70%, 50%, 0.4)`;
+                appContainer.style.borderColor = `hsl(${currentDynamicHue}, 60%, 40%)`;
+                subtitleText.style.color = `hsl(${currentDynamicHue}, 70%, 70%)`;
+                visualizerContainer.style.borderColor = `hsl(${currentDynamicHue}, 60%, 40%)`;
+            }
+
+            requestAnimationFrame(updateGlobalHue);
         }
 
         function drawVisualizer() {
@@ -811,12 +864,17 @@
             let normalizedEnergy = (averageEnergy - minEnergyThreshold) / (maxEnergyThreshold - minEnergyThreshold);
             normalizedEnergy = Math.max(0, Math.min(1, normalizedEnergy));
 
+            // When audio is playing, visualizerHue is derived from audio energy
             const style = getComputedStyle(document.documentElement);
-            // When audio is playing, base hue for visualizer derived from audio energy
-            let visualizerHue = animatedHue - (normalizedEnergy * animatedHue); // Start from animatedHue
+            const baseHue = parseFloat(style.getPropertyValue('--base-hue')); // Get current base hue
+            let visualizerHue = baseHue - (normalizedEnergy * baseHue);
             visualizerHue = (visualizerHue + 360) % 360;
 
-            currentDynamicHue = visualizerHue; // Update the global dynamic hue to visualizer hue
+            // Update the global dynamic hue for other elements, but only if audio is playing.
+            // Otherwise, updateGlobalHue() handles the continuous cycle.
+            if (currentAudio && !currentAudio.paused) {
+                currentDynamicHue = visualizerHue;
+            }
 
             // Increased barRadius for more rounded bars
             const barRadius = 10;
@@ -836,12 +894,15 @@
             const logoScale = minLogoScale + (maxLogoScale - minLogoScale) * normalizedEnergy;
             holiLogo.style.transform = `scale(${logoScale})`;
 
-            // Update appContainer shadow and visualizerContainer border to sync with visualizerHue
-            appContainer.style.boxShadow = `0 0 30px 10px hsla(${visualizerHue}, 70%, 50%, 0.6)`;
-            visualizerContainer.style.borderColor = `hsl(${visualizerHue}, 60%, 40%)`; // Sync border color
+            // Update appContainer shadow, visualizerContainer border, and appContainer border to sync with visualizerHue
+            // This is always driven by `currentDynamicHue` which is set by `drawVisualizer` when playing,
+            // or by `updateGlobalHue` when paused/stopped.
+            appContainer.style.boxShadow = `0 0 30px 10px hsla(${currentDynamicHue}, 70%, 50%, 0.6)`;
+            visualizerContainer.style.borderColor = `hsl(${currentDynamicHue}, 60%, 40%)`;
+            appContainer.style.borderColor = `hsl(${currentDynamicHue}, 60%, 40%)`;
 
             // Set subtitle color to sync with the visualizer hue
-            subtitleText.style.color = `hsl(${visualizerHue}, 70%, 70%)`;
+            subtitleText.style.color = `hsl(${currentDynamicHue}, 70%, 70%)`;
 
 
             for (let i = 0; i < bufferLength; i++) {
@@ -856,8 +917,8 @@
 
                 if (barHeight > 0) {
                     const gradient = ctx.createLinearGradient(x, visualizerCanvas.height, x + barWidth, 0);
-                    gradient.addColorStop(0, `hsl(${visualizerHue}, 80%, 30%)`);
-                    gradient.addColorStop(1, `hsl(${visualizerHue}, 80%, 50%)`);
+                    gradient.addColorStop(0, `hsl(${currentDynamicHue}, 80%, 30%)`);
+                    gradient.addColorStop(1, `hsl(${currentDynamicHue}, 80%, 50%)`);
 
                     ctx.fillStyle = gradient;
                     // Ensure effectiveRadius doesn't exceed half of barWidth for proper rounding
@@ -887,8 +948,8 @@
         // --- Recent Stations Management (formerly Favorites) ---
 
         function saveRecentStations() {
-            setCookie('recentStations', JSON.stringify(recentStations), 365);
-            console.log("Recent stations saved:", recentStations);
+            saveToLocalStorage('recentStations', recentStations);
+            console.log("Recent stations saved to localStorage:", recentStations);
         }
 
         function renderFavorites() {
@@ -909,24 +970,20 @@
         }
 
         function loadRecentStations() {
-            const storedRecents = getCookie('recentStations');
+            const storedRecents = getFromLocalStorage('recentStations');
             if (storedRecents) {
-                try {
-                    recentStations = JSON.parse(storedRecents);
-                    console.log("Recent stations loaded:", recentStations);
-                } catch (e) {
-                    console.error("Error parsing stored recent stations from cookie:", e);
-                    recentStations = [];
-                }
+                recentStations = storedRecents;
+                console.log("Recent stations loaded from localStorage:", recentStations);
             } else {
                 recentStations = [
+                    { "name": "Ambient Sleeping Pill", "url_resolved": "https://streams.ambientradio.net:8080/ambient-320", "stationuuid": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d", "countrycode": "US", "favicon": "" },
+                    { "name": "Raagam", "url_resolved": "https://stream.radio.co/s04620aa70/listen", "stationuuid": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e", "countrycode": "IN", "favicon": "" },
+                    { "name": "Ambi Nature Radio", "url_resolved": "https://cdn.nrco.net/proxy/stream/ambientnatureradio_ch?redirect=true", "stationuuid": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f", "countrycode": "CH", "favicon": "" },
                     { "name": "SomaFM: Deep Space One", "url_resolved": "http://ice4.somafm.com/deepspaceone-128-mp3", "stationuuid": "c0d4e5f6-8a9b-4c5d-0e1f-2a3b4c5d6e7f", "countrycode": "US", "favicon": "" },
                     { "name": "SomaFM: Space Station Soma", "url_resolved": "http://ice4.somafm.com/spacestation-128-mp3", "stationuuid": "d1e5f6g7-9b0c-5d6e-1f2a-3b4c5d6e7f8g", "countrycode": "US", "favicon": "" },
-                    { "name": "SomaFM: Mission Control", "url_resolved": "http://ice1.somafm.com/missioncontrol-128-mp3", "stationuuid": "e2f6g7h8-0c1d-6e7f-2a3b-4c5d6e7f8g9h", "countrycode": "US", "favicon": "" },
-                    { "name": "SomaFM: Secret Agent", "url_resolved": "http://ice1.somafm.com/secretagent-128-mp3", "stationuuid": "f3g7h8i9-1d2e-7f8g-3b4c-5d6e7f8g9h0i", "countrycode": "US", "favicon": "" },
-                    { "name": "SomaFM: Lush", "url_resolved": "http://ice4.somafm.com/lush-128-mp3", "stationuuid": "g4h8i9j0-2e3f-8g9h-4c5d-6e7f8g9h0i1j", "countrycode": "US", "favicon": "" }
+                    { "name": "SomaFM: Groove Salad", "url_resolved": "http://ice4.somafm.com/groovesalad-128-mp3", "stationuuid": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f90", "countrycode": "US", "favicon": "" }
                 ];
-                saveRecentStations();
+                saveRecentStations(); // Save default stations to localStorage
             }
             renderFavorites();
         }
@@ -959,12 +1016,13 @@
          */
         async function initializeApiServer() {
             if (!statusMessageDiv) {
+                // Create a temporary status message div if it doesn't exist, for initial load
                 const tempDiv = document.createElement('div');
                 tempDiv.id = 'status-message';
                 tempDiv.classList.add('flex', 'items-center', 'justify-center', 'h-full');
                 tempDiv.innerHTML = '<p class="text-[var(--light-text-color)]">Finding a server...</p>';
                 resultsContainer.appendChild(tempDiv);
-                statusMessageDiv = tempDiv;
+                statusMessageDiv = tempDiv; // Update the reference
             } else {
                  statusMessageDiv.innerHTML = '<p class="text-[var(--light-text-color)]">Finding a server...</p>';
             }
@@ -996,6 +1054,7 @@
                 return;
             }
 
+            // The searchType is now hardcoded to 'byname' since the dropdown is removed
             const searchType = 'byname';
             const searchTerm = searchInput.value.trim();
 
@@ -1007,31 +1066,32 @@
 
             resultsContainer.innerHTML = `<div id="status-message" class="flex items-center justify-center h-full"><div class="spinner"></div></div>`;
 
+            // Radio-Browser API uses different paths for different search types
             const searchPath = `/json/stations/${searchType}/${encodeURIComponent(searchTerm)}`;
             let finalSearchUrl = `${apiServer}${searchPath}?limit=200&hidebroken=true&order=clickcount&reverse=true`;
             let success = false;
             let retryCount = 0;
-            const MAX_RETRIES = 1;
+            const MAX_RETRIES = 1; // Try once, then retry if failure
 
             while (!success && retryCount <= MAX_RETRIES) {
                 try {
                     console.log(`Attempting search from: ${finalSearchUrl} (Retry: ${retryCount})`);
                     const response = await fetch(finalSearchUrl, {
                         method: 'GET',
-                        headers: { 'User-Agent': 'GeminiRadioApp/2.0' }
+                        headers: { 'User-Agent': 'GeminiRadioApp/2.0' } // It's good practice to identify your app
                     });
 
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
                     const fetchedStations = await response.json();
                     displayResults(fetchedStations);
-                    success = true;
+                    success = true; // Mark as successful
                 } catch (error) {
                     console.error('Error fetching stations:', error);
                     if (retryCount < MAX_RETRIES) {
                         console.log('Retrying search with a new API server...');
-                        await initializeApiServer();
-                        finalSearchUrl = `${apiServer}${searchPath}?limit=200&hidebroken=true&order=clickcount&reverse=true`;
+                        await initializeApiServer(); // Get a new random API server
+                        finalSearchUrl = `${apiServer}${searchPath}?limit=200&hidebroken=true&order=clickcount&reverse=true`; // Update URL with new server
                         retryCount++;
                     } else {
                         showMessageBox('Error fetching stations after retries. Please try another search.', 'error');
@@ -1046,8 +1106,8 @@
          * @param {Array<Object>} stations - An array of station objects.
          */
         function displayResults(stationData) {
-            resultsContainer.innerHTML = '';
-            stations = stationData;
+            resultsContainer.innerHTML = ''; // Clear previous results
+            stations = stationData; // Update the global stations array
 
             if (stations.length === 0) {
                 resultsContainer.innerHTML = `<li class="list-placeholder-text">No stations found.</li>`;
@@ -1144,13 +1204,17 @@
                 if (currentAudio && !currentAudio.paused) {
                     currentAudio.pause();
                     updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
-                    releaseWakeLock();
+                    releaseWakeLock(); // Release wake lock when paused via control button
                 } else if (currentAudio && currentAudio.paused) {
                     await currentAudio.play();
-                    updateNowPlayingText(`Now playing: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
-                    requestWakeLock();
+                    // When resuming, re-evaluate the full text including potential song title
+                    const stationName = currentPlayingStation ? currentPlayingStation.name : 'Unknown Station';
+                    const songTitle = currentPlayingStation && currentPlayingStation.current_track ? currentPlayingStation.current_track : '';
+                    const fullText = songTitle ? `${stationName} - ${songTitle}` : stationName;
+                    updateNowPlayingText(`Now playing: ${fullText}`);
+                    requestWakeLock(); // Request wake lock when resumed via control button
                 } else {
-                    const selectedItem = resultsContainer.querySelector('.selected');
+                    const selectedItem = resultsContainer.querySelector('.selected'); // Changed from stationList
                     const selectedFavorite = favoritesList.querySelector('.selected');
 
                     if (selectedItem) {
@@ -1168,6 +1232,7 @@
                 console.error("Control button click error:", e);
                 stopVisualizer(true);
                 showMessageBox(`Error during playback control: ${e.message}`, 'error');
+                releaseWakeLock(); // Release wake lock on control error
             }
         }
 
@@ -1176,8 +1241,8 @@
             "Where sound meets light.",
             "Stream the glow within.",
             "A dance of sound and color.",
-            "Stream radio with style.",
-            "Free yourself from subscriptions."
+            "Stream radio with style.", /* New subtitle */
+            "Free yourself from subscriptions." /* New subtitle */
         ];
 
         function setRandomSubtitle() {
@@ -1187,93 +1252,65 @@
 
         /**
          * Adds mouseover and mouseout event listeners to an element
-         * to change its border and background color dynamically.
+         * to change its border color dynamically.
          * @param {HTMLElement} element - The DOM element to add the effect to.
          */
-        function addHoverEffect(element) {
+        function addHoverBorderEffect(element) {
             element.addEventListener('mouseover', () => {
-                element.style.borderColor = `hsl(${currentDynamicHue}, 80%, 70%)`;
-                element.style.backgroundColor = `hsla(${currentDynamicHue}, 70%, 35%, 0.7)`;
+                element.style.borderColor = `hsl(${currentDynamicHue}, 80%, 70%)`; // Use a vibrant color based on current hue
             });
             element.addEventListener('mouseout', () => {
-                element.style.borderColor = '';
-                element.backgroundColor = ''; // Revert to CSS variable or default
-                element.style.removeProperty('background-color'); // Ensure CSS variable takes over
+                element.style.borderColor = 'var(--border-color)'; // Revert to default
             });
-        }
-
-        // --- Continuous Hue Animation ---
-        function animateHue() {
-            // Only update animatedHue if audio is not playing to prevent conflict with visualizer
-            if (!currentAudio || currentAudio.paused) {
-                animatedHue = (animatedHue + 0.05) % 360; // Increment hue slowly
-                currentDynamicHue = animatedHue; // Update currentDynamicHue for static elements
-            }
-
-            // Update CSS variables and elements based on currentDynamicHue
-            document.documentElement.style.setProperty('--base-hue', currentDynamicHue);
-            appContainer.style.backgroundColor = `hsl(${currentDynamicHue}, 40%, 20%)`;
-            document.body.style.background = `linear-gradient(135deg,
-                                                hsl(${currentDynamicHue}, 40%, 10%),
-                                                hsl(${currentDynamicHue}, 50%, 15%),
-                                                hsl(${currentDynamicHue}, 60%, 20%))`;
-            appContainer.style.boxShadow = `0 0 30px 10px hsla(${currentDynamicHue}, 70%, 50%, 0.4)`;
-            subtitleText.style.color = `hsl(${currentDynamicHue}, 70%, 70%)`;
-            visualizerContainer.style.borderColor = `hsl(${currentDynamicHue}, 60%, 40%)`;
-            nowPlayingLabel.style.backgroundColor = `var(--panel-bg)`; // Ensure nowPlayingLabel uses panel-bg
-            nowPlayingLabel.style.borderColor = `var(--border-color)`; // Ensure nowPlayingLabel uses border-color
-            resultsContainer.style.backgroundColor = `var(--panel-bg)`;
-            resultsContainer.style.borderColor = `var(--border-color)`;
-            favoritesList.style.backgroundColor = `var(--panel-bg)`;
-            favoritesList.style.borderColor = `var(--border-color)`;
-            searchInput.style.borderColor = `var(--border-color)`;
-            searchInput.style.backgroundColor = `var(--panel-bg)`; // Ensure input uses panel-bg
-
-
-            requestAnimationFrame(animateHue);
         }
 
 
         // --- Event Listeners ---
         searchInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
-                searchStations();
+                searchStations(); // Call the new search function
             }
         });
 
+        // Removed hueSlider.addEventListener('input', ...)
+
         nowPlayingLabel.addEventListener('click', handleControlButtonClick);
+
+        // Add visibilitychange listener to re-request wake lock
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) {
+                requestWakeLock();
+            } else if (document.visibilityState === 'hidden') {
+                releaseWakeLock(); // Release when tab is hidden
+            }
+        });
 
 
         // --- Initial Setup ---
         initVisualizer();
         loadRecentStations();
-        setRandomSubtitle();
-        holiLogo.style.transform = 'scale(1)';
+        setRandomSubtitle(); // Set the initial random subtitle
+        // document.documentElement.style.setProperty('--base-hue', hueSlider.value); // Removed
+        updateNowPlayingText("Nothing playing");
+        // Initial shadow/border based on a starting hue (e.g., 270) before continuous change starts
+        // appContainer.style.boxShadow = `0 0 30px 10px hsla(${hueSlider.value}, 70%, 50%, 0.4)`; // Removed
+        // holiLogo.style.transform = 'scale(1)'; // Ensure initial logo scale
+        // subtitleText.style.color = `hsl(${hueSlider.value}, 70%, 70%)`; // Removed
+        // visualizerContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`; // Removed
+        // appContainer.style.borderColor = `hsl(${hueSlider.value}, 60%, 40%)`; // Removed
 
-        // Initialize hue for animation
-        animatedHue = Math.floor(Math.random() * 360); // Start at a random hue
-        currentDynamicHue = animatedHue; // Sync initial dynamic hue
+        currentDynamicHue = 270; // Initialize dynamic hue to a starting point (e.g., purple)
 
-        // Apply initial explicit background/border colors to match animatedHue
-        document.documentElement.style.setProperty('--base-hue', currentDynamicHue);
-        appContainer.style.backgroundColor = `hsl(${currentDynamicHue}, 40%, 20%)`;
-        document.body.style.background = `linear-gradient(135deg,
-                                            hsl(${currentDynamicHue}, 40%, 10%),
-                                            hsl(${currentDynamicHue}, 50%, 15%),
-                                            hsl(${currentDynamicHue}, 60%, 20%))`;
-        appContainer.style.boxShadow = `0 0 30px 10px hsla(${currentDynamicHue}, 70%, 50%, 0.4)`;
-        subtitleText.style.color = `hsl(${currentDynamicHue}, 70%, 70%)`;
-        visualizerContainer.style.borderColor = `hsl(${currentDynamicHue}, 60%, 40%)`;
+        // Apply hover border effect to relevant elements
+        addHoverBorderEffect(searchInput);
+        addHoverBorderEffect(resultsContainer);
+        addHoverBorderEffect(favoritesList);
+        // addHoverBorderEffect(hueSlider); // Removed
+        addHoverBorderEffect(nowPlayingLabel);
+        addHoverBorderEffect(appContainer); // Added for app-container border hover effect
 
-
-        // Apply hover effect to relevant elements
-        addHoverEffect(searchInput);
-        addHoverEffect(resultsContainer);
-        addHoverEffect(favoritesList);
-        addHoverEffect(nowPlayingLabel);
-
-        // Start the continuous hue animation
-        animateHue();
+        // Start the continuous hue update loop
+        updateGlobalHue();
 
         // Initialize API server on page load
         initializeApiServer();
