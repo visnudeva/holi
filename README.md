@@ -11,5 +11,5 @@
 
 **Smartphone view**
 <p align="center">
-  <img src="https://raw.githubusercontent.com/visnudeva/holi/0b2968d0679d4800de2cd3d7d7ee1deb82aeb954/Screenshot_smartphone.png" width="500">
+  <img src="https://github.com/visnudeva/holi/blob/main/ScreenshotSF.png?raw=true" width="500">
 </p>
