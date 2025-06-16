@@ -318,79 +318,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        /* Message box styling */
-        .message-box-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-        }
-
-        .message-box-container.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .message-box {
-            background-color: var(--panel-bg);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-            transform: translateY(-20px);
-            transition: transform 0.3s ease-in-out;
-            border: 1px solid var(--border-color);
-        }
-
-        .message-box-container.show .message-box {
-            transform: translateY(0);
-        }
-
-        .message-box p {
-            margin-bottom: 20px;
-            font-size: 1.1em;
-            color: var(--light-gray-text);
-        }
-
-        .message-box button {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease-out;
-        }
-
-        .message-box button:hover {
-            background-color: var(--hover-color);
-        }
-
-        .message-box button:active {
-            transform: scale(0.98);
-        }
-
-        .message-box.error {
-            border-color: #ef4444; /* red-500 */
-        }
-        .message-box.warning {
-            border-color: #f59e0b; /* amber-500 */
-        }
-        .message-box.success {
-            border-color: #10b981; /* emerald-500 */
-        }
     </style>
 </head>
 <body>
@@ -439,13 +366,7 @@
 
     </div>
 
-    <!-- Message Box Container -->
-    <div id="messageBoxContainer" class="message-box-container">
-        <div id="messageBox" class="message-box">
-            <p id="messageBoxText"></p>
-            <button onclick="document.getElementById('messageBoxContainer').classList.remove('show');">OK</button>
-        </div>
-    </div>
+    <!-- Removed Message Box Container -->
 
     <script>
         // --- DOM Elements ---
@@ -460,9 +381,7 @@
         const ctx = visualizerCanvas.getContext('2d');
         const subtitleText = document.getElementById('subtitleText');
         const holiLogo = document.getElementById('holiLogo');
-        const messageBoxContainer = document.getElementById('messageBoxContainer');
-        const messageBox = document.getElementById('messageBox');
-        const messageBoxText = document.getElementById('messageBoxText');
+        // Removed messageBoxContainer, messageBox, messageBoxText
         let statusMessageDiv = document.getElementById('status-message');
 
         // --- Radio Browser API Configuration ---
@@ -482,12 +401,10 @@
         let animationFrameId = null;
 
         // Global variables for continuous hue cycle
-        let globalCycleHue = 0; // The base hue that continuously changes
-        let globalCycleHueDirection = 1; // 1 for increasing, -1 for decreasing
-        const GLOBAL_HUE_CHANGE_SPEED = 0.05; // Speed of global hue change (e.g., 0.05 degrees per frame)
+        let globalCycleHue = 0;
+        let globalCycleHueDirection = 1;
+        const GLOBAL_HUE_CHANGE_SPEED = 0.05;
 
-        // The hue that is actually used for drawing and styling elements
-        // This will be influenced by globalCycleHue and audio energy when playing
         let activeDisplayHue = 0;
 
         // --- Wake Lock API ---
@@ -557,18 +474,7 @@
             }
         }
 
-
-        /**
-         * Displays a custom message box.
-         * @param {string} message - The message to display.
-         * @param {string} type - 'info', 'warning', or 'error' for styling.
-         */
-        function showMessageBox(message, type = 'info') {
-            messageBoxText.textContent = message;
-            messageBox.className = 'message-box'; // Reset classes
-            messageBox.classList.add(type); // Add specific type class
-            messageBoxContainer.classList.add('show');
-        }
+        // Removed showMessageBox function entirely
 
         // --- Visualizer Functions ---
 
@@ -639,32 +545,16 @@
 
         const onAudioError = (e) => {
             console.error("Audio element error:", e);
-            let errorMessage = "Radio station unavailable, please try another one.";
-            if (e.message) {
-                errorMessage = e.message;
-            } else if (e.name === "NotAllowedError") {
-                errorMessage = "Autoplay was prevented by your browser. Please interact with the page to start audio.";
-            } else if (e.target && e.target.error) {
-                switch (e.target.error.code) {
-                    case MediaError.MEDIA_ERR_ABORTED:
-                        errorMessage = "Audio playback aborted. This can happen if you click too quickly.";
-                        break;
-                    case MediaError.MEDIA_ERR_NETWORK:
-                        errorMessage = "A network error caused the audio download to fail.";
-                        break;
-                    case MediaError.MEDIA_ERR_DECODE:
-                        errorMessage = "The audio playback was aborted due to a decoding error.";
-                        break;
-                    case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-                        errorMessage = "Radio station unavailable, please try another one.";
-                        break;
-                    default:
-                        errorMessage = "Radio station unavailable, please try another one.";
-                }
+            // If the error is due to MediaError.MEDIA_ERR_ABORTED (e.g., user clicked another station),
+            // or if the user wants no popups at all, just log it.
+            if (e.target && e.target.error && e.target.error.code === MediaError.MEDIA_ERR_ABORTED) {
+                console.log("Audio playback aborted by user (switching stations).");
+            } else {
+                console.error("Non-aborted audio error:", e);
+                // Log more specific messages for debugging if desired, but no popup
             }
             stopVisualizer(true);
             updateNowPlayingText("Error playing station");
-            showMessageBox(errorMessage, 'error');
             releaseWakeLock();
         };
 
@@ -678,11 +568,14 @@
                     await audioContext.resume();
                     console.log("AudioContext resumed. State:", audioContext.state);
                 } catch (e) {
-                    console.error("Failed to resume AudioContext:", e);
+                    console.error("Failed to resume AudioContext (autoplay prevented):", e);
+                    // No popup, just log
                     throw new Error("Autoplay prevented by browser. Please interact with the page to enable audio.");
                 }
             }
             if (audioContext.state !== 'running') {
+                console.error("AudioContext is not running. Autoplay might be blocked.");
+                // No popup, just log
                 throw new Error("AudioContext is not running. Autoplay might be blocked.");
             }
         }
@@ -738,14 +631,9 @@
 
             } catch (e) {
                 console.error("Audio/Visualizer setup error:", e);
-                let userMessage = "Could not start audio or visualizer. ";
-                if (e.message.includes("Autoplay prevented") || e.name === "NotAllowedError") {
-                    userMessage = "Autoplay prevented by your browser. Please interact with the page (e.g., click play) to enable audio.";
-                } else {
-                    userMessage = "Radio station unavailable, please try another one.";
-                }
+                // No popup, just log
                 stopVisualizer(true);
-                showMessageBox(userMessage, 'error');
+                updateNowPlayingText("Error playing station");
                 releaseWakeLock();
             }
         }
@@ -785,12 +673,11 @@
             holiLogo.style.transform = 'scale(1)';
             console.log("Visualizer stopped.");
 
-            // When stopped, ensure UI elements revert to reflecting the globalCycleHue
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
             appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
             subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
             visualizerContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
-            activeDisplayHue = globalCycleHue; // Sync activeDisplayHue when visualizer stops
+            activeDisplayHue = globalCycleHue;
 
             releaseWakeLock();
         }
@@ -811,14 +698,12 @@
             }
             document.documentElement.style.setProperty('--base-hue', globalCycleHue);
 
-            // If audio is paused or stopped, the UI elements should directly reflect globalCycleHue
-            // Otherwise, drawVisualizer handles the UI element hue updates
             if (!currentAudio || currentAudio.paused) {
                 appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
                 appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
                 subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
                 visualizerContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
-                activeDisplayHue = globalCycleHue; // Keep activeDisplayHue in sync
+                activeDisplayHue = globalCycleHue;
             }
             requestAnimationFrame(updateGlobalHue);
         }
@@ -831,12 +716,11 @@
                     cancelAnimationFrame(animationFrameId);
                     animationFrameId = null;
                 }
-                // Ensure UI elements revert to globalCycleHue when visualizer stops
                 appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
                 appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
                 subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
                 visualizerContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
-                activeDisplayHue = globalCycleHue; // Sync activeDisplayHue when visualizer stops
+                activeDisplayHue = globalCycleHue;
                 return;
             }
 
@@ -862,11 +746,9 @@
             let normalizedEnergy = (averageEnergy - minEnergyThreshold) / (maxEnergyThreshold - minEnergyThreshold);
             normalizedEnergy = Math.max(0, Math.min(1, normalizedEnergy));
 
-            const HUE_PULSE_RANGE = 60; // How much the hue will shift with the beat (e.g., 0 to 60 degrees from base)
-            // Calculate the active hue for drawing: combine global cycle with audio reactivity
+            const HUE_PULSE_RANGE = 60;
             activeDisplayHue = (globalCycleHue + (normalizedEnergy * HUE_PULSE_RANGE)) % 360;
 
-            // Increased barRadius for more rounded bars
             const barRadius = 10;
 
             const minBarScale = 0.9;
@@ -878,18 +760,15 @@
             const windowVisualizerScale = minWindowScale + (maxWindowScale - minWindowScale) * normalizedEnergy;
             visualizerContainer.style.transform = `scale(${windowVisualizerScale})`;
 
-            // Apply scaling to the logo
             const minLogoScale = 1.0;
             const maxLogoScale = 1.2;
             const logoScale = minLogoScale + (maxLogoScale - minLogoScale) * normalizedEnergy;
             holiLogo.style.transform = `scale(${logoScale})`;
 
-            // Update appContainer shadow, visualizerContainer border, and appContainer border to sync with activeDisplayHue
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${activeDisplayHue}, 70%, 50%, 0.6)`;
             visualizerContainer.style.borderColor = `hsl(${activeDisplayHue}, 60%, 40%)`;
             appContainer.style.borderColor = `hsl(${activeDisplayHue}, 60%, 40%)`;
 
-            // Set subtitle color to sync with the active display hue
             subtitleText.style.color = `hsl(${activeDisplayHue}, 70%, 70%)`;
 
 
@@ -1019,7 +898,6 @@
 
             } catch (error) {
                 console.error("Error initializing API server:", error);
-                showMessageBox('Could not connect to the Radio Browser network. Please try again later.', 'error');
                 statusMessageDiv.innerHTML = '<p class="text-red-500 font-semibold">Could not connect to the Radio Browser network. Please try again later.</p>';
             }
         }
@@ -1030,7 +908,7 @@
          */
         async function searchStations() {
             if (!apiServer) {
-                showMessageBox('API server not initialized. Please wait a moment and try again.', 'warning');
+                console.warn('API server not initialized. Please wait a moment and try again.');
                 return;
             }
 
@@ -1039,7 +917,7 @@
 
             if (!searchTerm) {
                 resultsContainer.innerHTML = `<div id="status-message" class="flex items-center justify-center h-full"><p class="text-red-500 font-semibold">Please enter a search term.</p></div>`;
-                showMessageBox('Please enter a search term.', 'warning');
+                console.warn('Search term is empty.');
                 return;
             }
 
@@ -1072,7 +950,7 @@
                         finalSearchUrl = `${apiServer}${searchPath}?limit=200&hidebroken=true&order=clickcount&reverse=true`;
                         retryCount++;
                     } else {
-                        showMessageBox('Error fetching stations after retries. Please try another search.', 'error');
+                        console.error('Error fetching stations after retries. Please try another search.');
                         resultsContainer.innerHTML = `<div id="status-message" class="flex items-center justify-center h-full"><p class="text-red-500 font-semibold">Error fetching stations. Please try another search.</p></div>`;
                     }
                 }
@@ -1112,7 +990,7 @@
                 const stationName = station.name || 'Unknown Station';
 
                 if (!streamUrl) {
-                    showMessageBox('No valid stream URL found for this station.', 'warning');
+                    console.warn('No valid stream URL found for this station.');
                     return;
                 }
 
@@ -1145,7 +1023,7 @@
                 const stationName = stationToPlay.name || 'Unknown Station';
 
                 if (!streamUrl) {
-                    showMessageBox('No valid stream URL found for this favorite station.', 'warning');
+                    console.warn('No valid stream URL found for this favorite station.');
                     return;
                 }
 
@@ -1166,7 +1044,7 @@
 
                 await startVisualizer(streamUrl);
             } else {
-                showMessageBox('Could not find this station in your favorites or search results.', 'error');
+                console.error('Could not find this station in your favorites or search results.');
             }
         }
 
@@ -1197,13 +1075,12 @@
                         playStationByUUID(uuid);
                     }
                     else {
-                        showMessageBox('Please select a station from search results or favorites to play.', 'info');
+                        console.info('Please select a station from search results or favorites to play.');
                     }
                 }
             } catch (e) {
                 console.error("Control button click error:", e);
                 stopVisualizer(true);
-                showMessageBox(`Error during playback control: ${e.message}`, 'error');
                 releaseWakeLock();
             }
         }
@@ -1229,7 +1106,6 @@
          */
         function addHoverBorderEffect(element) {
             element.addEventListener('mouseover', () => {
-                // Use activeDisplayHue for hover effect to match current visual state
                 element.style.borderColor = `hsl(${activeDisplayHue}, 80%, 70%)`;
             });
             element.addEventListener('mouseout', () => {
@@ -1247,7 +1123,6 @@
 
         nowPlayingLabel.addEventListener('click', handleControlButtonClick);
 
-        // Add visibilitychange listener to re-request wake lock
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) {
                 requestWakeLock();
@@ -1263,21 +1138,16 @@
         setRandomSubtitle();
         updateNowPlayingText("Nothing playing");
 
-        // Initialize globalCycleHue and activeDisplayHue
-        globalCycleHue = 270; // Starting hue
-        activeDisplayHue = globalCycleHue; // Initialize active display hue
+        globalCycleHue = 270;
+        activeDisplayHue = globalCycleHue;
 
-        // Apply hover border effect to relevant elements
         addHoverBorderEffect(searchInput);
         addHoverBorderEffect(resultsContainer);
         addHoverBorderEffect(favoritesList);
         addHoverBorderEffect(nowPlayingLabel);
         addHoverBorderEffect(appContainer);
 
-        // Start the continuous hue update loop
         updateGlobalHue();
-
-        // Initialize API server on page load
         initializeApiServer();
     </script>
 </body>
