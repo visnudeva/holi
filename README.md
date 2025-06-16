@@ -6,7 +6,7 @@
 
 **PC view**
 <p align="center">
-  <img src="https://raw.githubusercontent.com/visnudeva/holi/0b2968d0679d4800de2cd3d7d7ee1deb82aeb954/Screenshot_pc.png" width="1000">
+  <img src="https://github.com/visnudeva/holi/blob/main/ScreenshotPC.png?raw=true" width="1000">
 </p>
 
 **Smartphone view**
