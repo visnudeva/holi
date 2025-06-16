@@ -326,9 +326,8 @@
         <div class="flex items-center justify-center p-2 w-full">
             <div class="flex items-center"> <!-- Inner flex container to group and align elements -->
                 <span class="font-bold text-sm mr-2">Holi</span> <!-- "Holi" text on the left -->
-                <a href="https://github.com/visnudeva/holi/tree/main" target="_blank" rel="noopener noreferrer">
-                    <img id="holiLogo" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 rounded-full transition-transform duration-75 ease-out">
-                </a>
+                <!-- The image is now directly clickable for fullscreen, removed <a> tag -->
+                <img id="holiLogo" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 rounded-full transition-transform duration-75 ease-out cursor-pointer">
                 <span id="subtitleText" class="text-sm ml-2"></span> <!-- Subtitle on the right -->
             </div>
         </div>
@@ -366,8 +365,6 @@
 
     </div>
 
-    <!-- Removed Message Box Container -->
-
     <script>
         // --- DOM Elements ---
         const searchInput = document.getElementById('searchInput');
@@ -381,7 +378,6 @@
         const ctx = visualizerCanvas.getContext('2d');
         const subtitleText = document.getElementById('subtitleText');
         const holiLogo = document.getElementById('holiLogo');
-        // Removed messageBoxContainer, messageBox, messageBoxText
         let statusMessageDiv = document.getElementById('status-message');
 
         // --- Radio Browser API Configuration ---
@@ -444,6 +440,36 @@
             }
         }
 
+        // --- Fullscreen API ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                // Request fullscreen on the document itself to get rid of browser decorations
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable fullscreen: ${err.message} (${err.name})`);
+                    });
+                } else if (document.documentElement.mozRequestFullScreen) { /* Firefox */
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) { /* IE/Edge */
+                    document.documentElement.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(err => {
+                        console.error(`Error attempting to exit fullscreen: ${err.message} (${err.name})`);
+                    });
+                } else if (document.mozCancelFullScreen) { /* Firefox */
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { /* IE/Edge */
+                    document.msExitFullscreen();
+                }
+            }
+        }
+
         // --- Helper Functions for LocalStorage ---
 
         /**
@@ -473,8 +499,6 @@
                 return null;
             }
         }
-
-        // Removed showMessageBox function entirely
 
         // --- Visualizer Functions ---
 
@@ -545,13 +569,10 @@
 
         const onAudioError = (e) => {
             console.error("Audio element error:", e);
-            // If the error is due to MediaError.MEDIA_ERR_ABORTED (e.g., user clicked another station),
-            // or if the user wants no popups at all, just log it.
             if (e.target && e.target.error && e.target.error.code === MediaError.MEDIA_ERR_ABORTED) {
                 console.log("Audio playback aborted by user (switching stations).");
             } else {
                 console.error("Non-aborted audio error:", e);
-                // Log more specific messages for debugging if desired, but no popup
             }
             stopVisualizer(true);
             updateNowPlayingText("Error playing station");
@@ -569,13 +590,11 @@
                     console.log("AudioContext resumed. State:", audioContext.state);
                 } catch (e) {
                     console.error("Failed to resume AudioContext (autoplay prevented):", e);
-                    // No popup, just log
                     throw new Error("Autoplay prevented by browser. Please interact with the page to enable audio.");
                 }
             }
             if (audioContext.state !== 'running') {
                 console.error("AudioContext is not running. Autoplay might be blocked.");
-                // No popup, just log
                 throw new Error("AudioContext is not running. Autoplay might be blocked.");
             }
         }
@@ -631,7 +650,6 @@
 
             } catch (e) {
                 console.error("Audio/Visualizer setup error:", e);
-                // No popup, just log
                 stopVisualizer(true);
                 updateNowPlayingText("Error playing station");
                 releaseWakeLock();
@@ -1122,6 +1140,9 @@
         });
 
         nowPlayingLabel.addEventListener('click', handleControlButtonClick);
+
+        // Changed target from 'a' tag to 'img' for fullscreen toggle
+        holiLogo.addEventListener('click', toggleFullScreen);
 
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) {
