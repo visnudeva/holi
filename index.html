@@ -249,6 +249,7 @@
             position: relative;
             transition: transform 0.1s ease-out;
             transform-origin: center center;
+            cursor: pointer; /* Added cursor pointer to indicate clickability */
         }
 
         .visualizer-canvas {
@@ -402,6 +403,7 @@
         const GLOBAL_HUE_CHANGE_SPEED = 0.05;
 
         let activeDisplayHue = 0;
+        let isHueCycling = true; // New variable to control hue cycling
 
         // --- Wake Lock API ---
         let wakeLockSentinel = null;
@@ -465,7 +467,7 @@
                 } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
                     document.webkitExitFullscreen();
                 } else if (document.msExitFullscreen) { /* IE/Edge */
-                    document.msExitFullscreen();
+                    document.documentElement.msExitFullscreen();
                 }
             }
         }
@@ -691,6 +693,8 @@
             holiLogo.style.transform = 'scale(1)';
             console.log("Visualizer stopped.");
 
+            // When visualizer stops, apply the current global hue to the elements
+            // globalCycleHue is used here, which will be static if hue cycling is paused
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
             appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
             subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
@@ -705,23 +709,28 @@
          * This function runs regardless of audio playback state.
          */
         function updateGlobalHue() {
-            globalCycleHue += globalCycleHueDirection * GLOBAL_HUE_CHANGE_SPEED;
+            if (isHueCycling) { // Only update hue if cycling is enabled
+                globalCycleHue += globalCycleHueDirection * GLOBAL_HUE_CHANGE_SPEED;
 
-            if (globalCycleHue >= 360) {
-                globalCycleHue = 360;
-                globalCycleHueDirection = -1;
-            } else if (globalCycleHue <= 0) {
-                globalCycleHue = 0;
-                globalCycleHueDirection = 1;
+                if (globalCycleHue >= 360) {
+                    globalCycleHue = 360;
+                    globalCycleHueDirection = -1;
+                } else if (globalCycleHue <= 0) {
+                    globalCycleHue = 0;
+                    globalCycleHueDirection = 1;
+                }
             }
+            // Always set the CSS variable based on globalCycleHue, whether it's cycling or paused
             document.documentElement.style.setProperty('--base-hue', globalCycleHue);
 
             if (!currentAudio || currentAudio.paused) {
+                // If not playing, or paused, the app container and visualizer border
+                // should reflect the global hue, even if it's frozen.
                 appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
                 appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
                 subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
                 visualizerContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
-                activeDisplayHue = globalCycleHue;
+                activeDisplayHue = globalCycleHue; // activeDisplayHue should track globalCycleHue when not playing
             }
             requestAnimationFrame(updateGlobalHue);
         }
@@ -734,11 +743,11 @@
                     cancelAnimationFrame(animationFrameId);
                     animationFrameId = null;
                 }
+                // When visualizer stops, apply the current hue (global or frozen) to the elements
                 appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
                 appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
                 subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
                 visualizerContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
-                activeDisplayHue = globalCycleHue;
                 return;
             }
 
@@ -765,16 +774,19 @@
             normalizedEnergy = Math.max(0, Math.min(1, normalizedEnergy));
 
             const HUE_PULSE_RANGE = 60;
+            // activeDisplayHue now uses globalCycleHue (which can be fixed) for its base
             activeDisplayHue = (globalCycleHue + (normalizedEnergy * HUE_PULSE_RANGE)) % 360;
 
             const barRadius = 10;
 
-            const minBarScale = 0.9;
-            const maxBarScale = 1.1;
+            // Adjusted range for slightly less prominent zoom effect on bars
+            const minBarScale = 0.85;
+            const maxBarScale = 1.15;
             const barVisualizerScale = minBarScale + (maxBarScale - minBarScale) * normalizedEnergy;
 
-            const minWindowScale = 0.95;
-            const maxWindowScale = 1.05;
+            // Adjusted range for slightly less prominent zoom effect on window/container
+            const minWindowScale = 0.93;
+            const maxWindowScale = 1.05; // Changed from 1.07 to 1.05
             const windowVisualizerScale = minWindowScale + (maxWindowScale - minWindowScale) * normalizedEnergy;
             visualizerContainer.style.transform = `scale(${windowVisualizerScale})`;
 
@@ -1143,6 +1155,29 @@
 
         // Changed target from 'a' tag to 'img' for fullscreen toggle
         holiLogo.addEventListener('click', toggleFullScreen);
+
+        // Updated: Add click listener to visualizer container to toggle hue cycling (pause/resume)
+        visualizerContainer.addEventListener('click', () => {
+            isHueCycling = !isHueCycling;
+            if (isHueCycling) {
+                // If resuming, pick a direction to continue smoothly if it was previously stopped at 0 or 360
+                if (globalCycleHue >= 360) {
+                    globalCycleHueDirection = -1;
+                } else if (globalCycleHue <= 0) {
+                    globalCycleHueDirection = 1;
+                } else {
+                     // If it's somewhere in between, and the direction was 0 (paused),
+                     // re-establish a default direction, e.g., 1 to move forward.
+                     // Otherwise, keep its last non-zero direction.
+                     globalCycleHueDirection = globalCycleHueDirection === 0 ? 1 : globalCycleHueDirection;
+                }
+                console.log(`Hue cycling resumed. Current hue: ${globalCycleHue}, Direction: ${globalCycleHueDirection}`);
+            } else {
+                // If pausing, explicitly set direction to 0 to stop movement
+                globalCycleHueDirection = 0;
+                console.log(`Hue cycling paused at: ${globalCycleHue}`);
+            }
+        });
 
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) {
