@@ -853,7 +853,10 @@
                 const listItem = document.createElement('li');
                 listItem.textContent = `${station.name} (${station.countrycode || 'N/A'})`;
                 listItem.dataset.stationId = station.stationuuid;
-                listItem.addEventListener('click', () => playStationByUUID(station.stationuuid));
+                listItem.addEventListener('click', (event) => {
+                    vibrateOnClick(); // Vibrate on click
+                    playStationByUUID(station.stationuuid);
+                });
                 listItem.addEventListener('dblclick', () => removeRecentStation(station.stationuuid));
                 favoritesList.appendChild(listItem);
             });
@@ -1000,7 +1003,10 @@
                     const listItem = document.createElement('li');
                     listItem.textContent = `${station.name} (${station.countrycode || 'N/A'})`;
                     listItem.dataset.index = index;
-                    listItem.addEventListener('click', () => playStation(index));
+                    listItem.addEventListener('click', (event) => {
+                        vibrateOnClick(); // Vibrate on click
+                        playStation(index);
+                    });
                     listItem.addEventListener('dblclick', () => removeRecentStation(station.stationuuid));
                     resultsContainer.appendChild(listItem);
                 });
@@ -1077,6 +1083,7 @@
 
         async function handleControlButtonClick() {
             try {
+                vibrateOnClick(); // Vibrate on click
                 await ensureAudioContext();
 
                 if (currentAudio && !currentAudio.paused) {
@@ -1140,21 +1147,44 @@
             });
         }
 
+        /**
+         * Triggers a short vibration if the browser supports the Vibration API.
+         * @param {number | number[]} pattern - The vibration duration in milliseconds,
+         * or an array of durations for a pattern.
+         */
+        function vibrateOnClick(pattern = 50) { // Default 50ms vibration
+            if (navigator.vibrate) {
+                navigator.vibrate(pattern);
+                console.log("Vibration triggered.");
+            } else {
+                console.log("Vibration API not supported on this device/browser.");
+            }
+        }
+
 
         // --- Event Listeners ---
         searchInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
+                vibrateOnClick(); // Vibrate on Enter key for search
                 searchStations();
             }
         });
 
+        // Apply vibrate on click to search input itself
+        searchInput.addEventListener('click', vibrateOnClick);
+
+
         nowPlayingLabel.addEventListener('click', handleControlButtonClick);
 
         // Changed target from 'a' tag to 'img' for fullscreen toggle
-        holiLogo.addEventListener('click', toggleFullScreen);
+        holiLogo.addEventListener('click', (event) => {
+            vibrateOnClick(); // Vibrate on click
+            toggleFullScreen();
+        });
 
         // Updated: Add click listener to visualizer container to toggle hue cycling (pause/resume)
         visualizerContainer.addEventListener('click', () => {
+            vibrateOnClick(); // Vibrate on click
             isHueCycling = !isHueCycling;
             if (isHueCycling) {
                 // If resuming, pick a direction to continue smoothly if it was previously stopped at 0 or 360
