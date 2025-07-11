@@ -109,7 +109,7 @@
 
         .app-container::-webkit-scrollbar-thumb {
             background: var(--border-color);
-            border-radius: 5px;
+            border-radius: 50%;
             border: 1px solid var(--accent-color);
         }
 
@@ -189,7 +189,7 @@
         }
 
         /* List styling */
-        .results-container, .favorites-list, .chat-box { /* Changed station-list to results-container */
+        .results-container, .favorites-list { /* Removed .chat-box */
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color); /* Default border color */
             border-radius: 10px;
@@ -203,7 +203,7 @@
             transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Add transition for smooth color change */
         }
 
-        body.light-theme .results-container, body.light-theme .favorites-list, body.light-theme .chat-box {
+        body.light-theme .results-container, body.light-theme .favorites-list { /* Removed .chat-box */
             background-color: var(--light-theme-panel-bg);
             border-color: var(--light-theme-border-color);
             color: var(--light-theme-light-gray-text);
@@ -351,46 +351,46 @@
         }
 
         /* Scrollbar Styling (Webkit - Chrome/Safari) for lists */
-        .results-container::-webkit-scrollbar, .favorites-list::-webkit-scrollbar, .chat-box::-webkit-scrollbar {
+        .results-container::-webkit-scrollbar, .favorites-list::-webkit-scrollbar { /* Removed .chat-box */
             width: 12px;
             height: 12px;
         }
 
-        .results-container::-webkit-scrollbar-track, .favorites-list::-webkit-webkit-scrollbar-track, .chat-box::-webkit-scrollbar-track {
+        .results-container::-webkit-scrollbar-track, .favorites-list::-webkit-webkit-scrollbar-track { /* Removed .chat-box */
             background: var(--main-app-bg);
             border-radius: 6px;
         }
 
-        body.light-theme .results-container::-webkit-scrollbar-track, body.light-theme .favorites-list::-webkit-scrollbar-track, body.light-theme .chat-box::-webkit-scrollbar-track {
+        body.light-theme .results-container::-webkit-scrollbar-track, body.light-theme .favorites-list::-webkit-scrollbar-track { /* Removed .chat-box */
             background: var(--light-theme-main-app-bg);
         }
 
-        .results-container::-webkit-scrollbar-thumb, .favorites-list::-webkit-scrollbar-thumb, .chat-box::-webkit-scrollbar-thumb {
+        .results-container::-webkit-scrollbar-thumb, .favorites-list::-webkit-scrollbar-thumb { /* Removed .chat-box */
             background: var(--border-color);
             border-radius: 5px;
             border: 1px solid var(--accent-color);
         }
 
-        body.light-theme .results-container::-webkit-scrollbar-thumb, body.light-theme .favorites-list::-webkit-scrollbar-thumb, body.light-theme .chat-box::-webkit-scrollbar-thumb {
+        body.light-theme .results-container::-webkit-scrollbar-thumb, body.light-theme .favorites-list::-webkit-scrollbar-thumb { /* Removed .chat-box */
             background: var(--light-theme-border-color);
             border: 1px solid var(--light-theme-accent-color);
         }
 
-        .results-container::-webkit-scrollbar-thumb:hover, .favorites-list::-webkit-scrollbar-thumb:hover, .chat-box::-webkit-scrollbar-thumb:hover {
+        .results-container::-webkit-scrollbar-thumb:hover, .favorites-list::-webkit-scrollbar-thumb:hover { /* Removed .chat-box */
             background: var(--hover-color);
         }
 
-        body.light-theme .results-container::-webkit-scrollbar-thumb:hover, body.light-theme .favorites-list::-webkit-scrollbar-thumb:hover, body.light-theme .chat-box::-webkit-scrollbar-thumb:hover {
+        body.light-theme .results-container::-webkit-scrollbar-thumb:hover, body.light-theme .favorites-list::-webkit-scrollbar-thumb:hover { /* Removed .chat-box */
             background: var(--light-theme-hover-color);
         }
 
         /* Firefox Scrollbar Styling for lists */
-        .results-container, .favorites-list, .chat-box {
+        .results-container, .favorites-list { /* Removed .chat-box */
             scrollbar-width: thin;
             scrollbar-color: var(--border-color) var(--main-app-bg);
         }
 
-        body.light-theme .results-container, body.light-theme .favorites-list, body.light-theme .chat-box {
+        body.light-theme .results-container, body.light-theme .favorites-list { /* Removed .chat-box */
             scrollbar-color: var(--light-theme-border-color) var(--light-theme-main-app-bg);
         }
 
@@ -490,49 +490,6 @@
             background-color: var(--light-theme-accent-color);
             border-color: var(--light-theme-accent-color);
         }
-
-        /* Chat Box Styling */
-        .chat-box {
-            height: 150px; /* Fixed height for chat messages */
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            overflow-y: auto;
-        }
-
-        .chat-message {
-            background-color: hsla(var(--base-hue), 50%, 30%, 0.7);
-            padding: 8px 12px;
-            border-radius: 10px;
-            word-wrap: break-word;
-            font-size: 0.9em;
-        }
-
-        body.light-theme .chat-message {
-            background-color: hsla(var(--base-hue), 30%, 80%, 0.7);
-        }
-
-        .chat-message.user {
-            align-self: flex-start; /* Changed to flex-start as there are no other users to align against */
-            background-color: hsla(var(--base-hue), 70%, 40%, 0.8);
-            color: white;
-        }
-
-        body.light-theme .chat-message.user {
-            background-color: hsla(var(--base-hue), 50%, 50%, 0.8);
-        }
-
-        .chat-input-container {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .chat-input-container input {
-            flex-grow: 1;
-        }
-        /* Removed button styling as the button is removed */
-
     </style>
     <!-- Web App Manifest -->
     <link rel="manifest" href="/manifest.json">
@@ -587,197 +544,18 @@
             </div>
         </div>
 
-        <!-- Chat Box Section -->
-        <div class="chat-section mt-4">
-            <div id="chatBox" class="chat-box">
-                <!-- Chat messages will be appended here -->
-            </div>
-            <div class="chat-input-container">
-                <input type="text" id="chatInput" placeholder="Share your thoughts">
-                <!-- Send button removed -->
-            </div>
-            <div id="chatUserIdDisplay" class="text-xs text-right mt-1 text-gray-400"></div>
-        </div>
-
     </div>
 
-    <!-- Firebase SDKs -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Global Firebase variables
-        let app;
-        let db;
-        let auth;
-        let currentUserId = null; // Stores the authenticated user's UID
-
-        // Mandatory global variables provided by the Canvas environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        // --- Chat Box Functions (moved to module scope) ---
-        let myUserIdColor = ''; // Global variable for the user's chat ID (random color name)
-
-        function generateRandomColorName() {
-            const colors = [
-                "AliceBlue", "AntiqueWhite", "Aqua", "Aquamarine", "Azure", "Beige", "Bisque", "Black", "BlanchedAlmond", "Blue", "BlueViolet", "Brown", "BurlyWood", "CadetBlue", "Chartreuse", "Chocolate", "Coral", "CornflowerBlue", "Cornsilk", "Crimson", "Cyan", "DarkBlue", "DarkCyan", "DarkGoldenRod", "DarkGray", "DarkGrey", "DarkGreen", "DarkKhaki", "DarkMagenta", "DarkOliveGreen", "DarkOrange", "DarkOrchid", "DarkRed", "DarkSalmon", "DarkSeaGreen", "DarkSlateBlue", "DarkSlateGray", "DarkSlateGrey", "DarkTurquoise", "DarkViolet", "DeepPink", "DeepSkyBlue", "DimGray", "DimGrey", "DodgerBlue", "FireBrick", "FloralWhite", "ForestGreen", "Fuchsia", "Gainsboro", "GhostWhite", "Gold", "GoldenRod", "Gray", "Grey", "Green", "GreenYellow", "HoneyDew", "HotPink", "IndianRed", "Indigo", "Ivory", "Khaki", "Lavender", "LavenderBlush", "LawnGreen", "LemonChiffon", "LightBlue", "LightCoral", "LightCyan", "LightGoldenRodYellow", "LightGray", "LightGrey", "LightGreen", "LightPink", "LightSalmon", "LightSeaGreen", "LightSkyBlue", "LightSlateGray", "LightSlateGrey", "LightSteelBlue", "LightYellow", "Lime", "LimeGreen", "Linen", "Magenta", "Maroon", "MediumAquaMarine", "MediumBlue", "MediumOrchid", "MediumPurple", "MediumSeaGreen", "MediumSlateBlue", "MediumSpringGreen", "MediumTurquoise", "MediumVioletRed", "MidnightBlue", "MintCream", "MistyRose", "Moccasin", "NavajoWhite", "Navy", "OldLace", "Olive", "OliveDrab", "Orange", "OrangeRed", "Orchid", "PaleGoldenRod", "PaleGreen", "PaleTurquoise", "PaleVioletRed", "PapayaWhip", "PeachPuff", "Peru", "Pink", "Plum", "PowderBlue", "Purple", "RebeccaPurple", "Red", "RosyBrown", "RoyalBlue", "SaddleBrown", "Salmon", "SandyBrown", "SeaGreen", "SeaShell", "Sienna", "Silver", "SkyBlue", "SlateBlue", "SlateGray", "SlateGrey", "Snow", "SpringGreen", "SteelBlue", "Tan", "Teal", "Thistle", "Tomato", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke", "Yellow", "YellowGreen"
-            ];
-            return colors[Math.floor(Math.random() * colors.length)];
-        }
-
-        // DOM elements for chat (moved to module scope)
-        const chatBox = document.getElementById('chatBox');
-        const chatInput = document.getElementById('chatInput');
-        const chatUserIdDisplay = document.getElementById('chatUserIdDisplay');
-
-        // This function will now only be used for system messages or initial local display.
-        // User-sent messages will be added to Firestore and then displayed via the onSnapshot listener.
-        function addChatMessage(message, isUser = false) {
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('chat-message');
-            if (isUser) { // This branch is effectively for the current user's local display before Firestore sync
-                messageElement.classList.add('user');
-                messageElement.textContent = `${myUserIdColor}: ${message}`;
-            } else { // System messages
-                messageElement.textContent = message;
+        // --- OS Detection and Body Class Application ---
+        (function() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            if (/android/i.test(userAgent)) {
+                document.body.dataset.os = 'android';
             }
-            chatBox.appendChild(messageElement);
-            chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
-        }
+        })();
 
-        // Function to display messages from Firestore
-        function displayChatMessage(messageData, messageId) {
-            const messageElement = document.createElement('div');
-            messageElement.id = `msg-${messageId}`; // Assign an ID to prevent duplicates
-            messageElement.classList.add('chat-message');
-
-            const senderName = messageData.username || 'Anonymous';
-            const messageText = messageData.text || '';
-            const isCurrentUser = messageData.userId === currentUserId;
-
-            // Apply specific styling for the current user's messages
-            if (isCurrentUser) {
-                messageElement.classList.add('user');
-            }
-
-            // Display the sender's name and message content
-            messageElement.innerHTML = `<strong>${senderName}:</strong> ${messageText}`;
-            chatBox.appendChild(messageElement);
-        }
-
-        // Initialize Firebase
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-            console.log("Firebase initialized.");
-        } catch (error) {
-            console.error("Error initializing Firebase:", error);
-        }
-
-        // Authenticate user and set up Firestore listener
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUserId = user.uid;
-                console.log("User authenticated:", currentUserId);
-                // Display the user ID (random color name) in the UI
-                chatUserIdDisplay.textContent = `Your chat ID: ${myUserIdColor} (User ID: ${currentUserId.substring(0, 8)}...)`;
-                setupChatListener();
-            } else {
-                // If no user is signed in, try to sign in anonymously
-                try {
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                        console.log("Signed in with custom token.");
-                    } else {
-                        await signInAnonymously(auth);
-                        console.log("Signed in anonymously.");
-                    }
-                } catch (error) {
-                    console.error("Error signing in:", error);
-                    chatUserIdDisplay.textContent = "Authentication failed. Chat unavailable.";
-                }
-            }
-        });
-
-        // Function to send a message to Firestore
-        async function sendMessageToFirestore(messageText) {
-            if (!db || !currentUserId || !myUserIdColor) {
-                console.error("Firestore not initialized or user not authenticated.");
-                return;
-            }
-
-            try {
-                // Store public data in /artifacts/{appId}/public/data/messages
-                const messagesCollectionRef = collection(db, `artifacts/${appId}/public/data/messages`);
-                await addDoc(messagesCollectionRef, {
-                    userId: currentUserId,
-                    username: myUserIdColor, // Using the generated color name as the display name
-                    text: messageText,
-                    timestamp: serverTimestamp() // Use server timestamp for consistent ordering
-                });
-                console.log("Message sent to Firestore.");
-            } catch (e) {
-                console.error("Error adding document: ", e);
-                addChatMessage("Error sending message. Please try again.", false);
-            }
-        }
-
-        // Function to set up real-time listener for chat messages
-        function setupChatListener() {
-            if (!db) {
-                console.error("Firestore not initialized. Cannot set up chat listener.");
-                return;
-            }
-
-            // Query to get the latest 50 messages, ordered by timestamp
-            // Note: orderBy() can require indexes in Firestore. For simplicity, we're assuming
-            // a basic index on 'timestamp' for ascending order. If you encounter errors,
-            // you might need to create a composite index in your Firestore console.
-            const messagesCollectionRef = collection(db, `artifacts/${appId}/public/data/messages`);
-            const q = query(messagesCollectionRef, orderBy('timestamp')); // Removed limit(50) to fetch all for now, consider adding it back for performance if chat grows large
-
-            onSnapshot(q, (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    const messageData = change.doc.data();
-                    const messageId = change.doc.id;
-
-                    if (change.type === "added") {
-                        // Only add messages that are not already displayed to prevent duplicates
-                        // Check if an element with this messageId already exists
-                        if (!document.getElementById(`msg-${messageId}`)) {
-                            displayChatMessage(messageData, messageId);
-                        }
-                    }
-                    // No specific handling for "modified" or "removed" for a simple chat,
-                    // but you could add logic here if messages can be edited or deleted.
-                });
-                chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom on new message
-            }, (error) => {
-                console.error("Error listening to messages:", error);
-                addChatMessage("Failed to load chat messages. Please refresh.", false);
-            });
-        }
-
-        // Modify chatInput event listener to send messages via Firestore
-        chatInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const message = chatInput.value.trim();
-                if (message && currentUserId && myUserIdColor) {
-                    sendMessageToFirestore(message);
-                    chatInput.value = ''; // Clear input immediately
-                } else if (!currentUserId) {
-                    addChatMessage("Please wait for authentication to send messages.", false);
-                } else if (!message) {
-                    // Do nothing if message is empty
-                }
-            }
-        });
-
-        // --- DOM Elements (re-declared for module scope or ensure global access) ---
+        // --- DOM Elements ---
         const searchInput = document.getElementById('searchInput');
         const resultsContainer = document.getElementById('results-container');
         const nowPlayingLabel = document.getElementById('nowPlayingLabel');
@@ -816,10 +594,10 @@
         const GLOBAL_HUE_CHANGE_SPEED = 0.05;
 
         let activeDisplayHue = 0;
-        let isHueCycling = true;
+        let isHueCycling = true; // New variable to control hue cycling
 
         // Theme management
-        let isDarkTheme = true;
+        let isDarkTheme = true; // Default to dark theme
 
         // --- Wake Lock API ---
         let wakeLockSentinel = null;
@@ -1456,7 +1234,7 @@
                 resultsContainer.appendChild(tempDiv);
                 statusMessageDiv = tempDiv;
             } else {
-                 statusMessageDiv.innerHTML = `<p class="text-[var(--light-text-color)] list-placeholder-text">Finding a server...</p>`;
+                 statusMessageDiv.innerHTML = `<p class="text-[var(--light-text-color)] list-placeholder-text">Choose your frequency</p>`;
             }
 
             try {
@@ -1771,7 +1549,7 @@
 
         // Play/Pause (Space) key shortcut
         document.addEventListener('keydown', (event) => {
-            if (event.code === 'Space' && document.activeElement !== searchInput && document.activeElement !== chatInput) {
+            if (event.code === 'Space' && document.activeElement !== searchInput) { // Removed chatInput from condition
                 event.preventDefault(); // Prevent scrolling
                 handleControlButtonClick();
             }
@@ -1822,10 +1600,6 @@
 
         updateGlobalHue();
         initializeApiServer();
-
-        // Generate user ID and add welcome message after initial setup (moved into module)
-        myUserIdColor = generateRandomColorName();
-        chatUserIdDisplay.textContent = `Your chat ID: ${myUserIdColor}`;
 
     </script>
     <script>
