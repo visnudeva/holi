@@ -1,0 +1,1779 @@
+<!-- Author: https://visnudeva.carrd.co/ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holi, where sound meets light</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Custom CSS to apply the dark purple theme and overrides for Tailwind */
+        :root {
+            --base-hue: 270; /* Default to purple, dynamically changed by JS */
+
+            /* Dark Theme */
+            --dark-bg-color: hsl(var(--base-hue), 30%, 10%);
+            --main-app-bg: hsl(var(--base-hue), 40%, 20%);
+            --panel-bg: hsl(var(--base-hue), 50%, 25%);
+            --border-color: hsl(var(--base-hue), 60%, 40%);
+            --accent-color: hsl(var(--base-hue), 70%, 50%);
+            --selection-bg: hsl(var(--base-hue), 50%, 35%); /* Slightly lighter than panel for selection */
+            --hover-color: hsl(var(--base-hue), 70%, 60%);
+            --light-gray-text: #f0f0f0;
+            --placeholder-text-color: #a0a0a0; /* A darker gray for placeholders */
+            --light-text-color: #f0f0f0; /* New variable for general light text */
+
+            /* Light Theme (default, overridden by JS) */
+            --light-theme-dark-bg-color: hsl(var(--base-hue), 10%, 90%);
+            --light-theme-main-app-bg: hsl(var(--base-hue), 20%, 95%);
+            --light-theme-panel-bg: hsl(var(--base-hue), 30%, 90%);
+            --light-theme-border-color: hsl(var(--base-hue), 40%, 70%);
+            --light-theme-accent-color: hsl(var(--base-hue), 50%, 60%);
+            --light-theme-selection-bg: hsl(var(--base-hue), 20%, 85%);
+            --light-theme-hover-color: hsl(var(--base-hue), 50%, 50%);
+            --light-theme-light-gray-text: #333333;
+            --light-theme-placeholder-text-color: #606060;
+            --light-theme-light-text-color: #333333;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Dynamic background gradient based on hue */
+            background: linear-gradient(135deg,
+                        var(--dark-bg-color),
+                        hsl(var(--base-hue), 50%, 15%),
+                        hsl(var(--base-hue), 60%, 20%));
+            color: var(--light-gray-text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.light-theme {
+            background: linear-gradient(135deg,
+                        var(--light-theme-dark-bg-color),
+                        hsl(var(--base-hue), 20%, 90%),
+                        hsl(var(--base-hue), 30%, 85%));
+            color: var(--light-theme-light-gray-text);
+        }
+
+        /* Main app container */
+        .app-container {
+            background-color: var(--main-app-bg);
+            border-radius: 12px;
+            /* Updated box-shadow to be all around */
+            box-shadow: 0 0 30px 10px hsla(var(--base-hue), 70%, 50%, 0.6);
+            padding: 20px;
+            display: flex;
+            flex-direction: column; /* Stack sections vertically */
+            gap: 10px; /* Reduced gap to bring sections closer */
+            width: 100%;
+            max-width: 1200px;
+            /* Adjusted height to be auto, with a max-height and overflow-y for scrolling */
+            height: auto;
+            max-height: 95vh; /* Allows content to take up to 95% of viewport height */
+            overflow-y: auto; /* Adds vertical scrollbar if content overflows */
+            min-height: 500px;
+            opacity: 0.95;
+            transition: box-shadow 0.1s ease-out, background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition for shadow color */
+            border: 2px solid var(--border-color); /* Added initial border for app-container */
+        }
+
+        body.light-theme .app-container {
+            background-color: var(--light-theme-main-app-bg);
+            border-color: var(--light-theme-border-color);
+            box-shadow: 0 0 30px 10px hsla(var(--base-hue), 50%, 60%, 0.4);
+        }
+
+        /* Custom scrollbar for app-container */
+        .app-container::-webkit-scrollbar {
+            width: 12px;
+            height: 12px; /* For horizontal scrollbar if needed, though unlikely */
+        }
+
+        .app-container::-webkit-scrollbar-track {
+            background: var(--main-app-bg);
+            border-radius: 6px;
+        }
+
+        body.light-theme .app-container::-webkit-scrollbar-track {
+            background: var(--light-theme-main-app-bg);
+        }
+
+        .app-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 5px;
+            border: 1px solid var(--accent-color);
+        }
+
+        body.light-theme .app-container::-webkit-scrollbar-thumb {
+            background: var(--light-theme-border-color);
+            border: 1px solid var(--light-theme-accent-color);
+        }
+
+        .app-container::-webkit-scrollbar-thumb:hover {
+            background: var(--hover-color);
+        }
+
+        body.light-theme .app-container::-webkit-scrollbar-thumb:hover {
+            background: var(--light-theme-hover-color);
+        }
+
+        /* Firefox Scrollbar Styling for app-container */
+        .app-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) var(--main-app-bg);
+        }
+
+        body.light-theme .app-container {
+            scrollbar-color: var(--light-theme-border-color) var(--light-theme-main-app-bg);
+        }
+
+
+        /* Top section for search and favorites side-by-side */
+        .top-section {
+            display: flex;
+            flex-direction: row; /* Changed back to row for horizontal layout */
+            gap: 20px;
+            flex-grow: 1; /* Allows it to take available space */
+        }
+
+        /* Left panel styling (for search input, station list, and buttons) */
+        .left-panel {
+            flex: 1; /* Takes equal space in the top section */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Favorites panel styling (for favorites list) */
+        .favorites-panel {
+            flex: 1; /* Takes equal space in the top section */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Input and Select styling */
+        input[type="text"], select {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color); /* Default border color */
+            padding: 10px;
+            border-radius: 12px;
+            color: var(--light-gray-text);
+            outline: none;
+            transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Add transition for smooth color change */
+        }
+
+        body.light-theme input[type="text"], body.light-theme select {
+            background-color: var(--light-theme-panel-bg);
+            border-color: var(--light-theme-border-color);
+            color: var(--light-theme-light-gray-text);
+        }
+
+        /* Placeholder styling for search input */
+        input[type="text"]::placeholder {
+            color: var(--placeholder-text-color);
+            opacity: 1; /* Ensure consistency across browsers */
+        }
+
+        body.light-theme input[type="text"]::placeholder {
+            color: var(--light-theme-placeholder-text-color);
+        }
+
+        /* List styling */
+        .results-container, .favorites-list, .chat-box { /* Changed station-list to results-container */
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color); /* Default border color */
+            border-radius: 10px;
+            padding: 5px;
+            color: var(--light-gray-text); /* Default color for actual results */
+            height: 15vh; /* Set a fixed height */
+            overflow-y: auto; /* Ensure scrolling within the fixed height */
+            list-style: none;
+            margin: 0;
+            position: relative; /* Needed for absolute positioning of spinner/message */
+            transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Add transition for smooth color change */
+        }
+
+        body.light-theme .results-container, body.light-theme .favorites-list, body.light-theme .chat-box {
+            background-color: var(--light-theme-panel-bg);
+            border-color: var(--light-theme-border-color);
+            color: var(--light-theme-light-gray-text);
+        }
+
+        /* Style for placeholder-like text within lists */
+        .list-placeholder-text {
+            color: var(--placeholder-text-color);
+        }
+
+        body.light-theme .list-placeholder-text {
+            color: var(--light-theme-placeholder-text-color);
+        }
+
+        .results-container li, .favorites-list li {
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .results-container li:hover, .favorites-list li:hover {
+            background-color: var(--selection-bg);
+        }
+
+        body.light-theme .results-container li:hover, body.light-theme .favorites-list li:hover {
+            background-color: var(--light-theme-selection-bg);
+        }
+
+        .results-container li.selected, .favorites-list li.selected {
+            background-color: var(--selection-bg);
+            font-weight: bold;
+        }
+
+        body.light-theme .results-container li.selected, body.light-theme .favorites-list li.selected {
+            background-color: var(--light-theme-selection-bg);
+        }
+
+        .favorites-list li.dragging {
+            opacity: 0.5;
+            border: 1px dashed var(--accent-color);
+        }
+
+        /* Now playing label container */
+        .now-playing-label {
+            font-weight: bold;
+            padding: 10px;
+            text-align: center;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color); /* Default border color */
+            border-radius: 10px;
+            font-size: 1.2em;
+            color: var(--light-gray-text);
+            margin-top: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s ease-out, border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Add transition for smooth color change */
+        }
+
+        body.light-theme .now-playing-label {
+            background-color: var(--light-theme-panel-bg);
+            border-color: var(--light-theme-border-color);
+            color: var(--light-theme-light-gray-text);
+        }
+
+        .now-playing-label:active {
+            transform: scale(0.98);
+        }
+
+
+        /* Inner span for the now playing text */
+        .now-playing-label span {
+            display: inline-block;
+            animation: none;
+            padding-left: 0;
+            will-change: transform;
+        }
+
+        /* Marquee animation definition */
+        @keyframes marquee {
+            /* Start from right off-screen by the container width */
+            0% { transform: translateX(var(--container-width)); }
+            /* Move to left off-screen by the text width */
+            100% { transform: translateX(calc(-1 * var(--text-width))); }
+        }
+
+        /* Class to apply when marquee is active */
+        .now-playing-label.scrolling {
+            justify-content: flex-start;
+        }
+        .now-playing-label.scrolling span {
+            animation: marquee linear infinite;
+        }
+
+
+        /* Bottom section for visualizer */
+        .bottom-visualizer-section {
+            flex-grow: 2;
+            display: flex;
+            flex-direction: column;
+            padding-top: 0;
+        }
+
+        .visualizer-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Initial border color will be set dynamically by JavaScript */
+            border: 2px solid;
+            background-color: var(--panel-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.1s ease-out, background-color 0.3s ease, border-color 0.3s ease;
+            transform-origin: center center;
+            cursor: pointer; /* Added cursor pointer to indicate clickability */
+        }
+
+        body.light-theme .visualizer-container {
+            background-color: var(--light-theme-panel-bg);
+            border-color: var(--light-theme-border-color);
+        }
+
+        .visualizer-canvas {
+            display: block;
+            background-color: transparent;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.1s ease-out;
+            transform-origin: center center;
+        }
+
+        /* Scrollbar Styling (Webkit - Chrome/Safari) for lists */
+        .results-container::-webkit-scrollbar, .favorites-list::-webkit-scrollbar, .chat-box::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        .results-container::-webkit-scrollbar-track, .favorites-list::-webkit-webkit-scrollbar-track, .chat-box::-webkit-scrollbar-track {
+            background: var(--main-app-bg);
+            border-radius: 6px;
+        }
+
+        body.light-theme .results-container::-webkit-scrollbar-track, body.light-theme .favorites-list::-webkit-scrollbar-track, body.light-theme .chat-box::-webkit-scrollbar-track {
+            background: var(--light-theme-main-app-bg);
+        }
+
+        .results-container::-webkit-scrollbar-thumb, .favorites-list::-webkit-scrollbar-thumb, .chat-box::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 5px;
+            border: 1px solid var(--accent-color);
+        }
+
+        body.light-theme .results-container::-webkit-scrollbar-thumb, body.light-theme .favorites-list::-webkit-scrollbar-thumb, body.light-theme .chat-box::-webkit-scrollbar-thumb {
+            background: var(--light-theme-border-color);
+            border: 1px solid var(--light-theme-accent-color);
+        }
+
+        .results-container::-webkit-scrollbar-thumb:hover, .favorites-list::-webkit-scrollbar-thumb:hover, .chat-box::-webkit-scrollbar-thumb:hover {
+            background: var(--hover-color);
+        }
+
+        body.light-theme .results-container::-webkit-scrollbar-thumb:hover, body.light-theme .favorites-list::-webkit-scrollbar-thumb:hover, body.light-theme .chat-box::-webkit-scrollbar-thumb:hover {
+            background: var(--light-theme-hover-color);
+        }
+
+        /* Firefox Scrollbar Styling for lists */
+        .results-container, .favorites-list, .chat-box {
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) var(--main-app-bg);
+        }
+
+        body.light-theme .results-container, body.light-theme .favorites-list, body.light-theme .chat-box {
+            scrollbar-color: var(--light-theme-border-color) var(--light-theme-main-app-bg);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+                height: auto;
+                min-height: unset;
+                padding: 15px;
+            }
+            .top-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .visualizer-container {
+                height: 200px;
+            }
+        }
+
+        /* Spinner for loading states */
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Sleep Timer Buttons */
+        .sleep-timer-buttons button {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            border-radius: 8px;
+            color: var(--light-gray-text);
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+
+        body.light-theme .sleep-timer-buttons button {
+            background-color: var(--light-theme-panel-bg);
+            border-color: var(--light-theme-border-color);
+            color: var(--light-theme-light-gray-text);
+        }
+
+        .sleep-timer-buttons button:hover {
+            background-color: var(--selection-bg);
+        }
+
+        body.light-theme .sleep-timer-buttons button:hover {
+            background-color: var(--light-theme-selection-bg);
+        }
+
+        .sleep-timer-buttons button.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        body.light-theme .sleep-timer-buttons button.active {
+            background-color: var(--light-theme-accent-color);
+            border-color: var(--light-theme-accent-color);
+        }
+
+        /* Chat Box Styling */
+        .chat-box {
+            height: 150px; /* Fixed height for chat messages */
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-y: auto;
+        }
+
+        .chat-message {
+            background-color: hsla(var(--base-hue), 50%, 30%, 0.7);
+            padding: 8px 12px;
+            border-radius: 10px;
+            word-wrap: break-word;
+            font-size: 0.9em;
+        }
+
+        body.light-theme .chat-message {
+            background-color: hsla(var(--base-hue), 30%, 80%, 0.7);
+        }
+
+        .chat-message.user {
+            align-self: flex-start; /* Changed to flex-start as there are no other users to align against */
+            background-color: hsla(var(--base-hue), 70%, 40%, 0.8);
+            color: white;
+        }
+
+        body.light-theme .chat-message.user {
+            background-color: hsla(var(--base-hue), 50%, 50%, 0.8);
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .chat-input-container input {
+            flex-grow: 1;
+        }
+        /* Removed button styling as the button is removed */
+
+    </style>
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/manifest.json">
+</head>
+<body>
+    <div class="app-container">
+        <!-- New Branding Section - Now centered and uses flex for horizontal arrangement -->
+        <div class="flex items-center justify-between p-2 w-full">
+            <div class="flex items-center"> <!-- Inner flex container to group and align elements -->
+                <span class="font-bold text-sm mr-2">Holi</span> <!-- "Holi" text on the left -->
+                <!-- The image is now a clickable button for theme toggle -->
+                <img id="themeToggleButton" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 rounded-full transition-transform duration-75 ease-out cursor-pointer">
+                <span id="subtitleText" class="text-sm ml-2"></span> <!-- Subtitle on the right -->
+            </div>
+            <!-- Sleep Timer Buttons -->
+            <div class="sleep-timer-buttons flex gap-2">
+                <button id="timer15" data-minutes="15">15m</button>
+                <button id="timer30" data-minutes="30">30m</button>
+                <button id="timer60" data-minutes="60">60m</button>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-2 w-full"> <!-- Container for search input -->
+            <div class="flex gap-2">
+                <input type="text" id="searchInput" placeholder="Find your vibe" class="flex-grow">
+            </div>
+        </div>
+
+        <div class="top-section">
+            <div class="left-panel">
+                <ul id="results-container" class="results-container">
+                    <div id="status-message" class="flex items-center justify-center h-full"><p class="text-[var(--light-text-color)] list-placeholder-text">Start typing to find stations...</p></div>
+                </ul>
+            </div>
+
+            <div class="favorites-panel">
+                <ul id="favoritesList" class="favorites-list">
+                    <li class="list-placeholder-text">No recent stations</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="nowPlayingLabel" class="now-playing-label">
+            <span id="nowPlayingTextSpan">Nothing playing</span>
+        </div>
+
+        <div class="bottom-visualizer-section">
+            <div class="visualizer-container">
+                <canvas id="visualizerCanvas" class="visualizer-canvas"></canvas>
+            </div>
+        </div>
+
+        <!-- Chat Box Section -->
+        <div class="chat-section mt-4">
+            <div id="chatBox" class="chat-box">
+                <!-- Chat messages will be appended here -->
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="chatInput" placeholder="Type your message...">
+                <!-- Send button removed -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const searchInput = document.getElementById('searchInput');
+        const resultsContainer = document.getElementById('results-container');
+        const nowPlayingLabel = document.getElementById('nowPlayingLabel');
+        const nowPlayingTextSpan = document.getElementById('nowPlayingTextSpan');
+        const favoritesList = document.getElementById('favoritesList');
+        const visualizerCanvas = document.getElementById('visualizerCanvas');
+        const visualizerContainer = document.querySelector('.visualizer-container');
+        const appContainer = document.querySelector('.app-container');
+        const ctx = visualizerCanvas.getContext('2d');
+        const subtitleText = document.getElementById('subtitleText');
+        const themeToggleButton = document.getElementById('themeToggleButton'); // Changed from holiLogo
+        let statusMessageDiv = document.getElementById('status-message');
+
+        const timerButtons = document.querySelectorAll('.sleep-timer-buttons button');
+        let sleepTimer = null; // Stores the setTimeout ID for the sleep timer
+
+        const chatBox = document.getElementById('chatBox');
+        const chatInput = document.getElementById('chatInput');
+        // const sendChatButton = document.getElementById('sendChatButton'); // Removed
+
+        // --- Radio Browser API Configuration ---
+        let stations = [];
+        let recentStations = [];
+        const MAX_RECENT_STATIONS = 10;
+        let currentAudio = null;
+        let currentPlayingStation = null;
+        let apiServer = null;
+
+        // --- Web Audio API for Visualizer ---
+        let audioContext = null;
+        let analyser = null;
+        let sourceNode = null;
+        const FFT_SIZE = 128;
+        let dataArray = null;
+        let animationFrameId = null;
+
+        // Global variables for continuous hue cycle
+        let globalCycleHue = 0;
+        let globalCycleHueDirection = 1;
+        const GLOBAL_HUE_CHANGE_SPEED = 0.05;
+
+        let activeDisplayHue = 0;
+        let isHueCycling = true; // New variable to control hue cycling
+
+        // Theme management
+        let isDarkTheme = true; // Default to dark theme
+
+        // Global variable for the user's chat ID (random color name)
+        let myUserIdColor = '';
+
+        // --- Wake Lock API ---
+        let wakeLockSentinel = null;
+
+        /**
+         * Attempts to request a screen wake lock.
+         */
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator && !wakeLockSentinel) {
+                try {
+                    wakeLockSentinel = await navigator.wakeLock.request('screen');
+                    console.log('Screen Wake Lock acquired!');
+                    wakeLockSentinel.addEventListener('release', () => {
+                        console.log('Screen Wake Lock released by system.');
+                        wakeLockSentinel = null;
+                    });
+                } catch (err) {
+                    console.error(`${err.name}, ${err.message}`);
+                }
+            }
+        }
+
+        /**
+         * Releases the screen wake lock if it's active.
+         */
+        function releaseWakeLock() {
+            if (wakeLockSentinel) {
+                wakeLockSentinel.release()
+                    .then(() => {
+                        console.log('Screen Wake Lock released manually.');
+                        wakeLockSentinel = null;
+                    })
+                    .catch((err) => {
+                        console.error('Failed to release Wake Lock:', err);
+                    });
+            }
+        }
+
+        // --- Theme Toggle Function ---
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            document.body.classList.toggle('light-theme', !isDarkTheme);
+            saveToLocalStorage('isDarkTheme', isDarkTheme);
+            updateThemeColors(); // Update dynamic colors immediately
+        }
+
+        function loadThemePreference() {
+            const storedTheme = getFromLocalStorage('isDarkTheme');
+            if (storedTheme !== null) {
+                isDarkTheme = storedTheme;
+            }
+            document.body.classList.toggle('light-theme', !isDarkTheme);
+            updateThemeColors();
+        }
+
+        function updateThemeColors() {
+            const root = document.documentElement;
+            if (isDarkTheme) {
+                root.style.setProperty('--dark-bg-color', 'hsl(var(--base-hue), 30%, 10%)');
+                root.style.setProperty('--main-app-bg', 'hsl(var(--base-hue), 40%, 20%)');
+                root.style.setProperty('--panel-bg', 'hsl(var(--base-hue), 50%, 25%)');
+                root.style.setProperty('--border-color', 'hsl(var(--base-hue), 60%, 40%)');
+                root.style.setProperty('--accent-color', 'hsl(var(--base-hue), 70%, 50%)');
+                root.style.setProperty('--selection-bg', 'hsl(var(--base-hue), 50%, 35%)');
+                root.style.setProperty('--hover-color', 'hsl(var(--base-hue), 70%, 60%)');
+                root.style.setProperty('--light-gray-text', '#f0f0f0');
+                root.style.setProperty('--placeholder-text-color', '#a0a0a0');
+                root.style.setProperty('--light-text-color', '#f0f0f0');
+            } else {
+                root.style.setProperty('--dark-bg-color', 'var(--light-theme-dark-bg-color)');
+                root.style.setProperty('--main-app-bg', 'var(--light-theme-main-app-bg)');
+                root.style.setProperty('--panel-bg', 'var(--light-theme-panel-bg)');
+                root.style.setProperty('--border-color', 'var(--light-theme-border-color)');
+                root.style.setProperty('--accent-color', 'var(--light-theme-accent-color)');
+                root.style.setProperty('--selection-bg', 'var(--light-theme-selection-bg)');
+                root.style.setProperty('--hover-color', 'var(--light-theme-hover-color)');
+                root.style.setProperty('--light-gray-text', 'var(--light-theme-light-gray-text)');
+                root.style.setProperty('--placeholder-text-color', 'var(--light-theme-placeholder-text-color)');
+                root.style.setProperty('--light-text-color', 'var(--light-theme-light-text-color)');
+            }
+        }
+
+
+        // --- Helper Functions for LocalStorage ---
+
+        /**
+         * Saves data to localStorage.
+         * @param {string} key - The key under which to store the data.
+         * @param {any} value - The data to store. It will be stringified.
+         */
+        function saveToLocalStorage(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+            } catch (e) {
+                console.error("Error saving to localStorage:", e);
+            }
+        }
+
+        /**
+         * Retrieves and parses data from localStorage.
+         * @param {string} key - The key of the data to retrieve.
+         * @returns {any | null} The parsed data, or null if not found or an error occurs.
+         */
+        function getFromLocalStorage(key) {
+            try {
+                const storedValue = localStorage.getItem(key);
+                return storedValue ? JSON.parse(storedValue) : null;
+            } catch (e) {
+                console.error("Error loading from localStorage:", e);
+                return null;
+            }
+        }
+
+        // --- Visualizer Functions ---
+
+        function initVisualizer() {
+            function resizeCanvas() {
+                visualizerCanvas.width = visualizerCanvas.offsetWidth;
+                visualizerCanvas.height = visualizerCanvas.offsetHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            setTimeout(resizeCanvas, 100);
+        }
+
+        function updateNowPlayingText(fullText) {
+            nowPlayingTextSpan.textContent = fullText;
+
+            nowPlayingLabel.classList.add('scrolling');
+            nowPlayingTextSpan.style.animation = 'none';
+            nowPlayingTextSpan.style.transform = 'translateX(0)';
+
+            requestAnimationFrame(() => {
+                const textWidth = nowPlayingTextSpan.scrollWidth;
+                const containerWidth = nowPlayingLabel.clientWidth;
+
+                const minimumScrollDistance = containerWidth;
+                const totalScrollDistance = Math.max(textWidth, minimumScrollDistance) + containerWidth;
+                const pixelsPerSecond = 100;
+                const animationDuration = totalScrollDistance / pixelsPerSecond;
+
+                nowPlayingTextSpan.style.setProperty('--text-width', `${textWidth}px`);
+                nowPlayingTextSpan.style.setProperty('--container-width', `${containerWidth}px`);
+                nowPlayingTextSpan.style.animationDuration = `${animationDuration}s`;
+                nowPlayingTextSpan.style.willChange = 'transform';
+
+                nowPlayingTextSpan.style.animation = '';
+                nowPlayingTextSpan.style.animation = `marquee ${animationDuration}s linear infinite`;
+
+                nowPlayingLabel.style.justifyContent = 'flex-start';
+            });
+        }
+
+        const onAudioPlaying = () => {
+            console.log("Audio is actually playing.");
+            // Fetch and update metadata
+            fetchNowPlayingMetadata();
+            if (!animationFrameId) {
+                animationFrameId = requestAnimationFrame(drawVisualizer);
+            }
+            if (currentPlayingStation) {
+                addStationToRecents(currentPlayingStation);
+            }
+            requestWakeLock();
+        };
+
+        const onAudioPause = () => {
+            updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
+            releaseWakeLock();
+        };
+
+        const onAudioEnded = () => {
+            console.log("Audio ended.");
+            stopVisualizer();
+            updateNowPlayingText("Nothing playing");
+            releaseWakeLock();
+        };
+
+        const onAudioError = (e) => {
+            console.error("Audio element error:", e);
+            if (e.target && e.target.error && e.target.error.code === MediaError.MEDIA_ERR_ABORTED) {
+                console.log("Audio playback aborted by user (switching stations).");
+            } else {
+                console.error("Non-aborted audio error:", e);
+            }
+            stopVisualizer(true);
+            updateNowPlayingText("Error playing station");
+            releaseWakeLock();
+        };
+
+        async function ensureAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log("AudioContext lazily created. State:", audioContext.state);
+            }
+            if (audioContext.state === 'suspended') {
+                try {
+                    await audioContext.resume();
+                    console.log("AudioContext resumed. State:", audioContext.state);
+                } catch (e) {
+                    console.error("Failed to resume AudioContext (autoplay prevented):", e);
+                    throw new Error("Autoplay prevented by browser. Please interact with the page to enable audio.");
+                }
+            }
+            if (audioContext.state !== 'running') {
+                console.error("AudioContext is not running. Autoplay might be blocked.");
+                throw new Error("AudioContext is not running. Autoplay might be blocked.");
+            }
+        }
+
+        async function startVisualizer(streamUrl) {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.src = '';
+                currentAudio.removeAttribute('src');
+                currentAudio.removeEventListener('playing', onAudioPlaying);
+                currentAudio.removeEventListener('pause', onAudioPause);
+                currentAudio.removeEventListener('ended', onAudioEnded);
+                currentAudio.removeEventListener('error', onAudioError);
+                currentAudio = null;
+            }
+            if (sourceNode) {
+                sourceNode.disconnect();
+                sourceNode = null;
+            }
+            if (analyser) {
+                analyser.disconnect();
+                analyser = null;
+            }
+
+            try {
+                await ensureAudioContext();
+
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = FFT_SIZE;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                currentAudio = new Audio();
+                currentAudio.crossOrigin = "anonymous";
+                currentAudio.src = streamUrl;
+                currentAudio.autoplay = true;
+                currentAudio.controls = false;
+
+                sourceNode = audioContext.createMediaElementSource(currentAudio);
+                sourceNode.connect(analyser);
+                analyser.connect(audioContext.destination);
+
+                currentAudio.addEventListener('playing', onAudioPlaying);
+                currentAudio.addEventListener('pause', onAudioPause);
+                currentAudio.addEventListener('ended', onAudioEnded);
+                currentAudio.addEventListener('error', onAudioError);
+
+                await currentAudio.play();
+                console.log("Audio playback initiated for:", streamUrl);
+                if (!animationFrameId) {
+                    animationFrameId = requestAnimationFrame(drawVisualizer);
+                }
+                requestWakeLock();
+
+            } catch (e) {
+                console.error("Audio/Visualizer setup error:", e);
+                stopVisualizer(true);
+                updateNowPlayingText("Error playing station");
+                releaseWakeLock();
+            }
+        }
+
+        function stopVisualizer(closeContext = false) {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.src = '';
+                currentAudio.removeAttribute('src');
+                currentAudio.removeEventListener('playing', onAudioPlaying);
+                currentAudio.removeEventListener('pause', onAudioPause);
+                currentAudio.removeEventListener('ended', onAudioEnded);
+                currentAudio.removeEventListener('error', onAudioError);
+                currentAudio = null;
+            }
+            if (sourceNode) {
+                sourceNode.disconnect();
+                sourceNode = null;
+            }
+            if (analyser) {
+                analyser.disconnect();
+                analyser = null;
+            }
+            if (closeContext && audioContext && audioContext.state !== 'closed') {
+                audioContext.close().catch(e => console.error("Error closing AudioContext:", e));
+                audioContext = null;
+            }
+
+            ctx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+            updateNowPlayingText("Nothing playing");
+            visualizerContainer.style.transform = 'scale(1)';
+            themeToggleButton.style.transform = 'scale(1)'; // Changed from holiLogo
+            console.log("Visualizer stopped.");
+
+            // When visualizer stops, apply the current global hue to the elements
+            // globalCycleHue is used here, which will be static if hue cycling is paused
+            appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
+            appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
+            subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
+            visualizerContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
+            activeDisplayHue = globalCycleHue;
+
+            releaseWakeLock();
+        }
+
+        /**
+         * Continuously updates the global background hue.
+         * This function runs regardless of audio playback state.
+         */
+        function updateGlobalHue() {
+            if (isHueCycling) { // Only update hue if cycling is enabled
+                globalCycleHue += globalCycleHueDirection * GLOBAL_HUE_CHANGE_SPEED;
+
+                if (globalCycleHue >= 360) {
+                    globalCycleHue = 360;
+                    globalCycleHueDirection = -1;
+                } else if (globalCycleHue <= 0) {
+                    globalCycleHue = 0;
+                    globalCycleHueDirection = 1;
+                }
+            }
+            // Always set the CSS variable based on globalCycleHue, whether it's cycling or paused
+            document.documentElement.style.setProperty('--base-hue', globalCycleHue);
+            updateThemeColors(); // Re-apply theme colors with new hue
+
+            if (!currentAudio || currentAudio.paused) {
+                // If not playing, or paused, the app container and visualizer border
+                // should reflect the global hue, even if it's frozen.
+                appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
+                appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
+                subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
+                visualizerContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
+                activeDisplayHue = globalCycleHue; // activeDisplayHue should track globalCycleHue when not playing
+            }
+            requestAnimationFrame(updateGlobalHue);
+        }
+
+
+        function drawVisualizer() {
+            if (!analyser || !dataArray || !audioContext || audioContext.state !== 'running') {
+                ctx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+                // When visualizer stops, apply the current hue (global or frozen) to the elements
+                appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
+                appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
+                subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
+                visualizerContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
+                return;
+            }
+
+            animationFrameId = requestAnimationFrame(drawVisualizer);
+
+            analyser.getByteFrequencyData(dataArray);
+
+            ctx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+
+            const bufferLength = analyser.frequencyBinCount;
+            const barWidth = (visualizerCanvas.width / bufferLength) * 2.5;
+            let x = 0;
+
+            const MAX_BAR_HEIGHT_RATIO = 0.9;
+            const noiseThreshold = 3;
+
+            const totalEnergy = dataArray.reduce((sum, value) => sum + value, 0);
+            const averageEnergy = totalEnergy / bufferLength;
+
+            const minEnergyThreshold = 10;
+            const maxEnergyThreshold = 150;
+
+            let normalizedEnergy = (averageEnergy - minEnergyThreshold) / (maxEnergyThreshold - minEnergyThreshold);
+            normalizedEnergy = Math.max(0, Math.min(1, normalizedEnergy));
+
+            const HUE_PULSE_RANGE = 60;
+            // activeDisplayHue now uses globalCycleHue (which can be fixed) for its base
+            activeDisplayHue = (globalCycleHue + (normalizedEnergy * HUE_PULSE_RANGE)) % 360;
+
+            const barRadius = 10;
+
+            // Adjusted range for slightly less prominent zoom effect on bars
+            const minBarScale = 0.85;
+            const maxBarScale = 1.15;
+            const barVisualizerScale = minBarScale + (maxBarScale - minBarScale) * normalizedEnergy;
+
+            // Adjusted range for slightly less prominent zoom effect on window/container
+            const minWindowScale = 0.93;
+            const maxWindowScale = 1.05; // Changed from 1.07 to 1.05
+            const windowVisualizerScale = minWindowScale + (maxWindowScale - minWindowScale) * normalizedEnergy;
+            visualizerContainer.style.transform = `scale(${windowVisualizerScale})`;
+
+            const minLogoScale = 1.0;
+            const maxLogoScale = 1.2;
+            const logoScale = minLogoScale + (maxLogoScale - minLogoScale) * normalizedEnergy;
+            themeToggleButton.style.transform = `scale(${logoScale})`; // Changed from holiLogo
+
+            // Update colors based on activeDisplayHue and current theme
+            const shadowColor = isDarkTheme ? `hsla(${activeDisplayHue}, 70%, 50%, 0.6)` : `hsla(${activeDisplayHue}, 50%, 60%, 0.4)`;
+            const borderColor = isDarkTheme ? `hsl(${activeDisplayHue}, 60%, 40%)` : `hsl(${activeDisplayHue}, 40%, 70%)`;
+            const subtitleColor = isDarkTheme ? `hsl(${activeDisplayHue}, 70%, 70%)` : `hsl(${activeDisplayHue}, 50%, 40%)`;
+
+            appContainer.style.boxShadow = shadowColor;
+            visualizerContainer.style.borderColor = borderColor;
+            appContainer.style.borderColor = borderColor;
+            subtitleText.style.color = subtitleColor;
+
+
+            for (let i = 0; i < bufferLength; i++) {
+                let normalizedValue = dataArray[i] / 255;
+                let scaledValue = Math.pow(normalizedValue, 0.6);
+
+                let barHeight = scaledValue * visualizerCanvas.height * MAX_BAR_HEIGHT_RATIO * barVisualizerScale;
+
+                if (barHeight < noiseThreshold) {
+                    barHeight = 0;
+                }
+
+                if (barHeight > 0) {
+                    const gradient = ctx.createLinearGradient(x, visualizerCanvas.height, x + barWidth, 0);
+                    const stop1Color = isDarkTheme ? `hsl(${activeDisplayHue}, 80%, 30%)` : `hsl(${activeDisplayHue}, 40%, 80%)`;
+                    const stop2Color = isDarkTheme ? `hsl(${activeDisplayHue}, 80%, 50%)` : `hsl(${activeDisplayHue}, 50%, 70%)`;
+
+                    gradient.addColorStop(0, stop1Color);
+                    gradient.addColorStop(1, stop2Color);
+
+                    ctx.fillStyle = gradient;
+                    const effectiveRadius = Math.min(barRadius, barWidth / 2 - 1);
+
+                    ctx.beginPath();
+                    ctx.moveTo(x, visualizerCanvas.height);
+                    ctx.lineTo(x, visualizerCanvas.height - barHeight + effectiveRadius);
+                    ctx.quadraticCurveTo(x, visualizerCanvas.height - barHeight, x + effectiveRadius, visualizerCanvas.height - barHeight);
+                    ctx.lineTo(x + barWidth - effectiveRadius, visualizerCanvas.height - barHeight);
+                    ctx.quadraticCurveTo(x + barWidth, visualizerCanvas.height - barHeight, x + barWidth, visualizerCanvas.height - barHeight + effectiveRadius);
+                    ctx.lineTo(x + barWidth, visualizerCanvas.height);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                x += barWidth + 1;
+            }
+        }
+
+        // --- Now Playing Metadata Fetch ---
+        async function fetchNowPlayingMetadata() {
+            if (!currentPlayingStation || !currentPlayingStation.stationuuid) {
+                return;
+            }
+
+            // Using Radio Browser's "station by uuid" endpoint which often includes "current_track"
+            const metadataUrl = `${apiServer}/json/stations/byuuid/${currentPlayingStation.stationuuid}`;
+            try {
+                const response = await fetch(metadataUrl, {
+                    method: 'GET',
+                    headers: { 'User-Agent': 'GeminiRadioApp/2.0' }
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    const stationInfo = data[0];
+                    const stationName = stationInfo.name || 'Unknown Station';
+                    const songTitle = stationInfo.current_track || '';
+                    const fullText = songTitle ? `${stationName} - ${songTitle}` : stationName;
+                    updateNowPlayingText(`Now playing: ${fullText}`);
+                }
+            } catch (error) {
+                console.error("Error fetching now playing metadata:", error);
+                // Fallback to just station name if metadata fetch fails
+                updateNowPlayingText(`Now playing: ${currentPlayingStation.name || 'Unknown Station'}`);
+            }
+        }
+
+
+        // --- Recent Stations Management (formerly Favorites) ---
+
+        function saveRecentStations() {
+            saveToLocalStorage('recentStations', recentStations);
+            console.log("Recent stations saved to localStorage:", recentStations);
+        }
+
+        function renderFavorites() {
+            favoritesList.innerHTML = '';
+            if (recentStations.length === 0) {
+                favoritesList.innerHTML = '<li class="list-placeholder-text">No recent stations</li>';
+                return;
+            }
+
+            recentStations.forEach((station) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${station.name} (${station.countrycode || 'N/A'})`;
+                listItem.dataset.stationId = station.stationuuid;
+                listItem.draggable = true; // Make items draggable
+
+                // Add website link if available
+                if (station.homepage) {
+                    const link = document.createElement('a');
+                    link.href = station.homepage;
+                    link.target = "_blank"; // Open in new tab
+                    link.rel = "noopener noreferrer"; // Security best practice
+                    link.innerHTML = '<i class="fas fa-external-link-alt ml-2 text-blue-400 hover:text-blue-600"></i>';
+                    link.addEventListener('click', (e) => e.stopPropagation()); // Prevent playing station when clicking link
+                    listItem.appendChild(link);
+                }
+
+                listItem.addEventListener('click', () => playStationByUUID(station.stationuuid));
+                listItem.addEventListener('dblclick', () => removeRecentStation(station.stationuuid));
+                favoritesList.appendChild(listItem);
+            });
+        }
+
+        function loadRecentStations() {
+            const storedRecents = getFromLocalStorage('recentStations');
+            if (storedRecents) {
+                recentStations = storedRecents;
+                console.log("Recent stations loaded from localStorage:", recentStations);
+            } else {
+                recentStations = [
+                    { "name": "SomaFM: Deep Space One", "url_resolved": "http://ice4.somafm.com/deepspaceone-128-mp3", "stationuuid": "c0d4e5f6-8a9b-4c5d-0e1f-2a3b4c5d6e7f", "countrycode": "US", "favicon": "", "homepage": "https://somafm.com/deepspaceone/" },
+                    { "name": "SomaFM: Space Station Soma", "url_resolved": "http://ice4.somafm.com/spacestation-128-mp3", "stationuuid": "d1e5f6g7-9b0c-5d6e-1f2a-3b4c5d6e7f8g", "countrycode": "US", "favicon": "", "homepage": "https://somafm.com/spacestation/" },
+                    { "name": "SomaFM: Groove Salad", "url_resolved": "http://ice4.somafm.com/groovesalad-128-mp3", "stationuuid": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f90", "countrycode": "US", "favicon": "", "homepage": "https://somafm.com/groovesalad/" }
+                ];
+                saveRecentStations();
+            }
+            renderFavorites();
+        }
+
+        function addStationToRecents(station) {
+            recentStations = recentStations.filter(s => s.stationuuid !== station.stationuuid);
+            recentStations.unshift(station);
+            if (recentStations.length > MAX_RECENT_STATIONS) {
+                recentStations = recentStations.slice(0, MAX_RECENT_STATIONS);
+            }
+            saveRecentStations();
+            renderFavorites();
+        }
+
+        function removeRecentStation(uuid) {
+            const stationToRemove = recentStations.find(s => s.stationuuid === uuid);
+            if (stationToRemove) {
+                recentStations = recentStations.filter(s => s.stationuuid !== uuid);
+                saveRecentStations();
+                renderFavorites();
+                if (currentPlayingStation && currentPlayingStation.stationuuid === uuid) {
+                    stopVisualizer();
+                    currentPlayingStation = null;
+                }
+            }
+        }
+
+        // Drag and Drop for Favorites
+        let draggedItem = null;
+
+        favoritesList.addEventListener('dragstart', (e) => {
+            draggedItem = e.target.closest('li');
+            if (draggedItem) {
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', draggedItem.dataset.stationId);
+                setTimeout(() => draggedItem.classList.add('dragging'), 0);
+            }
+        });
+
+        favoritesList.addEventListener('dragover', (e) => {
+            e.preventDefault(); // Allow drop
+            const afterElement = getDragAfterElement(favoritesList, e.clientY);
+            const draggable = document.querySelector('.dragging');
+            if (draggable && afterElement) {
+                if (afterElement.nextSibling !== draggable) { // Prevent re-inserting before itself
+                    favoritesList.insertBefore(draggable, afterElement);
+                }
+            } else if (draggable) {
+                favoritesList.appendChild(draggable);
+            }
+        });
+
+        favoritesList.addEventListener('dragend', () => {
+            if (draggedItem) {
+                draggedItem.classList.remove('dragging');
+                draggedItem = null;
+            }
+            // Reorder the recentStations array based on the new DOM order
+            const newOrder = Array.from(favoritesList.children).map(li =>
+                recentStations.find(s => s.stationuuid === li.dataset.stationId)
+            ).filter(Boolean); // Filter out any nulls if an item wasn't found
+            recentStations = newOrder;
+            saveRecentStations();
+            renderFavorites(); // Re-render to ensure consistency and reattach listeners
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: -Infinity }).element;
+        }
+
+
+        /**
+         * Fetches a list of available API servers and selects one randomly.
+         */
+        async function initializeApiServer() {
+            if (!statusMessageDiv) {
+                const tempDiv = document.createElement('div');
+                tempDiv.id = 'status-message';
+                tempDiv.classList.add('flex', 'items-center', 'justify-center', 'h-full');
+                tempDiv.innerHTML = `<p class="text-[var(--light-text-color)] list-placeholder-text">Finding a server...</p>`;
+                resultsContainer.appendChild(tempDiv);
+                statusMessageDiv = tempDiv;
+            } else {
+                 statusMessageDiv.innerHTML = `<p class="text-[var(--light-text-color)] list-placeholder-text">Finding a server...</p>`;
+            }
+
+            try {
+                const response = await fetch('https://all.api.radio-browser.info/json/servers');
+                if (!response.ok) throw new Error('Failed to get server list');
+
+                const servers = await response.json();
+                const activeServer = servers[Math.floor(Math.random() * servers.length)];
+                apiServer = `https://${activeServer.name}`;
+                console.log(`Connected to API server: ${apiServer}`);
+                statusMessageDiv.innerHTML = `<p class="text-[var(--light-text-color)] list-placeholder-text">Start typing to find stations...</p>`;
+
+            } catch (error) {
+                console.error("Error initializing API server:", error);
+                statusMessageDiv.innerHTML = '<p class="text-red-500 font-semibold">Could not connect to the Radio Browser network. Please try again later.</p>';
+            }
+        }
+
+        /**
+         * Searches for stations based on user input.
+         * Includes a retry mechanism for network errors.
+         */
+        async function searchStations() {
+            if (!apiServer) {
+                console.warn('API server not initialized. Please wait a moment and try again.');
+                return;
+            }
+
+            const searchType = 'byname';
+            const searchTerm = searchInput.value.trim();
+
+            if (!searchTerm) {
+                resultsContainer.innerHTML = `<div id="status-message" class="flex items-center justify-center h-full"><p class="text-red-500 font-semibold">Please enter a search term.</p></div>`;
+                console.warn('Search term is empty.');
+                return;
+            }
+
+            resultsContainer.innerHTML = `<div id="status-message" class="flex items-center justify-center h-full"><div class="spinner"></div></div>`;
+
+            const searchPath = `/json/stations/${searchType}/${encodeURIComponent(searchTerm)}`;
+            let finalSearchUrl = `${apiServer}${searchPath}?limit=200&hidebroken=true&order=clickcount&reverse=true`;
+            let success = false;
+            let retryCount = 0;
+            const MAX_RETRIES = 1;
+
+            while (!success && retryCount <= MAX_RETRIES) {
+                try {
+                    console.log(`Attempting search from: ${finalSearchUrl} (Retry: ${retryCount})`);
+                    const response = await fetch(finalSearchUrl, {
+                        method: 'GET',
+                        headers: { 'User-Agent': 'GeminiRadioApp/2.0' }
+                    });
+
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                    const fetchedStations = await response.json();
+                    displayResults(fetchedStations);
+                    success = true;
+                } catch (error) {
+                    console.error('Error fetching stations:', error);
+                    if (retryCount < MAX_RETRIES) {
+                        console.log('Retrying search with a new API server...');
+                        await initializeApiServer();
+                        finalSearchUrl = `${apiServer}${searchPath}?limit=200&hidebroken=true&order=clickcount&reverse=true`;
+                        retryCount++;
+                    } else {
+                        console.error('Error fetching stations after retries. Please try another search.');
+                        resultsContainer.innerHTML = `<div id="status-message" class="flex items-center justify-center h-full"><p class="text-red-500 font-semibold">Error fetching stations. Please try another search.</p></div>`;
+                    }
+                }
+            }
+        }
+
+        /**
+         * Displays the search results in the results container.
+         * @param {Array<Object>} stations - An array of station objects.
+         */
+        function displayResults(stationData) {
+            resultsContainer.innerHTML = '';
+            stations = stationData;
+
+            if (stations.length === 0) {
+                resultsContainer.innerHTML = `<li class="list-placeholder-text">No stations found.</li>`;
+                updateNowPlayingText("No stations found.");
+            } else {
+                stations.forEach((station, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${station.name} (${station.countrycode || 'N/A'})`;
+                    listItem.dataset.index = index;
+
+                    // Add website link if available
+                    if (station.homepage) {
+                        const link = document.createElement('a');
+                        link.href = station.homepage;
+                        link.target = "_blank"; // Open in new tab
+                        link.rel = "noopener noreferrer"; // Security best practice
+                        link.innerHTML = '<i class="fas fa-external-link-alt ml-2 text-blue-400 hover:text-blue-600"></i>';
+                        link.addEventListener('click', (e) => e.stopPropagation()); // Prevent playing station when clicking link
+                        listItem.appendChild(link);
+                    }
+
+                    listItem.addEventListener('click', () => playStation(index));
+                    listItem.addEventListener('dblclick', () => removeRecentStation(station.stationuuid));
+                    resultsContainer.appendChild(listItem);
+                });
+                updateNowPlayingText(`Found ${stations.length} stations.`);
+            }
+        }
+
+
+        async function playStation(index) {
+            if (index >= 0 && index < stations.length) {
+                const station = stations[index];
+                currentPlayingStation = station;
+                const streamUrl = station.url_resolved || station.url;
+                const stationName = station.name || 'Unknown Station';
+
+                if (!streamUrl) {
+                    console.warn('No valid stream URL found for this station.');
+                    return;
+                }
+
+                console.log(`Attempting to play: ${stationName} from ${streamUrl}`);
+                updateNowPlayingText(`Loading: ${stationName}...`);
+
+                Array.from(resultsContainer.children).forEach((li) => {
+                    li.classList.remove('selected');
+                });
+                const selectedSearchItem = resultsContainer.querySelector(`[data-index="${index}"]`);
+                if (selectedSearchItem) {
+                    selectedSearchItem.classList.add('selected');
+                }
+
+                Array.from(favoritesList.children).forEach(li => li.classList.remove('selected'));
+
+                await startVisualizer(streamUrl);
+            }
+        }
+
+        async function playStationByUUID(uuid) {
+            let stationToPlay = stations.find(s => s.stationuuid === uuid);
+            if (!stationToPlay) {
+                stationToPlay = recentStations.find(s => s.stationuuid === uuid);
+            }
+
+            if (stationToPlay) {
+                currentPlayingStation = stationToPlay;
+                const streamUrl = stationToPlay.url_resolved || stationToPlay.url;
+                const stationName = stationToPlay.name || 'Unknown Station';
+
+                if (!streamUrl) {
+                    console.warn('No valid stream URL found for this favorite station.');
+                    return;
+                }
+
+                console.log(`Attempting to play favorite: ${stationName} from ${streamUrl}`);
+                updateNowPlayingText(`Loading: ${stationName}...`);
+
+                Array.from(resultsContainer.children).forEach((li) => {
+                    li.classList.remove('selected');
+                });
+
+                Array.from(favoritesList.children).forEach(li => {
+                    if (li.dataset.stationId === uuid) {
+                        li.classList.add('selected');
+                    } else {
+                        li.classList.remove('selected');
+                    }
+                });
+
+                await startVisualizer(streamUrl);
+            } else {
+                console.error('Could not find this station in your favorites or search results.');
+            }
+        }
+
+        async function handleControlButtonClick() {
+            try {
+                await ensureAudioContext();
+
+                if (currentAudio && !currentAudio.paused) {
+                    currentAudio.pause();
+                    updateNowPlayingText(`Paused: ${currentPlayingStation ? currentPlayingStation.name : 'Unknown Station'}`);
+                    releaseWakeLock();
+                } else if (currentAudio && currentAudio.paused) {
+                    await currentAudio.play();
+                    // Re-fetch metadata on play for updated song info
+                    fetchNowPlayingMetadata();
+                    requestWakeLock();
+                } else {
+                    const selectedItem = resultsContainer.querySelector('.selected');
+                    const selectedFavorite = favoritesList.querySelector('.selected');
+
+                    if (selectedItem) {
+                        const index = parseInt(selectedItem.dataset.index);
+                        playStation(index);
+                    } else if (selectedFavorite) {
+                        const uuid = selectedFavorite.dataset.stationId;
+                        playStationByUUID(uuid);
+                    }
+                    else {
+                        console.info('Please select a station from search results or favorites to play.');
+                    }
+                }
+            } catch (e) {
+                console.error("Control button click error:", e);
+                stopVisualizer(true);
+                releaseWakeLock();
+            }
+        }
+
+        // --- Branding Subtitle Function ---
+        const subtitles = [
+            "Where sound meets light.",
+            "Stream the glow within.",
+            "A dance of sound and color.",
+            "Stream radio with style.",
+            "Free yourself from subscriptions."
+        ];
+
+        function setRandomSubtitle() {
+            const randomIndex = Math.floor(Math.random() * subtitles.length);
+            subtitleText.textContent = subtitles[randomIndex];
+        }
+
+        /**
+         * Adds mouseover and mouseout event listeners to an element
+         * to change its border color dynamically.
+         * @param {HTMLElement} element - The DOM element to add the effect to.
+         */
+        function addHoverBorderEffect(element) {
+            element.addEventListener('mouseover', () => {
+                element.style.borderColor = `hsl(${activeDisplayHue}, 80%, 70%)`;
+            });
+            element.addEventListener('mouseout', () => {
+                element.style.borderColor = isDarkTheme ? 'var(--border-color)' : 'var(--light-theme-border-color)';
+            });
+        }
+
+        // --- Sleep Timer Functions ---
+        function setSleepTimer(minutes) {
+            clearTimeout(sleepTimer); // Clear any existing timer
+            timerButtons.forEach(btn => btn.classList.remove('active')); // Deactivate all buttons
+
+            if (minutes > 0) {
+                sleepTimer = setTimeout(() => {
+                    if (currentAudio) {
+                        currentAudio.pause();
+                        updateNowPlayingText("Sleep timer ended. Paused.");
+                    }
+                    clearTimeout(sleepTimer);
+                    sleepTimer = null;
+                    timerButtons.forEach(btn => btn.classList.remove('active'));
+                }, minutes * 60 * 1000); // Convert minutes to milliseconds
+
+                // Activate the clicked button
+                document.querySelector(`[data-minutes="${minutes}"]`).classList.add('active');
+                console.log(`Sleep timer set for ${minutes} minutes.`);
+            } else {
+                console.log("Sleep timer cleared.");
+            }
+        }
+
+        // --- Chat Box Functions ---
+        function generateRandomColorName() {
+            const colors = [
+                "AliceBlue", "AntiqueWhite", "Aqua", "Aquamarine", "Azure", "Beige", "Bisque", "Black", "BlanchedAlmond", "Blue", "BlueViolet", "Brown", "BurlyWood", "CadetBlue", "Chartreuse", "Chocolate", "Coral", "CornflowerBlue", "Cornsilk", "Crimson", "Cyan", "DarkBlue", "DarkCyan", "DarkGoldenRod", "DarkGray", "DarkGrey", "DarkGreen", "DarkKhaki", "DarkMagenta", "DarkOliveGreen", "DarkOrange", "DarkOrchid", "DarkRed", "DarkSalmon", "DarkSeaGreen", "DarkSlateBlue", "DarkSlateGray", "DarkSlateGrey", "DarkTurquoise", "DarkViolet", "DeepPink", "DeepSkyBlue", "DimGray", "DimGrey", "DodgerBlue", "FireBrick", "FloralWhite", "ForestGreen", "Fuchsia", "Gainsboro", "GhostWhite", "Gold", "GoldenRod", "Gray", "Grey", "Green", "GreenYellow", "HoneyDew", "HotPink", "IndianRed", "Indigo", "Ivory", "Khaki", "Lavender", "LavenderBlush", "LawnGreen", "LemonChiffon", "LightBlue", "LightCoral", "LightCyan", "LightGoldenRodYellow", "LightGray", "LightGrey", "LightGreen", "LightPink", "LightSalmon", "LightSeaGreen", "LightSkyBlue", "LightSlateGray", "LightSlateGrey", "LightSteelBlue", "LightYellow", "Lime", "LimeGreen", "Linen", "Magenta", "Maroon", "MediumAquaMarine", "MediumBlue", "MediumOrchid", "MediumPurple", "MediumSeaGreen", "MediumSlateBlue", "MediumSpringGreen", "MediumTurquoise", "MediumVioletRed", "MidnightBlue", "MintCream", "MistyRose", "Moccasin", "NavajoWhite", "Navy", "OldLace", "Olive", "OliveDrab", "Orange", "OrangeRed", "Orchid", "PaleGoldenRod", "PaleGreen", "PaleTurquoise", "PaleVioletRed", "PapayaWhip", "PeachPuff", "Peru", "Pink", "Plum", "PowderBlue", "Purple", "RebeccaPurple", "Red", "RosyBrown", "RoyalBlue", "SaddleBrown", "Salmon", "SandyBrown", "SeaGreen", "SeaShell", "Sienna", "Silver", "SkyBlue", "SlateBlue", "SlateGray", "SlateGrey", "Snow", "SpringGreen", "SteelBlue", "Tan", "Teal", "Thistle", "Tomato", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke", "Yellow", "YellowGreen"
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function addChatMessage(message, isUser = false) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message');
+            if (isUser) {
+                messageElement.classList.add('user');
+                messageElement.textContent = `${myUserIdColor}: ${message}`; // Prepend with user's color ID
+            } else {
+                // This branch is now only for system messages, not other users
+                messageElement.textContent = message;
+            }
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+        }
+
+        // Removed sendChatButton.addEventListener
+
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const message = chatInput.value.trim();
+                if (message) {
+                    addChatMessage(message, true); // Pass true to indicate it's the current user's message
+                    chatInput.value = '';
+                }
+            }
+        });
+
+
+        // --- Event Listeners ---
+        searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                searchStations();
+            }
+        });
+
+        nowPlayingLabel.addEventListener('click', handleControlButtonClick);
+
+        // Changed target from 'a' tag to 'img' for theme toggle
+        themeToggleButton.addEventListener('click', toggleTheme);
+
+        // Updated: Add click listener to visualizer container to toggle hue cycling (pause/resume)
+        visualizerContainer.addEventListener('click', () => {
+            isHueCycling = !isHueCycling;
+            if (isHueCycling) {
+                // If resuming, pick a direction to continue smoothly if it was previously stopped at 0 or 360
+                if (globalCycleHue >= 360) {
+                    globalCycleHueDirection = -1;
+                } else if (globalCycleHue <= 0) {
+                    globalCycleHueDirection = 1;
+                } else {
+                     // If it's somewhere in between, and the direction was 0 (paused),
+                     // re-establish a default direction, e.g., 1 to move forward.
+                     // Otherwise, keep its last non-zero direction.
+                     globalCycleHueDirection = globalCycleHueDirection === 0 ? 1 : globalCycleHueDirection;
+                }
+                console.log(`Hue cycling resumed. Current hue: ${globalCycleHue}, Direction: ${globalCycleHueDirection}`);
+            } else {
+                // If pausing, explicitly set direction to 0 to stop movement
+                globalCycleHueDirection = 0;
+                console.log(`Hue cycling paused at: ${globalCycleHue}`);
+            }
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) {
+                requestWakeLock();
+            } else if (document.visibilityState === 'hidden') {
+                releaseWakeLock();
+            }
+        });
+
+        // Play/Pause (Space) key shortcut
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space' && document.activeElement !== searchInput && document.activeElement !== chatInput) {
+                event.preventDefault(); // Prevent scrolling
+                handleControlButtonClick();
+            }
+        });
+
+        // Sleep Timer button listeners
+        timerButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const minutes = parseInt(button.dataset.minutes);
+                if (button.classList.contains('active')) {
+                    // If already active, deactivate and clear timer
+                    setSleepTimer(0);
+                } else {
+                    setSleepTimer(minutes);
+                }
+            });
+        });
+
+
+        // --- PWA Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // --- Initial Setup ---
+        initVisualizer();
+        loadThemePreference(); // Load theme preference first
+        loadRecentStations();
+        setRandomSubtitle();
+        updateNowPlayingText("Nothing playing");
+
+        globalCycleHue = 270;
+        activeDisplayHue = globalCycleHue;
+
+        addHoverBorderEffect(searchInput);
+        addHoverBorderEffect(resultsContainer);
+        addHoverBorderEffect(favoritesList);
+        addHoverBorderEffect(nowPlayingLabel);
+        addHoverBorderEffect(appContainer);
+
+        updateGlobalHue();
+        initializeApiServer();
+
+        // Generate user ID and add welcome message after initial setup
+        myUserIdColor = generateRandomColorName();
+        addChatMessage(`Welcome to the chat! Your ID is: ${myUserIdColor}. Type a message and press Enter.`, false); // System message, not a user message
+    </script>
+    <script>
+        // service-worker.js content (will be generated by the model)
+        // This script block is a placeholder for the service worker.
+        // In a real PWA, this content would be in a separate service-worker.js file.
+        // For this single HTML file constraint, we are simulating it.
+        const serviceWorkerContent = `
+            const CACHE_NAME = 'holi-radio-cache-v1';
+            const urlsToCache = [
+                '/',
+                '/index.html',
+                'https://cdn.tailwindcss.com',
+                'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap',
+                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css',
+                'https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png'
+            ];
+
+            self.addEventListener('install', (event) => {
+                event.waitUntil(
+                    caches.open(CACHE_NAME)
+                        .then((cache) => {
+                            console.log('Opened cache');
+                            return cache.addAll(urlsToCache);
+                        })
+                );
+            });
+
+            self.addEventListener('fetch', (event) => {
+                event.respondWith(
+                    caches.match(event.request)
+                        .then((response) => {
+                            // Cache hit - return response
+                            if (response) {
+                                return response;
+                            }
+                            // If not in cache, fetch from network
+                            return fetch(event.request).then(
+                                (response) => {
+                                    // Check if we received a valid response
+                                    if (!response || response.status !== 200 || response.type !== 'basic') {
+                                        return response;
+                                    }
+
+                                    // IMPORTANT: Clone the response. A response is a stream
+                                    // and can only be consumed once. We must clone it so that
+                                    // we can consume the stream twice: once in the cache and
+                                    // once by the browser.
+                                    const responseToCache = response.clone();
+
+                                    caches.open(CACHE_NAME)
+                                        .then((cache) => {
+                                            cache.put(event.request, responseToCache);
+                                        });
+
+                                    return response;
+                                }
+                            );
+                        })
+                );
+            });
+
+            self.addEventListener('activate', (event) => {
+                const cacheWhitelist = [CACHE_NAME];
+                event.waitUntil(
+                    caches.keys().then((cacheNames) => {
+                        return Promise.all(
+                            cacheNames.map((cacheName) => {
+                                if (cacheWhitelist.indexOf(cacheName) === -1) {
+                                    return caches.delete(cacheName);
+                                }
+                            })
+                        );
+                    })
+                );
+            });
+        `;
+
+        // Create a Blob from the service worker content
+        const blob = new Blob([serviceWorkerContent], { type: 'application/javascript' });
+        // Create a URL for the Blob
+        const serviceWorkerBlobUrl = URL.createObjectURL(blob);
+
+        // Register the service worker using the Blob URL
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register(serviceWorkerBlobUrl)
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+     <script>
+        // Minimal manifest.json content (will be generated by the model)
+        // In a real PWA, this content would be in a separate manifest.json file.
+        // For this single HTML file constraint, we are simulating it.
+        const manifestContent = {
+            "name": "Holi Radio",
+            "short_name": "Holi",
+            "description": "Holi, where sound meets light - A progressive web app for streaming radio.",
+            "start_url": "./index.html",
+            "display": "standalone",
+            "background_color": "#2a0a4a",
+            "theme_color": "#4a148c",
+            "icons": [
+                {
+                    "src": "https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                },
+                {
+                    "src": "https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png",
+                    "sizes": "512x512",
+                    "type": "image/png"
+                }
+            ]
+        };
+
+        // Create a Blob from the manifest content
+        const manifestBlob = new Blob([JSON.stringify(manifestContent)], { type: 'application/json' });
+        // Create a URL for the Blob
+        const manifestBlobUrl = URL.createObjectURL(manifestBlob);
+
+        // Dynamically create a link element for the manifest
+        const linkElement = document.createElement('link');
+        linkElement.rel = 'manifest';
+        linkElement.href = manifestBlobUrl;
+        document.head.appendChild(linkElement);
+    </script>
+</body>
+</html>
