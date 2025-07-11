@@ -82,7 +82,8 @@
             overflow-y: auto; /* Adds vertical scrollbar if content overflows */
             min-height: 500px;
             opacity: 0.95;
-            transition: box-shadow 0.1s ease-out, background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition for shadow color */
+            /* Changed box-shadow transition to reflect hue changes */
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.1s ease-out;
             border: 2px solid var(--border-color); /* Added initial border for app-container */
         }
 
@@ -924,7 +925,8 @@
 
             // When visualizer stops, apply the current global hue to the elements
             // globalCycleHue is used here, which will be static if hue cycling is paused
-            appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
+            // The box-shadow color is now updated within updateGlobalHue or drawVisualizer
+            // appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
             appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
             // Only update subtitle color if not on Android (where it's hidden)
             if (!document.body.dataset.os || document.body.dataset.os !== 'android') {
@@ -959,7 +961,8 @@
             if (!currentAudio || currentAudio.paused) {
                 // If not playing, or paused, the app container and visualizer border
                 // should reflect the global hue, even if it's frozen.
-                appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
+                const shadowColor = isDarkTheme ? `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)` : `0 0 30px 10px hsla(${globalCycleHue}, 50%, 60%, 0.4)`;
+                appContainer.style.boxShadow = shadowColor;
                 appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
                 // Only update subtitle color if not on Android (where it's hidden)
                 if (!document.body.dataset.os || document.body.dataset.os !== 'android') {
@@ -980,7 +983,8 @@
                     animationFrameId = null;
                 }
                 // When visualizer stops, apply the current hue (global or frozen) to the elements
-                appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
+                const shadowColor = isDarkTheme ? `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)` : `0 0 30px 10px hsla(${globalCycleHue}, 50%, 60%, 0.4)`;
+                appContainer.style.boxShadow = shadowColor;
                 appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
                 // Only update subtitle color if not on Android (where it's hidden)
                 if (!document.body.dataset.os || document.body.dataset.os !== 'android') {
@@ -1035,7 +1039,7 @@
             themeToggleButton.style.transform = `scale(${logoScale})`; // Changed from holiLogo
 
             // Update colors based on activeDisplayHue and current theme
-            const shadowColor = isDarkTheme ? `hsla(${activeDisplayHue}, 70%, 50%, 0.6)` : `hsla(${activeDisplayHue}, 50%, 60%, 0.4)`;
+            const shadowColor = isDarkTheme ? `0 0 30px 10px hsla(${activeDisplayHue}, 70%, 50%, 0.6)` : `0 0 30px 10px hsla(${activeDisplayHue}, 50%, 60%, 0.4)`;
             const borderColor = isDarkTheme ? `hsl(${activeDisplayHue}, 60%, 40%)` : `hsl(${activeDisplayHue}, 40%, 70%)`;
             const subtitleColor = isDarkTheme ? `hsl(${activeDisplayHue}, 70%, 70%)` : `hsl(${activeDisplayHue}, 50%, 40%)`;
 
