@@ -433,8 +433,8 @@
 
         /* Adjust branding group layout for Android when text is hidden */
         body[data-os="android"] .branding-group {
-            justify-content: center; /* Center the logo when text is hidden */
-            width: 100%; /* Ensure it takes full width to center effectively */
+            justify-content: flex-start; /* Align logo to the left on Android */
+            width: 100%; /* Ensure it takes full width */
         }
         body[data-os="android"] .branding-group img {
             margin: 0; /* Remove any lingering margins from text elements */
