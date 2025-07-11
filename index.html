@@ -189,7 +189,7 @@
         }
 
         /* List styling */
-        .results-container, .favorites-list { /* Changed station-list to results-container */
+        .results-container, .favorites-list, .chat-box { /* Changed station-list to results-container */
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color); /* Default border color */
             border-radius: 10px;
@@ -203,7 +203,7 @@
             transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Add transition for smooth color change */
         }
 
-        body.light-theme .results-container, body.light-theme .favorites-list {
+        body.light-theme .results-container, body.light-theme .favorites-list, body.light-theme .chat-box {
             background-color: var(--light-theme-panel-bg);
             border-color: var(--light-theme-border-color);
             color: var(--light-theme-light-gray-text);
@@ -413,7 +413,7 @@
             /* Responsive branding layout for small screens */
             .branding-group {
                 flex-direction: column;
-                align-items: flex-start; /* Align items to the left */
+                align-items: center; /* Center items horizontally in column */
             }
             .branding-group span:first-child { /* Holi text */
                 order: 1; /* Place first */
@@ -427,25 +427,6 @@
                 order: 3; /* Place third */
                 margin-left: 0;
                 margin-top: 5px; /* Add some space above subtitle */
-            }
-
-            /* Sleep Timer Buttons vertical layout for small screens */
-            .sleep-timer-buttons {
-                flex-direction: column;
-                gap: 5px; /* Reduced gap for vertical stacking */
-            }
-
-            /* Chat Box adjustments for small screens to handle keyboard overlap */
-            .chat-section {
-                display: flex;
-                flex-direction: column;
-                flex-grow: 1; /* Allow chat section to grow */
-                min-height: 150px; /* Minimum height for chat section */
-            }
-            .chat-box {
-                flex-grow: 1; /* Allow chat messages area to grow */
-                min-height: 80px; /* Minimum height for chat messages */
-                height: auto; /* Override fixed height */
             }
         }
 
@@ -502,23 +483,13 @@
 
         /* Chat Box Styling */
         .chat-box {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color); /* Default border color */
-            border-radius: 10px;
+            height: 150px; /* Fixed height for chat messages */
             padding: 10px;
             display: flex;
             flex-direction: column;
             gap: 5px;
             overflow-y: auto;
-            color: var(--light-gray-text);
-            transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease;
         }
-        body.light-theme .chat-box {
-            background-color: var(--light-theme-panel-bg);
-            border-color: var(--light-theme-border-color);
-            color: var(--light-theme-light-gray-text);
-        }
-
 
         .chat-message {
             background-color: hsla(var(--base-hue), 50%, 30%, 0.7);
@@ -1047,7 +1018,6 @@
             const minEnergyThreshold = 10;
             const maxEnergyThreshold = 150;
 
-            // Fix: Changed minEnergyBatch to minEnergyThreshold
             let normalizedEnergy = (averageEnergy - minEnergyThreshold) / (maxEnergyThreshold - minEnergyThreshold);
             normalizedEnergy = Math.max(0, Math.min(1, normalizedEnergy));
 
