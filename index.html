@@ -430,6 +430,22 @@
             }
         }
 
+        /* Android specific hiding */
+        body[data-os="android"] .branding-group span:first-child,
+        body[data-os="android"] #subtitleText {
+            display: none;
+        }
+
+        /* Adjust branding group layout for Android when text is hidden */
+        body[data-os="android"] .branding-group {
+            justify-content: center; /* Center the logo when text is hidden */
+            width: 100%; /* Ensure it takes full width to center effectively */
+        }
+        body[data-os="android"] .branding-group img {
+            margin: 0; /* Remove any lingering margins from text elements */
+        }
+
+
         /* Spinner for loading states */
         .spinner {
             border: 4px solid var(--border-color);
@@ -589,6 +605,14 @@
     </div>
 
     <script>
+        // --- OS Detection and Body Class Application ---
+        (function() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            if (/android/i.test(userAgent)) {
+                document.body.dataset.os = 'android';
+            }
+        })();
+
         // --- DOM Elements ---
         const searchInput = document.getElementById('searchInput');
         const resultsContainer = document.getElementById('results-container');
@@ -944,7 +968,10 @@
             // globalCycleHue is used here, which will be static if hue cycling is paused
             appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
             appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
-            subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
+            // Only update subtitle color if not on Android (where it's hidden)
+            if (!document.body.dataset.os || document.body.dataset.os !== 'android') {
+                subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
+            }
             visualizerContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
             activeDisplayHue = globalCycleHue;
 
@@ -976,7 +1003,10 @@
                 // should reflect the global hue, even if it's frozen.
                 appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
                 appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
-                subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
+                // Only update subtitle color if not on Android (where it's hidden)
+                if (!document.body.dataset.os || document.body.dataset.os !== 'android') {
+                    subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
+                }
                 visualizerContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
                 activeDisplayHue = globalCycleHue; // activeDisplayHue should track globalCycleHue when not playing
             }
@@ -994,7 +1024,10 @@
                 // When visualizer stops, apply the current hue (global or frozen) to the elements
                 appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
                 appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
-                subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
+                // Only update subtitle color if not on Android (where it's hidden)
+                if (!document.body.dataset.os || document.body.dataset.os !== 'android') {
+                    subtitleText.style.color = `hsl(${globalCycleHue}, 70%, 70%)`;
+                }
                 visualizerContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
                 return;
             }
@@ -1051,7 +1084,10 @@
             appContainer.style.boxShadow = shadowColor;
             visualizerContainer.style.borderColor = borderColor;
             appContainer.style.borderColor = borderColor;
-            subtitleText.style.color = subtitleColor;
+            // Only update subtitle color if not on Android (where it's hidden)
+            if (!document.body.dataset.os || document.body.dataset.os !== 'android') {
+                subtitleText.style.color = subtitleColor;
+            }
 
 
             for (let i = 0; i < bufferLength; i++) {
@@ -1485,8 +1521,13 @@
         ];
 
         function setRandomSubtitle() {
-            const randomIndex = Math.floor(Math.random() * subtitles.length);
-            subtitleText.textContent = subtitles[randomIndex];
+            // Only set subtitle if not on Android
+            if (!document.body.dataset.os || document.body.dataset.os !== 'android') {
+                const randomIndex = Math.floor(Math.random() * subtitles.length);
+                subtitleText.textContent = subtitles[randomIndex];
+            } else {
+                subtitleText.textContent = ''; // Ensure it's empty on Android
+            }
         }
 
         /**
@@ -1644,7 +1685,7 @@
         initVisualizer();
         loadThemePreference(); // Load theme preference first
         loadRecentStations();
-        setRandomSubtitle();
+        setRandomSubtitle(); // Call this after OS detection
         updateNowPlayingText("Nothing playing");
 
         globalCycleHue = 270;
