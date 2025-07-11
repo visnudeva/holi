@@ -189,7 +189,7 @@
         }
 
         /* List styling */
-        .results-container, .favorites-list { /* Removed .chat-box */
+        .results-container, .favorites-list {
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color); /* Default border color */
             border-radius: 10px;
@@ -203,7 +203,7 @@
             transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Add transition for smooth color change */
         }
 
-        body.light-theme .results-container, body.light-theme .favorites-list { /* Removed .chat-box */
+        body.light-theme .results-container, body.light-theme .favorites-list {
             background-color: var(--light-theme-panel-bg);
             border-color: var(--light-theme-border-color);
             color: var(--light-theme-light-gray-text);
@@ -351,46 +351,46 @@
         }
 
         /* Scrollbar Styling (Webkit - Chrome/Safari) for lists */
-        .results-container::-webkit-scrollbar, .favorites-list::-webkit-scrollbar { /* Removed .chat-box */
+        .results-container::-webkit-scrollbar, .favorites-list::-webkit-scrollbar {
             width: 12px;
             height: 12px;
         }
 
-        .results-container::-webkit-scrollbar-track, .favorites-list::-webkit-webkit-scrollbar-track { /* Removed .chat-box */
+        .results-container::-webkit-scrollbar-track, .favorites-list::-webkit-webkit-scrollbar-track {
             background: var(--main-app-bg);
             border-radius: 6px;
         }
 
-        body.light-theme .results-container::-webkit-scrollbar-track, body.light-theme .favorites-list::-webkit-scrollbar-track { /* Removed .chat-box */
+        body.light-theme .results-container::-webkit-scrollbar-track, body.light-theme .favorites-list::-webkit-scrollbar-track {
             background: var(--light-theme-main-app-bg);
         }
 
-        .results-container::-webkit-scrollbar-thumb, .favorites-list::-webkit-scrollbar-thumb { /* Removed .chat-box */
+        .results-container::-webkit-scrollbar-thumb, .favorites-list::-webkit-scrollbar-thumb {
             background: var(--border-color);
             border-radius: 5px;
             border: 1px solid var(--accent-color);
         }
 
-        body.light-theme .results-container::-webkit-scrollbar-thumb, body.light-theme .favorites-list::-webkit-scrollbar-thumb { /* Removed .chat-box */
+        body.light-theme .results-container::-webkit-scrollbar-thumb, body.light-theme .favorites-list::-webkit-scrollbar-thumb {
             background: var(--light-theme-border-color);
             border: 1px solid var(--light-theme-accent-color);
         }
 
-        .results-container::-webkit-scrollbar-thumb:hover, .favorites-list::-webkit-scrollbar-thumb:hover { /* Removed .chat-box */
+        .results-container::-webkit-scrollbar-thumb:hover, .favorites-list::-webkit-scrollbar-thumb:hover {
             background: var(--hover-color);
         }
 
-        body.light-theme .results-container::-webkit-scrollbar-thumb:hover, body.light-theme .favorites-list::-webkit-scrollbar-thumb:hover { /* Removed .chat-box */
+        body.light-theme .results-container::-webkit-scrollbar-thumb:hover, body.light-theme .favorites-list::-webkit-scrollbar-thumb:hover {
             background: var(--light-theme-hover-color);
         }
 
         /* Firefox Scrollbar Styling for lists */
-        .results-container, .favorites-list { /* Removed .chat-box */
+        .results-container, .favorites-list {
             scrollbar-width: thin;
             scrollbar-color: var(--border-color) var(--main-app-bg);
         }
 
-        body.light-theme .results-container, body.light-theme .favorites-list { /* Removed .chat-box */
+        body.light-theme .results-container, body.light-theme .favorites-list {
             scrollbar-color: var(--light-theme-border-color) var(--light-theme-main-app-bg);
         }
 
@@ -456,6 +456,12 @@
         }
 
         /* Sleep Timer Buttons */
+        .sleep-timer-buttons {
+            display: flex;
+            align-items: center; /* Align items vertically in the center */
+            gap: 8px; /* Space between countdown and buttons */
+        }
+
         .sleep-timer-buttons button {
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
@@ -490,6 +496,18 @@
             background-color: var(--light-theme-accent-color);
             border-color: var(--light-theme-accent-color);
         }
+
+        /* Sleep Timer Countdown Display */
+        #sleepTimerCountdown {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--accent-color);
+            min-width: 50px; /* Ensure space for display */
+            text-align: right;
+        }
+        body.light-theme #sleepTimerCountdown {
+            color: var(--light-theme-accent-color);
+        }
     </style>
     <!-- Web App Manifest -->
     <link rel="manifest" href="/manifest.json">
@@ -508,6 +526,7 @@
             </div>
             <!-- Sleep Timer Buttons -->
             <div class="sleep-timer-buttons flex gap-2">
+                <span id="sleepTimerCountdown" class="text-xs"></span> <!-- Countdown display -->
                 <button id="timer15" data-minutes="15">15</button>
                 <button id="timer30" data-minutes="30">30</button>
                 <button id="timer60" data-minutes="60">60</button>
@@ -570,7 +589,10 @@
         let statusMessageDiv = document.getElementById('status-message');
 
         const timerButtons = document.querySelectorAll('.sleep-timer-buttons button');
+        const sleepTimerCountdownDisplay = document.getElementById('sleepTimerCountdown'); // New: Countdown display element
         let sleepTimer = null;
+        let sleepTimerInterval = null; // New: Interval ID for countdown updates
+        let sleepTimerEndTime = 0; // New: Stores the timestamp when the timer should end
 
         // --- Radio Browser API Configuration ---
         let stations = [];
@@ -1480,11 +1502,36 @@
         }
 
         // --- Sleep Timer Functions ---
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        function updateSleepTimerCountdown() {
+            const now = Date.now();
+            const remainingTimeSeconds = Math.max(0, Math.floor((sleepTimerEndTime - now) / 1000));
+
+            if (remainingTimeSeconds > 0) {
+                sleepTimerCountdownDisplay.textContent = formatTime(remainingTimeSeconds);
+            } else {
+                sleepTimerCountdownDisplay.textContent = '';
+                clearInterval(sleepTimerInterval);
+                sleepTimerInterval = null;
+                timerButtons.forEach(btn => btn.classList.remove('active'));
+            }
+        }
+
         function setSleepTimer(minutes) {
             clearTimeout(sleepTimer); // Clear any existing timer
+            clearInterval(sleepTimerInterval); // Clear any existing countdown interval
             timerButtons.forEach(btn => btn.classList.remove('active')); // Deactivate all buttons
+            sleepTimerCountdownDisplay.textContent = ''; // Clear display initially
 
             if (minutes > 0) {
+                const durationMs = minutes * 60 * 1000;
+                sleepTimerEndTime = Date.now() + durationMs;
+
                 sleepTimer = setTimeout(() => {
                     if (currentAudio) {
                         currentAudio.pause();
@@ -1492,13 +1539,22 @@
                     }
                     clearTimeout(sleepTimer);
                     sleepTimer = null;
+                    clearInterval(sleepTimerInterval);
+                    sleepTimerInterval = null;
+                    sleepTimerCountdownDisplay.textContent = ''; // Clear display when timer finishes
                     timerButtons.forEach(btn => btn.classList.remove('active'));
-                }, minutes * 60 * 1000); // Convert minutes to milliseconds
+                }, durationMs);
+
+                // Start updating the countdown display
+                updateSleepTimerCountdown(); // Call immediately to show initial time
+                sleepTimerInterval = setInterval(updateSleepTimerCountdown, 1000);
 
                 // Activate the clicked button
                 document.querySelector(`[data-minutes="${minutes}"]`).classList.add('active');
                 console.log(`Sleep timer set for ${minutes} minutes.`);
             } else {
+                // If minutes is 0, it means clear the timer
+                sleepTimerEndTime = 0;
                 console.log("Sleep timer cleared.");
             }
         }
@@ -1549,7 +1605,7 @@
 
         // Play/Pause (Space) key shortcut
         document.addEventListener('keydown', (event) => {
-            if (event.code === 'Space' && document.activeElement !== searchInput) { // Removed chatInput from condition
+            if (event.code === 'Space' && document.activeElement !== searchInput) {
                 event.preventDefault(); // Prevent scrolling
                 handleControlButtonClick();
             }
@@ -1561,7 +1617,7 @@
                 const minutes = parseInt(button.dataset.minutes);
                 if (button.classList.contains('active')) {
                     // If already active, deactivate and clear timer
-                    setSleepTimer(0);
+                    setSleepTimer(0); // Pass 0 to clear the timer
                 } else {
                     setSleepTimer(minutes);
                 }
@@ -1600,6 +1656,9 @@
 
         updateGlobalHue();
         initializeApiServer();
+
+        // New: Reset search field on refresh
+        searchInput.value = '';
 
     </script>
     <script>
