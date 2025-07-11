@@ -410,29 +410,24 @@
             .visualizer-container {
                 height: 200px;
             }
-            /* Responsive branding layout for small screens */
+            /* The .branding-group itself should remain row for logo + text block */
             .branding-group {
-                flex-direction: column;
-                align-items: center; /* Center items horizontally in column */
+                flex-direction: row; /* Ensure it stays row for logo and text block */
+                align-items: center; /* Vertically align items in the row */
+                justify-content: center; /* Center the whole group */
+                width: 100%;
             }
-            .branding-group span:first-child { /* Holi text */
-                order: 1; /* Place first */
-                margin-right: 0;
-                margin-bottom: 5px; /* Add some space below Holi */
+            /* The inner div containing Holi text and subtitle will stack them */
+            .branding-group > div {
+                align-items: center; /* Center the text and subtitle when stacked */
             }
-            .branding-group img { /* Logo */
-                order: 2; /* Place second */
-            }
-            .branding-group span:last-child { /* Subtitle */
-                order: 3; /* Place third */
-                margin-left: 0;
-                margin-top: 5px; /* Add some space above subtitle */
+            .branding-group img {
+                margin-right: 8px; /* Add some spacing between logo and text */
             }
         }
 
         /* Android specific hiding */
-        body[data-os="android"] .branding-group span:first-child,
-        body[data-os="android"] #subtitleText {
+        body[data-os="android"] .branding-group > div { /* Target the div containing Holi text and subtitle */
             display: none;
         }
 
@@ -547,11 +542,13 @@
     <div class="app-container">
         <!-- New Branding Section - Now centered and uses flex for horizontal arrangement -->
         <div class="flex items-center justify-between p-2 w-full">
-            <div class="flex items-center branding-group"> <!-- Inner flex container to group and align elements -->
-                <span class="font-bold text-sm mr-2">Holi</span> <!-- "Holi" text on the left -->
+            <div class="flex items-center branding-group"> <!-- Outer flex container for logo and text block -->
                 <!-- The image is now a clickable button for theme toggle -->
-                <img id="themeToggleButton" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 rounded-full transition-transform duration-75 ease-out cursor-pointer">
-                <span id="subtitleText" class="text-sm ml-2"></span> <!-- Subtitle on the right -->
+                <img id="themeToggleButton" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 rounded-full transition-transform duration-75 ease-out cursor-pointer mr-2"> <!-- Added mr-2 for spacing -->
+                <div class="flex flex-col items-start"> <!-- New flex container for title and subtitle, aligned to start -->
+                    <span class="font-bold text-sm">Holi</span> <!-- "Holi" text -->
+                    <span id="subtitleText" class="text-sm"></span> <!-- Subtitle -->
+                </div>
             </div>
             <!-- Sleep Timer Buttons -->
             <div class="sleep-timer-buttons flex gap-2">
