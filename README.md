@@ -4,7 +4,7 @@
 
 # [Holi, a colorful web radio player with a visualizer](https://visnudeva.github.io/holi/)
 
-**index.html updated to V2 with a listener chat, a sleep time, a dark/light theme logo toggle, play/pause with the keyboard spacebar, links to the radio stations websites...**
+**index.html updated to V2 with a sleep timer, a dark/light theme logo toggle, play/pause with the keyboard spacebar, links to the radio stations websites...**
 
 **V1 PC view**
 <p align="center">
