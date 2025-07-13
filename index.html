@@ -175,7 +175,7 @@
             border-radius: 12px;
             color: var(--light-gray-text);
             outline: none;
-            transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease, transform 0.2s ease-out; /* Added transform transition */
+            transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Removed transform transition */
         }
 
         body.light-theme input[type="text"], body.light-theme select {
@@ -184,10 +184,10 @@
             color: var(--light-theme-light-gray-text);
         }
 
-        /* Hover effect for input/select */
-        input[type="text"]:hover, select:hover {
+        /* Removed hover effect for input/select */
+        /* input[type="text"]:hover, select:hover {
             transform: scale(1.01);
-        }
+        } */
 
         /* Placeholder styling for search input */
         input[type="text"]::placeholder {
@@ -211,7 +211,7 @@
             list-style: none;
             margin: 0;
             position: relative; /* Needed for absolute positioning of spinner/message */
-            transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease, transform 0.2s ease-out; /* Added transform transition for container */
+            transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Removed transform transition for container */
         }
 
         body.light-theme .results-container, body.light-theme .favorites-list {
@@ -220,10 +220,10 @@
             color: var(--light-theme-light-gray-text);
         }
 
-        /* Hover effect for results container */
-        .results-container:hover, .favorites-list:hover {
-            transform: scale(1.005); /* Slight zoom on hover for the list containers */
-        }
+        /* Removed hover effect for results container */
+        /* .results-container:hover, .favorites-list:hover {
+            transform: scale(1.005);
+        } */
 
 
         /* Style for placeholder-like text within lists */
@@ -240,7 +240,7 @@
             padding: 8px 10px;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s ease-in-out, transform 0.2s ease-out; /* Added transform transition */
+            transition: background-color 0.2s ease-in-out; /* Removed transform transition */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -252,7 +252,7 @@
 
         .results-container li:hover {
             background-color: var(--selection-bg);
-            transform: scale(1.01); /* Slight zoom on hover for search results */
+            /* Removed transform here as per request */
         }
 
         body.light-theme .results-container li:hover {
@@ -317,7 +317,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.1s ease-out, border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Added transform transition */
+            transition: transform 0.1s ease-out, border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Removed transform transition */
             min-height: 48px; /* Added min-height to prevent shrinking */
         }
 
@@ -330,10 +330,10 @@
         .now-playing-label:active {
             transform: scale(0.98);
         }
-        /* Hover effect for now playing label */
-        .now-playing-label:hover {
+        /* Removed hover effect for now playing label */
+        /* .now-playing-label:hover {
             transform: scale(1.01);
-        }
+        } */
 
 
         /* Inner span for the now playing text */
@@ -379,7 +379,7 @@
             border-radius: 15px;
             overflow: hidden;
             position: relative;
-            transition: transform 0.1s ease-out, background-color 0.3s ease, border-color 0.3s ease;
+            transition: transform 0.1s ease-out, background-color 0.3s ease, border-color 0.3s ease; /* Removed transform transition */
             transform-origin: center center;
             cursor: pointer; /* Added cursor pointer to indicate clickability */
         }
@@ -389,10 +389,10 @@
             border-color: var(--light-theme-border-color);
         }
 
-        /* Hover effect for visualizer container */
-        .visualizer-container:hover {
-            transform: scale(1.005); /* Slight zoom on hover */
-        }
+        /* Removed hover effect for visualizer container */
+        /* .visualizer-container:hover {
+            transform: scale(1.005);
+        } */
 
         .visualizer-canvas {
             display: block;
@@ -1743,14 +1743,11 @@
         globalCycleHue = 270;
         activeDisplayHue = globalCycleHue;
 
-        addHoverBorderEffect(searchInput);
-        addHoverBorderEffect(resultsContainer);
-        addHoverBorderEffect(favoritesList); // Added hover effect to the favorites list container
-        addHoverBorderEffect(nowPlayingLabel);
+        // Only add hover border effect to elements that should have it
         addHoverBorderEffect(appContainer);
-        addHoverBorderEffect(sleepTimerToggleButton); // Add hover effect to the new sleep timer button
-        addHoverBorderEffect(themeToggleButton); // Add hover effect to the new theme toggle button
-        addHoverBorderEffect(holiLogoButton); // Add hover effect to the logo button for fullscreen
+        addHoverBorderEffect(sleepTimerToggleButton);
+        addHoverBorderEffect(themeToggleButton);
+        addHoverBorderEffect(holiLogoButton);
 
 
         updateGlobalHue();
