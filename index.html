@@ -83,7 +83,7 @@
             min-height: 500px;
             opacity: 0.95;
             /* Changed box-shadow transition to reflect hue changes */
-            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.1s ease-out;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.1s ease-out, transform 0.2s ease-out; /* Added transform transition */
             border: 2px solid var(--border-color); /* Added initial border for app-container */
         }
 
@@ -91,6 +91,11 @@
             background-color: var(--light-theme-main-app-bg);
             border-color: var(--light-theme-border-color);
             box-shadow: 0 0 30px 10px hsla(var(--base-hue), 50%, 60%, 0.4);
+        }
+
+        /* Hover effect for app container */
+        .app-container:hover {
+            transform: scale(1.005); /* Slight zoom on hover for the main container */
         }
 
         /* Custom scrollbar for app-container */
@@ -156,7 +161,7 @@
 
         /* Favorites panel styling (for favorites list) */
         .favorites-panel {
-            flex: 1; /* Takes equal space in the top section */
+            flex: 1; /* Takes equal equal space in the top section */
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -170,13 +175,18 @@
             border-radius: 12px;
             color: var(--light-gray-text);
             outline: none;
-            transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Add transition for smooth color change */
+            transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease, transform 0.2s ease-out; /* Added transform transition */
         }
 
         body.light-theme input[type="text"], body.light-theme select {
             background-color: var(--light-theme-panel-bg);
             border-color: var(--light-theme-border-color);
             color: var(--light-theme-light-gray-text);
+        }
+
+        /* Hover effect for input/select */
+        input[type="text"]:hover, select:hover {
+            transform: scale(1.01);
         }
 
         /* Placeholder styling for search input */
@@ -201,7 +211,7 @@
             list-style: none;
             margin: 0;
             position: relative; /* Needed for absolute positioning of spinner/message */
-            transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Add transition for smooth color change */
+            transition: border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease, transform 0.2s ease-out; /* Added transform transition for container */
         }
 
         body.light-theme .results-container, body.light-theme .favorites-list {
@@ -209,6 +219,12 @@
             border-color: var(--light-theme-border-color);
             color: var(--light-theme-light-gray-text);
         }
+
+        /* Hover effect for results container */
+        .results-container:hover, .favorites-list:hover {
+            transform: scale(1.005); /* Slight zoom on hover for the list containers */
+        }
+
 
         /* Style for placeholder-like text within lists */
         .list-placeholder-text {
@@ -219,11 +235,12 @@
             color: var(--light-theme-placeholder-text-color);
         }
 
-        .results-container li, .favorites-list li {
+        /* Specific hover for search results list items */
+        .results-container li {
             padding: 8px 10px;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-out; /* Added transform transition */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -233,13 +250,39 @@
             -ms-user-select: none;
         }
 
-        .results-container li:hover, .favorites-list li:hover {
+        .results-container li:hover {
             background-color: var(--selection-bg);
+            transform: scale(1.01); /* Slight zoom on hover for search results */
         }
 
-        body.light-theme .results-container li:hover, body.light-theme .favorites-list li:hover {
+        body.light-theme .results-container li:hover {
             background-color: var(--light-theme-selection-bg);
         }
+
+        /* No transform on hover for favorites list items */
+        .favorites-list li {
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out; /* Only background transition */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .favorites-list li:hover {
+            background-color: var(--selection-bg);
+            /* No transform here as per request */
+        }
+
+        body.light-theme .favorites-list li:hover {
+            background-color: var(--light-theme-selection-bg);
+        }
+
 
         .results-container li.selected, .favorites-list li.selected {
             background-color: var(--selection-bg);
@@ -274,7 +317,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.1s ease-out, border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Add transition for smooth color change */
+            transition: transform 0.1s ease-out, border-color 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Added transform transition */
             min-height: 48px; /* Added min-height to prevent shrinking */
         }
 
@@ -286,6 +329,10 @@
 
         .now-playing-label:active {
             transform: scale(0.98);
+        }
+        /* Hover effect for now playing label */
+        .now-playing-label:hover {
+            transform: scale(1.01);
         }
 
 
@@ -340,6 +387,11 @@
         body.light-theme .visualizer-container {
             background-color: var(--light-theme-panel-bg);
             border-color: var(--light-theme-border-color);
+        }
+
+        /* Hover effect for visualizer container */
+        .visualizer-container:hover {
+            transform: scale(1.005); /* Slight zoom on hover */
         }
 
         .visualizer-canvas {
@@ -470,7 +522,7 @@
             border-radius: 8px;
             color: var(--light-gray-text);
             cursor: pointer;
-            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.2s ease-out; /* Added transform transition */
         }
 
         body.light-theme .sleep-timer-buttons button {
@@ -481,6 +533,7 @@
 
         .sleep-timer-buttons button:hover {
             background-color: var(--selection-bg);
+            transform: scale(1.05); /* Zoom effect on hover for buttons */
         }
 
         body.light-theme .sleep-timer-buttons button:hover {
@@ -509,6 +562,14 @@
         body.light-theme #sleepTimerCountdown {
             color: var(--light-theme-accent-color);
         }
+
+        /* Hover effect for Holi Logo Button (fullscreen toggle) */
+        #holiLogoButton {
+            transition: transform 0.2s ease-out; /* Ensure transition for transform */
+        }
+        #holiLogoButton:hover {
+            transform: scale(1.1); /* Zoom effect on hover for logo */
+        }
     </style>
     <!-- Web App Manifest -->
     <link rel="manifest" href="/manifest.json">
@@ -518,20 +579,24 @@
         <!-- New Branding Section - Now centered and uses flex for horizontal arrangement -->
         <div class="flex items-center justify-between p-2 w-full">
             <div class="flex items-center branding-group"> <!-- Outer flex container for logo and text block -->
-                <!-- The image is now a clickable button for theme toggle -->
-                <img id="themeToggleButton" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 rounded-full transition-transform duration-75 ease-out cursor-pointer mr-2"> <!-- Added mr-2 for spacing -->
+                <!-- The image is now a clickable button for fullscreen toggle -->
+                <img id="holiLogoButton" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 rounded-full transition-transform duration-75 ease-out cursor-pointer mr-2"> <!-- Added mr-2 for spacing -->
                 <div class="flex flex-col items-start"> <!-- New flex container for title and subtitle, aligned to start -->
                     <span class="font-bold text-sm">Holi</span> <!-- "Holi" text -->
                     <span id="subtitleText" class="text-sm"></span> <!-- Subtitle -->
                 </div>
             </div>
-            <!-- Sleep Timer Buttons -->
+            <!-- Sleep Timer and Theme Toggle Buttons -->
             <div class="sleep-timer-buttons flex gap-2">
                 <span id="sleepTimerCountdown" class="text-xs"></span> <!-- Countdown display -->
-                <button id="timer15" data-minutes="15">15</button>
-                <button id="timer30" data-minutes="30">30</button>
-                <button id="timer60" data-minutes="60">60</button>
-                <button id="timer120" data-minutes="120">120</button> <!-- New 120-minute button -->
+                <!-- Single sleep timer toggle button -->
+                <button id="sleepTimerToggleButton" class="flex items-center justify-center">
+                    <i class="fas fa-hourglass-half"></i> <!-- Timer icon -->
+                </button>
+                <!-- New Theme Toggle Button -->
+                <button id="themeToggleButton" class="flex items-center justify-center">
+                    <i id="themeIcon" class="fas fa-sun"></i> <!-- Initial icon (sun for dark theme) -->
+                </button>
             </div>
         </div>
 
@@ -587,14 +652,24 @@
         const appContainer = document.querySelector('.app-container');
         const ctx = visualizerCanvas.getContext('2d');
         const subtitleText = document.getElementById('subtitleText');
-        const themeToggleButton = document.getElementById('themeToggleButton');
-        let statusMessageDiv = document.getElementById('status-message');
 
-        const timerButtons = document.querySelectorAll('.sleep-timer-buttons button');
-        const sleepTimerCountdownDisplay = document.getElementById('sleepTimerCountdown'); // New: Countdown display element
+        // Updated DOM element variables for new button roles
+        const holiLogoButton = document.getElementById('holiLogoButton'); // Now for fullscreen
+        const themeToggleButton = document.getElementById('themeToggleButton'); // New button for theme toggle
+        const themeIcon = document.getElementById('themeIcon'); // Icon inside the theme toggle button
+
+
+        const sleepTimerToggleButton = document.getElementById('sleepTimerToggleButton'); // Single sleep timer button
+        const sleepTimerCountdownDisplay = document.getElementById('sleepTimerCountdown');
         let sleepTimer = null;
-        let sleepTimerInterval = null; // New: Interval ID for countdown updates
-        let sleepTimerEndTime = 0; // New: Stores the timestamp when the timer should end
+        let sleepTimerInterval = null;
+        let sleepTimerEndTime = 0;
+        let currentSleepTimerDuration = 0; // To track the current duration (0, 15, 30, 60, 120, 240)
+        const sleepTimerDurations = [15, 30, 60, 120, 240, 0]; // Possible durations in minutes
+
+        // Initialize statusMessageDiv directly
+        const statusMessageDiv = document.getElementById('status-message');
+
 
         // --- Radio Browser API Configuration ---
         let stations = [];
@@ -660,12 +735,24 @@
             }
         }
 
-        // --- Theme Toggle Function ---
+        // --- Theme Toggle Functions ---
+        function applyTheme() {
+            document.body.classList.toggle('light-theme', !isDarkTheme);
+            updateThemeColors(); // This already sets CSS variables
+            // Update the theme icon based on the current theme
+            if (isDarkTheme) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        }
+
         function toggleTheme() {
             isDarkTheme = !isDarkTheme;
-            document.body.classList.toggle('light-theme', !isDarkTheme);
             saveToLocalStorage('isDarkTheme', isDarkTheme);
-            updateThemeColors(); // Update dynamic colors immediately
+            applyTheme(); // Apply the new theme
         }
 
         function loadThemePreference() {
@@ -673,8 +760,7 @@
             if (storedTheme !== null) {
                 isDarkTheme = storedTheme;
             }
-            document.body.classList.toggle('light-theme', !isDarkTheme);
-            updateThemeColors();
+            applyTheme(); // Apply the loaded or default theme
         }
 
         function updateThemeColors() {
@@ -837,7 +923,7 @@
                 currentAudio.src = '';
                 currentAudio.removeAttribute('src');
                 currentAudio.removeEventListener('playing', onAudioPlaying);
-                currentAudio.removeEventListener('pause', onAudioPause);
+                currentAudio.removeEventListener('pause', onAudioPlaying);
                 currentAudio.removeEventListener('ended', onAudioEnded);
                 currentAudio.removeEventListener('error', onAudioError);
                 currentAudio = null;
@@ -920,13 +1006,13 @@
             ctx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
             updateNowPlayingText("Nothing playing");
             visualizerContainer.style.transform = 'scale(1)';
-            themeToggleButton.style.transform = 'scale(1)'; // Changed from holiLogo
+            holiLogoButton.style.transform = 'scale(1)'; // Updated to holiLogoButton
             console.log("Visualizer stopped.");
 
             // When visualizer stops, apply the current global hue to the elements
             // globalCycleHue is used here, which will be static if hue cycling is paused
-            // The box-shadow color is now updated within updateGlobalHue or drawVisualizer
-            // appContainer.style.boxShadow = `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)`;
+            const shadowColor = isDarkTheme ? `0 0 30px 10px hsla(${globalCycleHue}, 70%, 50%, 0.6)` : `0 0 30px 10px hsla(${globalCycleHue}, 50%, 60%, 0.4)`;
+            appContainer.style.boxShadow = shadowColor;
             appContainer.style.borderColor = `hsl(${globalCycleHue}, 60%, 40%)`;
             // Only update subtitle color if not on Android (where it's hidden)
             if (!document.body.dataset.os || document.body.dataset.os !== 'android') {
@@ -1036,7 +1122,7 @@
             const minLogoScale = 1.0;
             const maxLogoScale = 1.2;
             const logoScale = minLogoScale + (maxLogoScale - minLogoScale) * normalizedEnergy;
-            themeToggleButton.style.transform = `scale(${logoScale})`; // Changed from holiLogo
+            holiLogoButton.style.transform = `scale(${logoScale})`; // Updated to holiLogoButton
 
             // Update colors based on activeDisplayHue and current theme
             const shadowColor = isDarkTheme ? `0 0 30px 10px hsla(${activeDisplayHue}, 70%, 50%, 0.6)` : `0 0 30px 10px hsla(${activeDisplayHue}, 50%, 60%, 0.4)`;
@@ -1253,16 +1339,8 @@
          * Fetches a list of available API servers and selects one randomly.
          */
         async function initializeApiServer() {
-            if (!statusMessageDiv) {
-                const tempDiv = document.createElement('div');
-                tempDiv.id = 'status-message';
-                tempDiv.classList.add('flex', 'items-center', 'justify-center', 'h-full');
-                tempDiv.innerHTML = `<p class="text-[var(--light-text-color)] list-placeholder-text">Finding a server...</p>`;
-                resultsContainer.appendChild(tempDiv);
-                statusMessageDiv = tempDiv;
-            } else {
-                 statusMessageDiv.innerHTML = `<p class="text-[var(--light-text-color)] list-placeholder-text">Choose your frequency</p>`;
-            }
+            // statusMessageDiv is now initialized globally, so no need for conditional creation here.
+            statusMessageDiv.innerHTML = `<p class="text-[var(--light-text-color)] list-placeholder-text">Finding a server...</p>`;
 
             try {
                 const response = await fetch('https://all.api.radio-browser.info/json/servers');
@@ -1519,18 +1597,19 @@
 
             if (remainingTimeSeconds > 0) {
                 sleepTimerCountdownDisplay.textContent = formatTime(remainingTimeSeconds);
+                sleepTimerToggleButton.classList.add('active'); // Keep button active if timer is running
             } else {
                 sleepTimerCountdownDisplay.textContent = '';
                 clearInterval(sleepTimerInterval);
                 sleepTimerInterval = null;
-                timerButtons.forEach(btn => btn.classList.remove('active'));
+                sleepTimerToggleButton.classList.remove('active'); // Deactivate button if timer ends
+                currentSleepTimerDuration = 0; // Reset duration when timer finishes
             }
         }
 
         function setSleepTimer(minutes) {
             clearTimeout(sleepTimer); // Clear any existing timer
             clearInterval(sleepTimerInterval); // Clear any existing countdown interval
-            timerButtons.forEach(btn => btn.classList.remove('active')); // Deactivate all buttons
             sleepTimerCountdownDisplay.textContent = ''; // Clear display initially
 
             if (minutes > 0) {
@@ -1547,21 +1626,24 @@
                     clearInterval(sleepTimerInterval);
                     sleepTimerInterval = null;
                     sleepTimerCountdownDisplay.textContent = ''; // Clear display when timer finishes
-                    timerButtons.forEach(btn => btn.classList.remove('active'));
+                    sleepTimerToggleButton.classList.remove('active'); // Deactivate button
+                    currentSleepTimerDuration = 0; // Reset duration
                 }, durationMs);
 
                 // Start updating the countdown display
                 updateSleepTimerCountdown(); // Call immediately to show initial time
                 sleepTimerInterval = setInterval(updateSleepTimerCountdown, 1000);
 
-                // Activate the clicked button
-                document.querySelector(`[data-minutes="${minutes}"]`).classList.add('active');
+                // Activate the button
+                sleepTimerToggleButton.classList.add('active');
                 console.log(`Sleep timer set for ${minutes} minutes.`);
             } else {
                 // If minutes is 0, it means clear the timer
                 sleepTimerEndTime = 0;
+                sleepTimerToggleButton.classList.remove('active'); // Deactivate button
                 console.log("Sleep timer cleared.");
             }
+            currentSleepTimerDuration = minutes; // Update the stored duration
         }
 
 
@@ -1574,8 +1656,19 @@
 
         nowPlayingLabel.addEventListener('click', handleControlButtonClick);
 
-        // Changed target from 'a' tag to 'img' for theme toggle
+        // Event listener for the new theme toggle button
         themeToggleButton.addEventListener('click', toggleTheme);
+
+        // Event listener for the Holi logo to toggle fullscreen
+        holiLogoButton.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        });
 
         // Updated: Add click listener to visualizer container to toggle hue cycling (pause/resume)
         visualizerContainer.addEventListener('click', () => {
@@ -1616,17 +1709,14 @@
             }
         });
 
-        // Sleep Timer button listeners
-        timerButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const minutes = parseInt(button.dataset.minutes);
-                if (button.classList.contains('active')) {
-                    // If already active, deactivate and clear timer
-                    setSleepTimer(0); // Pass 0 to clear the timer
-                } else {
-                    setSleepTimer(minutes);
-                }
-            });
+        // Sleep Timer button listener (single button logic)
+        sleepTimerToggleButton.addEventListener('click', () => {
+            let nextDurationIndex = sleepTimerDurations.indexOf(currentSleepTimerDuration) + 1;
+            if (nextDurationIndex >= sleepTimerDurations.length) {
+                nextDurationIndex = 0; // Cycle back to 0 (clear timer)
+            }
+            const newDuration = sleepTimerDurations[nextDurationIndex];
+            setSleepTimer(newDuration);
         });
 
 
@@ -1645,7 +1735,7 @@
 
         // --- Initial Setup ---
         initVisualizer();
-        loadThemePreference(); // Load theme preference first
+        loadThemePreference(); // Load theme preference first and apply it
         loadRecentStations();
         setRandomSubtitle(); // Call this after OS detection
         updateNowPlayingText("Nothing playing");
@@ -1655,9 +1745,13 @@
 
         addHoverBorderEffect(searchInput);
         addHoverBorderEffect(resultsContainer);
-        addHoverBorderEffect(favoritesList);
+        addHoverBorderEffect(favoritesList); // Added hover effect to the favorites list container
         addHoverBorderEffect(nowPlayingLabel);
         addHoverBorderEffect(appContainer);
+        addHoverBorderEffect(sleepTimerToggleButton); // Add hover effect to the new sleep timer button
+        addHoverBorderEffect(themeToggleButton); // Add hover effect to the new theme toggle button
+        addHoverBorderEffect(holiLogoButton); // Add hover effect to the logo button for fullscreen
+
 
         updateGlobalHue();
         initializeApiServer();
