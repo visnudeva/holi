@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- QRious library for QR code generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <style>
         /* Custom CSS to apply the dark purple theme and overrides for Tailwind */
         :root {
@@ -83,7 +85,7 @@
             min-height: 500px;
             opacity: 0.95;
             /* Changed box-shadow transition to reflect hue changes */
-            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.1s ease-out, transform 0.2s ease-out; /* Added transform transition */
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.1s ease-out, transform 0.2s ease-out, filter 0.3s ease; /* Added filter transition */
             border: 2px solid var(--border-color); /* Added initial border for app-container */
         }
 
@@ -91,6 +93,12 @@
             background-color: var(--light-theme-main-app-bg);
             border-color: var(--light-theme-border-color);
             box-shadow: 0 0 30px 10px hsla(var(--base-hue), 50%, 60%, 0.4);
+        }
+
+        /* New class for blurring the app container */
+        .app-container.blurred {
+            filter: blur(5px);
+            pointer-events: none; /* Disable interactions with blurred content */
         }
 
         /* Hover effect for app container */
@@ -564,11 +572,72 @@
         }
 
         /* Hover effect for Holi Logo Button (fullscreen toggle) */
-        #holiLogoButton {
+        #holiLogo { /* Changed from holiLogoButton */
             transition: transform 0.2s ease-out; /* Ensure transition for transform */
         }
-        #holiLogoButton:hover {
+        #holiLogo:hover { /* Changed from holiLogoButton */
             transform: scale(1.1); /* Zoom effect on hover for logo */
+        }
+
+        /* Styles for the QR Code Modal */
+        .qr-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .qr-modal-content {
+            background-color: var(--main-app-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            border: 2px solid var(--border-color);
+        }
+
+        body.light-theme .qr-modal-content {
+            background-color: var(--light-theme-main-app-bg);
+            border-color: var(--light-theme-border-color);
+        }
+
+        .qr-modal-close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--light-gray-text);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        body.light-theme .qr-modal-close-button {
+            color: var(--light-theme-light-gray-text);
+        }
+
+        .qr-modal-close-button:hover {
+            color: var(--accent-color);
+        }
+
+        body.light-theme .qr-modal-close-button:hover {
+            color: var(--light-theme-accent-color);
+        }
+
+        .qr-modal-content img {
+            border: 5px solid white; /* White border for the QR code */
+            border-radius: 8px;
         }
     </style>
     <!-- Web App Manifest -->
@@ -580,22 +649,26 @@
         <div class="flex items-center justify-between p-2 w-full">
             <div class="flex items-center branding-group"> <!-- Outer flex container for logo and text block -->
                 <!-- The image is now a clickable button for fullscreen toggle -->
-                <img id="holiLogoButton" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 rounded-full transition-transform duration-75 ease-out cursor-pointer mr-2"> <!-- Added mr-2 for spacing -->
+                <img id="holiLogo" src="https://raw.githubusercontent.com/visnudeva/holi/f651f79841be097fda527c5061fd40d7fd8e3ab6/holi.png" alt="Holi Logo" class="h-12 w-12 rounded-full transition-transform duration-75 ease-out cursor-pointer mr-2"> <!-- Added mr-2 for spacing -->
                 <div class="flex flex-col items-start"> <!-- New flex container for title and subtitle, aligned to start -->
                     <span class="font-bold text-sm">Holi</span> <!-- "Holi" text -->
                     <span id="subtitleText" class="text-sm"></span> <!-- Subtitle -->
                 </div>
             </div>
-            <!-- Sleep Timer and Theme Toggle Buttons -->
-            <div class="sleep-timer-buttons flex gap-2">
+            <!-- Sleep Timer, Theme Toggle, and NEW Fullscreen Toggle Buttons -->
+            <div class="flex items-center gap-2">
                 <span id="sleepTimerCountdown" class="text-xs"></span> <!-- Countdown display -->
                 <!-- Single sleep timer toggle button -->
-                <button id="sleepTimerToggleButton" class="flex items-center justify-center">
+                <button id="sleepTimerToggleButton" class="flex items-center justify-center p-2 rounded-full">
                     <i class="fas fa-hourglass-half"></i> <!-- Timer icon -->
                 </button>
                 <!-- New Theme Toggle Button -->
-                <button id="themeToggleButton" class="flex items-center justify-center">
+                <button id="themeToggleButton" class="flex items-center justify-center p-2 rounded-full">
                     <i id="themeIcon" class="fas fa-sun"></i> <!-- Initial icon (sun for dark theme) -->
+                </button>
+                <!-- New Fullscreen Toggle Button -->
+                <button id="fullscreenToggleButton" class="flex items-center justify-center p-2 rounded-full">
+                    <i id="fullscreenIcon" class="fas fa-expand"></i>
                 </button>
             </div>
         </div>
@@ -632,6 +705,16 @@
 
     </div>
 
+    <!-- QR Code Modal -->
+    <div id="qrCodeModal" class="qr-modal-overlay hidden">
+        <div class="qr-modal-content">
+            <button id="qrCodeCloseButton" class="qr-modal-close-button">&times;</button>
+            <h3 class="text-lg font-bold text-[var(--light-text-color)]">Scan to visit Holi Radio</h3>
+            <img id="qrCodeImage" alt="QR Code for Holi Radio" class="w-64 h-64">
+            <p class="text-sm text-[var(--light-text-color)]">https://visnudeva.github.io/holi/</p>
+        </div>
+    </div>
+
     <script type="module">
         // --- OS Detection and Body Class Application ---
         (function() {
@@ -654,9 +737,16 @@
         const subtitleText = document.getElementById('subtitleText');
 
         // Updated DOM element variables for new button roles
-        const holiLogoButton = document.getElementById('holiLogoButton'); // Now for fullscreen
+        const holiLogo = document.getElementById('holiLogo'); // Changed from holiLogoButton
         const themeToggleButton = document.getElementById('themeToggleButton'); // New button for theme toggle
         const themeIcon = document.getElementById('themeIcon'); // Icon inside the theme toggle button
+        const fullscreenToggleButton = document.getElementById('fullscreenToggleButton'); // NEW
+        const fullscreenIcon = document.getElementById('fullscreenIcon'); // NEW
+
+        // New DOM elements for QR Code Modal
+        const qrCodeModal = document.getElementById('qrCodeModal');
+        const qrCodeImage = document.getElementById('qrCodeImage');
+        const qrCodeCloseButton = document.getElementById('qrCodeCloseButton');
 
 
         const sleepTimerToggleButton = document.getElementById('sleepTimerToggleButton'); // Single sleep timer button
@@ -678,6 +768,12 @@
         let currentAudio = null;
         let currentPlayingStation = null;
         let apiServer = null;
+
+        // Global map to store play attempts for each station
+        let stationPlayAttempts = {};
+        const MAX_PLAY_ATTEMPTS = 2; // Max attempts per stream URL before trying new server
+        const RETRY_DELAY_MS = 2000; // 2 seconds delay before retrying
+
 
         // --- Web Audio API for Visualizer ---
         let audioContext = null;
@@ -889,11 +985,18 @@
             console.error("Audio element error:", e);
             if (e.target && e.target.error && e.target.error.code === MediaError.MEDIA_ERR_ABORTED) {
                 console.log("Audio playback aborted by user (switching stations).");
+                // Do not stop visualizer fully here, just pause if it's playing
+                if (currentAudio) {
+                    currentAudio.pause();
+                }
+                updateNowPlayingText("Playback aborted.");
             } else {
                 console.error("Non-aborted audio error:", e);
+                // For other errors, we should stop the visualizer but not necessarily close the context immediately.
+                // The calling function (playStation) will decide if a retry is in order.
+                stopVisualizer(false); // Do not close context here, let playStation handle retries
+                updateNowPlayingText("Error playing station.");
             }
-            stopVisualizer(true);
-            updateNowPlayingText("Error playing station");
             releaseWakeLock();
         };
 
@@ -971,6 +1074,7 @@
                 stopVisualizer(true);
                 updateNowPlayingText("Error playing station");
                 releaseWakeLock();
+                throw e; // Re-throw to be caught by the retry logic
             }
         }
 
@@ -1006,7 +1110,7 @@
             ctx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
             updateNowPlayingText("Nothing playing");
             visualizerContainer.style.transform = 'scale(1)';
-            holiLogoButton.style.transform = 'scale(1)'; // Updated to holiLogoButton
+            holiLogo.style.transform = 'scale(1)'; // Updated to holiLogo
             console.log("Visualizer stopped.");
 
             // When visualizer stops, apply the current global hue to the elements
@@ -1122,7 +1226,7 @@
             const minLogoScale = 1.0;
             const maxLogoScale = 1.2;
             const logoScale = minLogoScale + (maxLogoScale - minLogoScale) * normalizedEnergy;
-            holiLogoButton.style.transform = `scale(${logoScale})`; // Updated to holiLogoButton
+            holiLogo.style.transform = `scale(${logoScale})`; // Updated to holiLogo
 
             // Update colors based on activeDisplayHue and current theme
             const shadowColor = isDarkTheme ? `0 0 30px 10px hsla(${activeDisplayHue}, 70%, 50%, 0.6)` : `0 0 30px 10px hsla(${activeDisplayHue}, 50%, 60%, 0.4)`;
@@ -1450,7 +1554,7 @@
         }
 
 
-        async function playStation(index) {
+        async function playStation(index, isRetry = false) {
             if (index >= 0 && index < stations.length) {
                 const station = stations[index];
                 currentPlayingStation = station;
@@ -1459,10 +1563,17 @@
 
                 if (!streamUrl) {
                     console.warn('No valid stream URL found for this station.');
+                    updateNowPlayingText(`Error: No stream URL for ${stationName}`);
                     return;
                 }
 
-                console.log(`Attempting to play: ${stationName} from ${streamUrl}`);
+                // Initialize or increment play attempts for this station
+                if (!isRetry) {
+                    stationPlayAttempts[station.stationuuid] = 0;
+                }
+                stationPlayAttempts[station.stationuuid]++;
+
+                console.log(`Attempting to play: ${stationName} from ${streamUrl} (Attempt: ${stationPlayAttempts[station.stationuuid]})`);
                 updateNowPlayingText(`Loading: ${stationName}...`);
 
                 Array.from(resultsContainer.children).forEach((li) => {
@@ -1475,11 +1586,33 @@
 
                 Array.from(favoritesList.children).forEach(li => li.classList.remove('selected'));
 
-                await startVisualizer(streamUrl);
+                try {
+                    await startVisualizer(streamUrl);
+                    // If successful, reset attempts for this station
+                    stationPlayAttempts[station.stationuuid] = 0;
+                } catch (e) {
+                    console.error("Playback initiation error:", e);
+                    if (stationPlayAttempts[station.stationuuid] <= MAX_PLAY_ATTEMPTS) { // Use <= to allow the last attempt
+                        console.log(`Retrying playback for ${stationName} in ${RETRY_DELAY_MS / 1000} seconds...`);
+                        updateNowPlayingText(`Retrying: ${stationName}... (Attempt ${stationPlayAttempts[station.stationuuid]} of ${MAX_PLAY_ATTEMPTS})`);
+                        setTimeout(() => playStation(index, true), RETRY_DELAY_MS);
+                    } else if (stationPlayAttempts[station.stationuuid] === MAX_PLAY_ATTEMPTS + 1) { // One extra attempt after server re-init
+                        console.log(`Max retries reached for current server. Re-initializing API server and trying one last time.`);
+                        updateNowPlayingText(`Server issue. Reconnecting...`);
+                        await initializeApiServer(); // Re-initialize API server
+                        setTimeout(() => playStation(index, true), RETRY_DELAY_MS);
+                    }
+                    else {
+                        console.error(`Failed to play ${stationName} after multiple attempts and server re-initialization.`);
+                        stopVisualizer(true);
+                        updateNowPlayingText(`Failed to play: ${stationName}. Please try another station.`);
+                        stationPlayAttempts[station.stationuuid] = 0; // Reset for future attempts
+                    }
+                }
             }
         }
 
-        async function playStationByUUID(uuid) {
+        async function playStationByUUID(uuid, isRetry = false) {
             let stationToPlay = stations.find(s => s.stationuuid === uuid);
             if (!stationToPlay) {
                 stationToPlay = recentStations.find(s => s.stationuuid === uuid);
@@ -1492,10 +1625,17 @@
 
                 if (!streamUrl) {
                     console.warn('No valid stream URL found for this favorite station.');
+                    updateNowPlayingText(`Error: No stream URL for ${stationName}`);
                     return;
                 }
 
-                console.log(`Attempting to play favorite: ${stationName} from ${streamUrl}`);
+                // Initialize or increment play attempts for this station
+                if (!isRetry) {
+                    stationPlayAttempts[stationToPlay.stationuuid] = 0;
+                }
+                stationPlayAttempts[stationToPlay.stationuuid]++;
+
+                console.log(`Attempting to play favorite: ${stationName} from ${streamUrl} (Attempt: ${stationPlayAttempts[stationToPlay.stationuuid]})`);
                 updateNowPlayingText(`Loading: ${stationName}...`);
 
                 Array.from(resultsContainer.children).forEach((li) => {
@@ -1510,9 +1650,31 @@
                     }
                 });
 
-                await startVisualizer(streamUrl);
+                try {
+                    await startVisualizer(streamUrl);
+                    // If successful, reset attempts for this station
+                    stationPlayAttempts[stationToPlay.stationuuid] = 0;
+                } catch (e) {
+                    console.error("Playback initiation error:", e);
+                    if (stationPlayAttempts[stationToPlay.stationuuid] <= MAX_PLAY_ATTEMPTS) { // Use <= to allow the last attempt
+                        console.log(`Retrying playback for ${stationName} in ${RETRY_DELAY_MS / 1000} seconds...`);
+                        updateNowPlayingText(`Retrying: ${stationName}... (Attempt ${stationPlayAttempts[stationToPlay.stationuuid]} of ${MAX_PLAY_ATTEMPTS})`);
+                        setTimeout(() => playStationByUUID(uuid, true), RETRY_DELAY_MS);
+                    } else if (stationPlayAttempts[stationToPlay.stationuuid] === MAX_PLAY_ATTEMPTS + 1) { // One extra attempt after server re-init
+                        console.log(`Max retries reached for current server. Re-initializing API server and trying one last time.`);
+                        updateNowPlayingText(`Server issue. Reconnecting...`);
+                        await initializeApiServer(); // Re-initialize API server
+                        setTimeout(() => playStationByUUID(uuid, true), RETRY_DELAY_MS);
+                    } else {
+                        console.error(`Failed to play ${stationName} after multiple attempts and server re-initialization.`);
+                        stopVisualizer(true);
+                        updateNowPlayingText(`Failed to play: ${stationName}. Please try another station.`);
+                        stationPlayAttempts[stationToPlay.stationuuid] = 0; // Reset for future attempts
+                    }
+                }
             } else {
                 console.error('Could not find this station in your favorites or search results.');
+                updateNowPlayingText('Station not found.');
             }
         }
 
@@ -1659,16 +1821,36 @@
         // Event listener for the new theme toggle button
         themeToggleButton.addEventListener('click', toggleTheme);
 
-        // Event listener for the Holi logo to toggle fullscreen
-        holiLogoButton.addEventListener('click', () => {
+        // Event listener for the new fullscreen toggle button
+        fullscreenToggleButton.addEventListener('click', () => {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
+                document.documentElement.requestFullscreen().then(() => {
+                    fullscreenIcon.classList.remove('fa-expand');
+                    fullscreenIcon.classList.add('fa-compress');
+                }).catch(err => {
                     console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
                 });
             } else {
-                document.exitFullscreen();
+                document.exitFullscreen().then(() => {
+                    fullscreenIcon.classList.remove('fa-compress');
+                    fullscreenIcon.classList.add('fa-expand');
+                }).catch(err => {
+                    console.error(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`);
+                });
             }
         });
+
+        // Listen for fullscreen change event to keep icon in sync if user exits fullscreen via ESC key
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+                fullscreenIcon.classList.remove('fa-expand');
+                fullscreenIcon.classList.add('fa-compress');
+            } else {
+                fullscreenIcon.classList.remove('fa-compress');
+                fullscreenIcon.classList.add('fa-expand');
+            }
+        });
+
 
         // Updated: Add click listener to visualizer container to toggle hue cycling (pause/resume)
         visualizerContainer.addEventListener('click', () => {
@@ -1692,6 +1874,36 @@
                 console.log(`Hue cycling paused at: ${globalCycleHue}`);
             }
         });
+
+        // New: Event listener for the Holi logo to show QR code
+        holiLogo.addEventListener('click', () => {
+            // Generate QR code
+            new QRious({
+                element: qrCodeImage,
+                value: 'https://visnudeva.github.io/holi/',
+                size: 256,
+                background: 'white', // QR code background
+                foreground: 'black'  // QR code foreground
+            });
+            // Show the modal
+            qrCodeModal.classList.remove('hidden');
+            appContainer.classList.add('blurred'); // Add blur to app container
+        });
+
+        // Event listeners to close the QR code modal
+        qrCodeCloseButton.addEventListener('click', () => {
+            qrCodeModal.classList.add('hidden');
+            appContainer.classList.remove('blurred'); // Remove blur from app container
+        });
+
+        // Close modal if clicking outside the content (on the overlay)
+        qrCodeModal.addEventListener('click', (event) => {
+            if (event.target === qrCodeModal) {
+                qrCodeModal.classList.add('hidden');
+                appContainer.classList.remove('blurred'); // Remove blur from app container
+            }
+        });
+
 
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) {
@@ -1747,8 +1959,8 @@
         addHoverBorderEffect(appContainer);
         addHoverBorderEffect(sleepTimerToggleButton);
         addHoverBorderEffect(themeToggleButton);
-        addHoverBorderEffect(holiLogoButton);
-
+        addHoverBorderEffect(holiLogo); // Changed from holiLogoButton
+        addHoverBorderEffect(fullscreenToggleButton); // NEW
 
         updateGlobalHue();
         initializeApiServer();
