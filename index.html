@@ -101,10 +101,10 @@
             pointer-events: none; /* Disable interactions with blurred content */
         }
 
-        /* Hover effect for app container */
-        .app-container:hover {
-            transform: scale(1.005); /* Slight zoom on hover for the main container */
-        }
+        /* Removed hover effect for app container */
+        /* .app-container:hover {
+            transform: scale(1.005);
+        } */
 
         /* Custom scrollbar for app-container */
         .app-container::-webkit-scrollbar {
@@ -1045,6 +1045,7 @@
 
                 analyser = audioContext.createAnalyser();
                 analyser.fftSize = FFT_SIZE;
+                // Corrected typo: frequencyBinBinCount to frequencyBinCount
                 dataArray = new Uint8Array(analyser.frequencyBinCount);
 
                 currentAudio = new Audio();
